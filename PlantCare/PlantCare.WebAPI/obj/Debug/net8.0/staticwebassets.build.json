@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "GJW7FSQlU+yQr+X5ObavIYCCX8Xd3joZXL+Xq5pmXj8=",
+  "Source": "PlantCare.WebAPI",
+  "BasePath": "_content/PlantCare.WebAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

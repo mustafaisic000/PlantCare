@@ -1,0 +1,4 @@
+# normalize text files to LF in repo
+* text=auto
+# force JSON to LF
+*.json eol=lf

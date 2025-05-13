@@ -1,0 +1,12 @@
+C:\Users\Korisnik\Desktop\PlantCare\PlantCare\PlantCare.Model\bin\Debug\net8.0\PlantCare.Model.deps.json
+C:\Users\Korisnik\Desktop\PlantCare\PlantCare\PlantCare.Model\bin\Debug\net8.0\PlantCare.Model.dll
+C:\Users\Korisnik\Desktop\PlantCare\PlantCare\PlantCare.Model\bin\Debug\net8.0\PlantCare.Model.pdb
+C:\Users\Korisnik\Desktop\PlantCare\PlantCare\PlantCare.Model\obj\Debug\net8.0\PlantCare.Model.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Korisnik\Desktop\PlantCare\PlantCare\PlantCare.Model\obj\Debug\net8.0\PlantCare.Model.AssemblyInfoInputs.cache
+C:\Users\Korisnik\Desktop\PlantCare\PlantCare\PlantCare.Model\obj\Debug\net8.0\PlantCare.Model.AssemblyInfo.cs
+C:\Users\Korisnik\Desktop\PlantCare\PlantCare\PlantCare.Model\obj\Debug\net8.0\PlantCare.Model.csproj.CoreCompileInputs.cache
+C:\Users\Korisnik\Desktop\PlantCare\PlantCare\PlantCare.Model\obj\Debug\net8.0\PlantCare.Model.sourcelink.json
+C:\Users\Korisnik\Desktop\PlantCare\PlantCare\PlantCare.Model\obj\Debug\net8.0\PlantCare.Model.dll
+C:\Users\Korisnik\Desktop\PlantCare\PlantCare\PlantCare.Model\obj\Debug\net8.0\refint\PlantCare.Model.dll
+C:\Users\Korisnik\Desktop\PlantCare\PlantCare\PlantCare.Model\obj\Debug\net8.0\PlantCare.Model.pdb
+C:\Users\Korisnik\Desktop\PlantCare\PlantCare\PlantCare.Model\obj\Debug\net8.0\ref\PlantCare.Model.dll
