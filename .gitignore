@@ -1,2 +1,9 @@
 # ignore Visual Studio cache
 .vs/
+
+# Visual Studio build outputs
+**/bin/
+**/obj/
+
+# Rider / VS Code caches
+.vscode/
