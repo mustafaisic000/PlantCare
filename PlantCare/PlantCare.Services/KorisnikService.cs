@@ -3,111 +3,172 @@ using Microsoft.EntityFrameworkCore;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
 using PlantCare.Model.SearchObjects;
+using PlantCare.Services.Database;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PlantCare.Services;
-
-public class KorisnikService : BaseCRUDService<Model.Korisnik, KorisnikSearchObject, Database.Korisnik, KorisnikInsertRequest, KorisnikUpdateRequest>, IKorisnikService
+namespace PlantCare.Services
 {
-
-  //  private readonly IEmailService _emailService; -- kasnije dodati preko rabbitMQ
-    public KorisnikService(Database.PlantCareContext context, Mapper mapper) : base(context, mapper)
+    public class KorisnikService
+        : BaseCRUDService<Model.Korisnik,
+                          KorisnikSearchObject,
+                          Database.Korisnik,
+                          KorisnikInsertRequest,
+                          KorisnikUpdateRequest>,
+          IKorisnikService
     {
+        public KorisnikService(PlantCareContext context, IMapper mapper)
+            : base(context, mapper)
+        {
+        }
 
-    }
+        // ── Filtering ───────────────────────────────────────────────────────
+        protected override IQueryable<Database.Korisnik> AddFilter(
+            KorisnikSearchObject search,
+            IQueryable<Database.Korisnik> query)
+        {
+            query = base.AddFilter(search, query);
 
-    //pretraga, filter
-    protected override IQueryable<Database.Korisnik> AddFilter(KorisnikSearchObject searchObject, IQueryable<Database.Korisnik> query)
-    {
-        query = base.AddFilter(searchObject, query);
+            if (search.IncludeUloga)
+                query = query.Include(x => x.Uloga);
 
-        if (searchObject.IncludeUloga)
-            query = query.Include(x => x.Uloga);
+            if (!string.IsNullOrWhiteSpace(search.Ime))
+                query = query.Where(x => x.Ime.Contains(search.Ime));
 
-        if (!string.IsNullOrWhiteSpace(searchObject?.Ime))
-            query = query.Where(x => x.Ime.Contains(searchObject.Ime));
+            if (!string.IsNullOrWhiteSpace(search.Prezime))
+                query = query.Where(x => x.Prezime.Contains(search.Prezime));
 
-        if (!string.IsNullOrWhiteSpace(searchObject?.Prezime))
-            query = query.Where(x => x.Prezime.Contains(searchObject.Prezime));
+            if (!string.IsNullOrWhiteSpace(search.Email))
+                query = query.Where(x => x.Email == search.Email);
 
-        if (!string.IsNullOrWhiteSpace(searchObject?.Email))
-            query = query.Where(x => x.Email == searchObject.Email);
+            if (!string.IsNullOrWhiteSpace(search.KorisnickoIme))
+                query = query.Where(x => x.KorisnickoIme.Contains(search.KorisnickoIme));
 
-        if (!string.IsNullOrWhiteSpace(searchObject?.KorisnickoIme))
-            query = query.Where(x => x.KorisnickoIme.Contains(searchObject.KorisnickoIme));
+            if (search.UlogaId.HasValue)
+                query = query.Where(x => x.UlogaId == search.UlogaId);
 
-        if (searchObject.UlogaId.HasValue)
-            query = query.Where(x => x.UlogaId == searchObject.UlogaId.Value);
+            if (search.Status.HasValue)
+                query = query.Where(x => x.Status == search.Status.Value);
 
-        if (searchObject.Status.HasValue)
-            query = query.Where(x => x.Status == searchObject.Status.Value);
+            return query;
+        }
 
-        return query;
-    }
+        // ── Hooks ────────────────────────────────────────────────────────────
+        protected override void BeforeInsert(
+            KorisnikInsertRequest request,
+            Database.Korisnik entity)
+        {
+            if (request.Lozinka != request.LozinkaPotvrda)
+                throw new InvalidOperationException("Lozinka i potvrda lozinke se ne poklapaju.");
 
-    protected override void BeforeInsert(KorisnikInsertRequest request, Database.Korisnik entity)
-    {
-        if (request.Lozinka != request.LozinkaPotvrda)
-            throw new InvalidOperationException("Lozinka i potvrda lozinke se ne poklapaju.");
-        entity.LozinkaSalt = GenerishiSalt();
-        entity.LozinkaHash = GenerisiHash(entity.LozinkaSalt, request.Lozinka);
-        entity.Status = true;
-    }
+            entity.LozinkaSalt = GenerateSalt();
+            entity.LozinkaHash = GenerateHash(entity.LozinkaSalt, request.Lozinka);
+            entity.Status = true;
+        }
 
-    private static string GenerishiSalt()
-    {
-        var buff = new byte[16];
-        RandomNumberGenerator.Fill(buff);
-        return Convert.ToBase64String(buff);
-    }
+        public override void BeforeUpdate(
+            KorisnikUpdateRequest request,
+            Database.Korisnik entity)
+        {
+            if (!string.IsNullOrWhiteSpace(request.Lozinka))
+            {
+                if (request.Lozinka != request.LozinkaPotvrda)
+                    throw new InvalidOperationException("Lozinka i potvrda lozinke se ne poklapaju.");
 
-    private static string GenerisiHash(string salt, string pwd)
-    {
-        var src = Convert.FromBase64String(salt);
-        var pb = Encoding.UTF8.GetBytes(pwd);
-        var dst = new byte[src.Length + pb.Length];
-        Buffer.BlockCopy(src, 0, dst, 0, src.Length);
-        Buffer.BlockCopy(pb, 0, dst, src.Length, pb.Length);
-        using var sha = SHA256.Create();
-        return Convert.ToBase64String(sha.ComputeHash(dst));
-    }
+                entity.LozinkaSalt = GenerateSalt();
+                entity.LozinkaHash = GenerateHash(entity.LozinkaSalt, request.Lozinka);
+            }
+        }
 
-    private static string GenerateRandomPassword(int len)
-    {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        return new string(Enumerable
-            .Repeat(chars, len)
-            .Select(_ => chars[RandomNumberGenerator.GetInt32(chars.Length)])
-            .ToArray());
-    }
+        // ── Basic CRUD overrides ────────────────────────────────────────────
+        public override Model.Korisnik Insert(KorisnikInsertRequest request)
+            => base.Insert(request);
 
-    Korisnik ICRUDService<Korisnik, KorisnikSearchObject, KorisnikInsertRequest, KorisnikUpdateRequest>.Insert(KorisnikInsertRequest request)
-    {
-        throw new NotImplementedException();
-    }
+        public override Model.Korisnik Update(int id, KorisnikUpdateRequest request)
+            => base.Update(id, request);
 
-    Korisnik IKorisnikService.Login(string username, string password)
-    {
-        throw new NotImplementedException();
-    }
+        // ── Custom operations ────────────────────────────────────────────────
 
-    Task<bool> IKorisnikService.ResetPasswordByEmail(string korisnickoIme, string email)
-    {
-        throw new NotImplementedException();
-    }
+        public Model.Korisnik Login(string username, string password)
+        {
+            var user = Context.Korisnici
+                .Include(x => x.Uloga)
+                .FirstOrDefault(x => x.KorisnickoIme == username);
 
-    Korisnik ICRUDService<Korisnik, KorisnikSearchObject, KorisnikInsertRequest, KorisnikUpdateRequest>.Update(int id, KorisnikUpdateRequest request)
-    {
-        throw new NotImplementedException();
-    }
+            if (user == null || !user.Status)
+                return null;
 
-    Korisnik IKorisnikService.UpdateMobile(int id, KorisnikMobileUpdateRequest request)
-    {
-        throw new NotImplementedException();
+            var hash = GenerateHash(user.LozinkaSalt, password);
+            if (hash != user.LozinkaHash)
+                return null;
+
+            return Mapper.Map<Model.Korisnik>(user);
+        }
+
+        public Model.Korisnik UpdateMobile(int id, KorisnikMobileUpdateRequest req)
+        {
+            var user = Context.Korisnici.Find(id);
+            if (user == null)
+                throw new KeyNotFoundException("Korisnik nije pronađen.");
+
+            user.Ime = req.Ime;
+            user.Prezime = req.Prezime;
+            user.Email = req.Email;
+            user.Telefon = req.Telefon;
+
+            Context.SaveChanges();
+            return Mapper.Map<Model.Korisnik>(user);
+        }
+
+        public async Task<bool> ResetPasswordByEmail(string korisnickoIme, string email)
+        {
+            var user = await Context.Korisnici
+                .FirstOrDefaultAsync(x => x.KorisnickoIme == korisnickoIme && x.Email == email);
+
+            if (user == null)
+                throw new KeyNotFoundException("Korisnik nije pronađen.");
+
+            var newPwd = GenerateRandomPassword(8);
+            user.LozinkaSalt = GenerateSalt();
+            user.LozinkaHash = GenerateHash(user.LozinkaSalt, newPwd);
+
+            await Context.SaveChangesAsync();
+
+            // TODO: publish newPwd via RabbitMQ / email
+
+            return true;
+        }
+//helper
+        private static string GenerateSalt()
+        {
+            var buff = new byte[16];
+            RandomNumberGenerator.Fill(buff);
+            return Convert.ToBase64String(buff);
+        }
+
+        private static string GenerateHash(string salt, string pwd)
+        {
+            var src = Convert.FromBase64String(salt);
+            var pb = Encoding.UTF8.GetBytes(pwd);
+            var dst = new byte[src.Length + pb.Length];
+
+            Buffer.BlockCopy(src, 0, dst, 0, src.Length);
+            Buffer.BlockCopy(pb, 0, dst, src.Length, pb.Length);
+
+            using var sha = SHA256.Create();
+            return Convert.ToBase64String(sha.ComputeHash(dst));
+        }
+
+        private static string GenerateRandomPassword(int len)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            return new string(Enumerable
+                .Repeat(chars, len)
+                .Select(_ => chars[RandomNumberGenerator.GetInt32(chars.Length)])
+                .ToArray());
+        }
     }
 }

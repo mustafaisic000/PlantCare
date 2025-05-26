@@ -1,5 +1,4 @@
-﻿using PlantCare.Service.Database;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace PlantCare.Services.Database;
 

@@ -27,4 +27,6 @@ public partial class Korisnik
     public virtual ICollection<Obavijest> Obavijesti { get; set; }  = new List<Obavijest>();
     public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
     public virtual ICollection<Uplata> Uplate { get; set; } = new List<Uplata>();
+
+    public virtual ICollection<OmiljeniPost> OmiljeniPostovi { get; set; } = new List<OmiljeniPost>();
 }

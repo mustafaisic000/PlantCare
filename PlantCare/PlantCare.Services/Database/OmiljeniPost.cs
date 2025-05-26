@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PlantCare.Service.Database;
+using PlantCare.Services.Database;
 
 namespace PlantCare.Services.Database;
 

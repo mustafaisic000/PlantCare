@@ -1,7 +1,8 @@
-﻿using PlantCare.Services.Database;
-using System.ComponentModel.DataAnnotations;
+﻿using System;                            
+using System.Collections.Generic;        
+using System.ComponentModel.DataAnnotations; 
 
-namespace PlantCare.Service.Database;
+namespace PlantCare.Services.Database;
 
 public partial class Post
 {
@@ -30,4 +31,6 @@ public partial class Post
     public virtual ICollection<Lajk> Lajkovi { get; set; } = new List<Lajk>();       
     public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
     public virtual ICollection<KatalogPost> KatalogPostovi { get; set; } = new List<KatalogPost>();
+
+    public virtual ICollection<OmiljeniPost> OmiljeniPostovi { get; set; } = new List<OmiljeniPost>();
 }

@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 namespace PlantCare.Model.Requests;
 public class ObavijestUpdateRequest
 {
-    public string? Naslov { get; set; }
-    public string? Sadrzaj { get; set; }
+    public string Naslov { get; set; } = null!;
+    public string Sadrzaj { get; set; } = null!;
 }

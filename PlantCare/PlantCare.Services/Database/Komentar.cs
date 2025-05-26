@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;                          
+using System.ComponentModel.DataAnnotations;
 
-namespace PlantCare.Service.Database;
+namespace PlantCare.Services.Database;
 public class Komentar
 {
     [Key]

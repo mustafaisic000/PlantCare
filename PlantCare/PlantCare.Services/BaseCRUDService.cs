@@ -11,7 +11,7 @@ namespace PlantCare.Services
 {
     public abstract class BaseCRUDService<TModel,TSearch,TDbEntity, TInsert, TUpdate>: BaseService<TModel,TSearch,TDbEntity> where TModel : class where TDbEntity : class where TSearch: BaseSearchObject
     {
-        public BaseCRUDService(PlantCareContext context, Mapper mapper): base(context, mapper) { }
+        public BaseCRUDService(PlantCareContext context, IMapper mapper) : base(context, mapper) { }
 
         public virtual TModel Insert(TInsert request)
         {

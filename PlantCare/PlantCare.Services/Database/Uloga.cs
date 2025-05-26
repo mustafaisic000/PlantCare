@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using PlantCare.Service.Database;
-
-namespace PlantCare.Service.Database
+﻿using System;                
+using System.Collections.Generic;     
+using System.ComponentModel.DataAnnotations;
+namespace PlantCare.Services.Database
 {
     public partial class Uloga
     {

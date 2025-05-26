@@ -8,9 +8,9 @@ namespace PlantCare.Model.Requests;
 
 public class PostUpdateRequest
 {
-    public string? Naslov { get; set; }
-    public string? Sadrzaj { get; set; }
+    public string Naslov { get; set; } = null!;
+    public string Sadrzaj { get; set; } = null!;
     public byte[]? Slika { get; set; }
-    public bool? Premium { get; set; }
-    public int? SubkategorijaId { get; set; }
+    public bool Premium { get; set; }
+    public int SubkategorijaId { get; set; }
 }

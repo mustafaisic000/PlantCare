@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 namespace PlantCare.Model.Requests;
 public class SubkategorijaUpdateRequest
 {
-    public string? Naziv { get; set; }
-    public int? KategorijaId { get; set; }
+    public string Naziv { get; set; } = null!;      
+    public int KategorijaId { get; set; }    
 }

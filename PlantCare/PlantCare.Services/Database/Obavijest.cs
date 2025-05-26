@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace PlantCare.Service.Database;
+﻿using System;                           
+using System.ComponentModel.DataAnnotations;
+namespace PlantCare.Services.Database;
 
 public class Obavijest
 {

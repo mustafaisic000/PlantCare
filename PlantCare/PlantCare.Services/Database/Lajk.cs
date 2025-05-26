@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System;       
 using System.ComponentModel.DataAnnotations;
 
-namespace PlantCare.Service.Database;
+namespace PlantCare.Services.Database;
 public class Lajk
 {
     [Key]
