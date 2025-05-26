@@ -1,64 +1,71 @@
-using PlantCare.WebAPI;
-//using PlantCare.API.Filters;
+﻿using PlantCare.WebAPI;
+// using PlantCare.WebAPI.Filters;   // Uncomment if you add filters
 using PlantCare.Services;
 using PlantCare.Services.Database;
 using Mapster;
 using MapsterMapper;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-//ovdje se ono dodaje za builder.Services.AddTransient <,>();
-builder.Services.AddControllers();
-builder.Services.AddDbContext<PlantCareContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("PlantCareConnection")));
+// ── 1) Register your application services as transient ────────────────────────
+builder.Services.AddTransient<IKorisnikService, KorisnikService>();
+builder.Services.AddTransient<IUlogaService, UlogaService>();
+builder.Services.AddTransient<IKategorijaService, KategorijaService>();
+builder.Services.AddTransient<ISubkategorijaService, SubkategorijaService>();
+builder.Services.AddTransient<IObavijestService, ObavijestService>();
+builder.Services.AddTransient<IUplataService, UplataService>();
+builder.Services.AddTransient<IReportService, ReportService>();
+builder.Services.AddTransient<IPostService, PostService>();
+builder.Services.AddTransient<IOmiljeniPostService, OmiljeniPostService>();
+builder.Services.AddTransient<INotifikacijaService, NotifikacijaService>();
+builder.Services.AddTransient<ILajkService, LajkService>();
+builder.Services.AddTransient<IKomentarService, KomentarService>();
+builder.Services.AddTransient<IKatalogPostService, KatalogPostService>();
+builder.Services.AddTransient<IKatalogService, KatalogService>();
 
+// Optional helper to access HttpContext in services
+builder.Services.AddHttpContextAccessor();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// ── 2) Add controllers (and optional filters) ─────────────────────────────────
+builder.Services.AddControllers(/*opts => opts.Filters.Add<ExceptionFilter>()*/);
+
+// ── 3) Swagger / OpenAPI setup ────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "PlantCare API", Version = "v1" });
+    // … any security definitions …
+});
 
-var mapsterConfig = TypeAdapterConfig.GlobalSettings
-    .Scan(typeof(Program).Assembly);
+// ── 4) Configure EF Core DbContext ────────────────────────────────────────────
+builder.Services.AddDbContext<PlantCareContext>(opts =>
+    opts.UseSqlServer(builder.Configuration.GetConnectionString("PlantCareConnection")));
 
+// ── 5) Manual Mapster setup ───────────────────────────────────────────────────
+// 5a) configure and scan for mappings
+var mapsterConfig = TypeAdapterConfig.GlobalSettings;
+mapsterConfig.Scan(typeof(Program).Assembly);
+
+// 5b) register the config and the mapper
 builder.Services
-    .AddSingleton(mapsterConfig)
+    .AddSingleton<TypeAdapterConfig>(mapsterConfig)
     .AddScoped<IMapper, ServiceMapper>();
 
-builder.Services.AddScoped<IKorisnikService, KorisnikService>();
-builder.Services.AddScoped<IUlogaService, UlogaService>();
-builder.Services.AddScoped<IKategorijaService, KategorijaService>();
-builder.Services.AddScoped<ISubkategorijaService, SubkategorijaService>();
-builder.Services.AddScoped<IObavijestService, ObavijestService>();
-builder.Services.AddScoped<IUplataService, UplataService>();
-builder.Services.AddScoped<IReportService, ReportService>();
-builder.Services.AddScoped<IPostService, PostService>();
-builder.Services.AddScoped<IOmiljeniPostService, OmiljeniPostService>();
-builder.Services.AddScoped<INotifikacijaService, NotifikacijaService>();
-builder.Services.AddScoped<ILajkService, LajkService>();
-builder.Services.AddScoped<IKomentarService, KomentarService>();
-builder.Services.AddScoped<IKatalogPostService, KatalogPostService>();
-builder.Services.AddScoped<IKatalogService, KatalogService>();
-
-
-
-
+// ── 6) Build & run ────────────────────────────────────────────────────────────
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "PlantCare API v1");
+    });
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

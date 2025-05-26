@@ -8,17 +8,17 @@ namespace PlantCare.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class KorisnikController : ControllerBase
+    public class KatalogController : ControllerBase
     {
-        private readonly IKorisnikService _service;
-        public KorisnikController(IKorisnikService service) => _service = service;
+        private readonly IKatalogService _service;
+        public KatalogController(IKatalogService service) => _service = service;
 
         [HttpGet]
-        public ActionResult<PagedResult<Korisnik>> Get([FromQuery] KorisnikSearchObject search)
+        public ActionResult<PagedResult<Katalog>> Get([FromQuery] KatalogSearchObject search)
             => Ok(_service.GetPaged(search));
 
         [HttpGet("{id}")]
-        public ActionResult<Korisnik> GetById(int id)
+        public ActionResult<Katalog> GetById(int id)
         {
             var entity = _service.GetById(id);
             if (entity == null) return NotFound();
@@ -26,14 +26,14 @@ namespace PlantCare.WebAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Korisnik> Create(KorisnikInsertRequest request)
+        public ActionResult<Katalog> Create(KatalogInsertRequest request)
         {
             var created = _service.Insert(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.KorisnikId }, created);
+            return CreatedAtAction(nameof(GetById), new { id = created.KatalogId }, created);
         }
 
         [HttpPut("{id}")]
-        public ActionResult<Korisnik> Update(int id, KorisnikUpdateRequest request)
+        public ActionResult<Katalog> Update(int id, KatalogUpdateRequest request)
             => Ok(_service.Update(id, request));
     }
 }
