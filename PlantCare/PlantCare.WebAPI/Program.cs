@@ -64,7 +64,11 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "PlantCare API v1");
     });
 }
-
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<PlantCareContext>();
+    dbContext.Database.Migrate(); // Apply any pending migrations
+}
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();

@@ -28,6 +28,8 @@ public class KatalogService
     {
         query = base.AddFilter(search, query);
 
+        query = query.Include(x => x.Korisnik);
+
         if (!string.IsNullOrWhiteSpace(search.Naslov))
             query = query.Where(x => x.Naslov.Contains(search.Naslov));
 

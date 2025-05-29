@@ -1,0 +1,36 @@
+
+services:
+#mssql docker
+  plantcare-sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest #server
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SQL__PASSWORD}
+      - MSSQL_PID=${SQL__PID}
+    ports:
+      - 1401:1433
+    expose:
+      - 1433
+    networks:
+      - plantcare
+
+
+  plantcare-api:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile 
+    environment:
+       - ConnectionStrings__DefaultConnection=Server=plantcare-sql,1433;Database=${SQL__DATABASE};User=${SQL__USER};Password=${SQL__PASSWORD};Trust Server Certificate=true;ConnectRetryCount=0
+       - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - 6089:6089
+    networks:
+      - plantcare
+    depends_on:
+      - plantcare-sql
+      
+networks:
+  plantcare:
+    driver: bridge      
