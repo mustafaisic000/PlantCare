@@ -41,7 +41,7 @@ builder.Services.AddSwaggerGen(c =>
 
 // ── 4) Configure EF Core DbContext ────────────────────────────────────────────
 builder.Services.AddDbContext<PlantCareContext>(opts =>
-    opts.UseSqlServer(builder.Configuration.GetConnectionString("PlantCareConnection")));
+    opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ── 5) Manual Mapster setup ───────────────────────────────────────────────────
 // 5a) configure and scan for mappings
@@ -64,12 +64,12 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "PlantCare API v1");
     });
 }
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<PlantCareContext>();
     dbContext.Database.Migrate(); // Apply any pending migrations
 }
-app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
 app.Run();
