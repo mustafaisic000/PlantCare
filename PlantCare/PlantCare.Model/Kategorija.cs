@@ -9,6 +9,5 @@ public class Kategorija
 {
     public int KategorijaId { get; set; }
     public string Naziv { get; set; } = null!;
-
     public virtual ICollection<Subkategorija> Subkategorije { get; set; } = new List<Subkategorija>();
 }

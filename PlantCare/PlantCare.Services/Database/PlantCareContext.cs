@@ -27,6 +27,7 @@ public partial class PlantCareContext: DbContext
     public DbSet<Obavijest> Obavijesti { get; set; }
     public DbSet<Report> Reporti { get; set; }
     public DbSet<Uplata> Uplate { get; set; }
+    public DbSet<KatalogPost> KatalogPostovi { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

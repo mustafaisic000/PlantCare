@@ -48,6 +48,12 @@ builder.Services.AddDbContext<PlantCareContext>(opts =>
 var mapsterConfig = TypeAdapterConfig.GlobalSettings;
 mapsterConfig.Scan(typeof(Program).Assembly);
 
+mapsterConfig.ForType<PlantCare.Services.Database.KatalogPost, PlantCare.Model.KatalogPost>()
+    .Map(dest => dest.PostNaslov, src => src.Post.Naslov)
+    .Map(dest => dest.PostSlika, src => src.Post.Slika)
+    .Map(dest => dest.Premium, src => src.Post.Premium);
+
+
 // 5b) register the config and the mapper
 builder.Services
     .AddSingleton<TypeAdapterConfig>(mapsterConfig)

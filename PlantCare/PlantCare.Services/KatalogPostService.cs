@@ -29,6 +29,9 @@ public class KatalogPostService
     {
         query = base.AddFilter(search, query);
 
+        query = query.Include(x => x.Post);
+
+
         if (search.KatalogId.HasValue)
             query = query.Where(x => x.KatalogId == search.KatalogId.Value);
 
@@ -37,4 +40,18 @@ public class KatalogPostService
 
         return query;
     }
+
+    public override Model.KatalogPost GetById(int id)
+    {
+        var entity = Context.KatalogPostovi
+            .Include(kp => kp.Post)
+            .FirstOrDefault(kp => kp.KatalogPostId == id);
+
+        if (entity == null)
+            return null!;
+
+        return Mapper.Map<Model.KatalogPost>(entity);
+    }
+
+
 }

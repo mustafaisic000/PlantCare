@@ -131,7 +131,7 @@ namespace PlantCare.Services.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("KatalogPost");
+                    b.ToTable("KatalogPostovi");
 
                     b.HasData(
                         new

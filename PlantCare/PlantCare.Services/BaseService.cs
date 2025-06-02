@@ -20,7 +20,7 @@ namespace PlantCare.Services
             Mapper = mapper; //dependency injection
         }
 
-        public PagedResult<TModel> GetPaged(TSearch search)
+        public virtual PagedResult<TModel> GetPaged(TSearch search)
         {
             List<TModel> result = new List<TModel>();
 
@@ -52,7 +52,7 @@ namespace PlantCare.Services
             return query;
         }
 
-        public TModel GetById(int id)
+        public virtual TModel GetById(int id)
         {
             var entity = Context.Set<TDbEntity>().Find(id);
 

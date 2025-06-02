@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PlantCare.Services.Migrations
 {
     /// <inheritdoc />
-    public partial class settingUp : Migration
+    public partial class PlantCareContextModelSnapshotFIX : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -187,7 +187,7 @@ namespace PlantCare.Services.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "KatalogPost",
+                name: "KatalogPostovi",
                 columns: table => new
                 {
                     KatalogPostId = table.Column<int>(type: "int", nullable: false)
@@ -197,15 +197,15 @@ namespace PlantCare.Services.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_KatalogPost", x => x.KatalogPostId);
+                    table.PrimaryKey("PK_KatalogPostovi", x => x.KatalogPostId);
                     table.ForeignKey(
-                        name: "FK_KatalogPost_Katalog_KatalogId",
+                        name: "FK_KatalogPostovi_Katalog_KatalogId",
                         column: x => x.KatalogId,
                         principalTable: "Katalog",
                         principalColumn: "KatalogId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_KatalogPost_Postovi_PostId",
+                        name: "FK_KatalogPostovi_Postovi_PostId",
                         column: x => x.PostId,
                         principalTable: "Postovi",
                         principalColumn: "PostId",
@@ -450,7 +450,7 @@ namespace PlantCare.Services.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "KatalogPost",
+                table: "KatalogPostovi",
                 columns: new[] { "KatalogPostId", "KatalogId", "PostId" },
                 values: new object[,]
                 {
@@ -526,13 +526,13 @@ namespace PlantCare.Services.Migrations
                 column: "KorisnikId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_KatalogPost_KatalogId",
-                table: "KatalogPost",
+                name: "IX_KatalogPostovi_KatalogId",
+                table: "KatalogPostovi",
                 column: "KatalogId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_KatalogPost_PostId",
-                table: "KatalogPost",
+                name: "IX_KatalogPostovi_PostId",
+                table: "KatalogPostovi",
                 column: "PostId");
 
             migrationBuilder.CreateIndex(
@@ -620,7 +620,7 @@ namespace PlantCare.Services.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "KatalogPost");
+                name: "KatalogPostovi");
 
             migrationBuilder.DropTable(
                 name: "Komentari");

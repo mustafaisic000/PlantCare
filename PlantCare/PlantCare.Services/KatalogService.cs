@@ -28,7 +28,12 @@ public class KatalogService
     {
         query = base.AddFilter(search, query);
 
-        query = query.Include(x => x.Korisnik);
+        query = query
+       .Include(x => x.Korisnik)
+       .Include(x => x.KatalogPostovi)
+           .ThenInclude(kp => kp.Post);
+
+
 
         if (!string.IsNullOrWhiteSpace(search.Naslov))
             query = query.Where(x => x.Naslov.Contains(search.Naslov));
@@ -44,4 +49,16 @@ public class KatalogService
 
         return query;
     }
+
+    public override Model.Katalog GetById(int id)
+    {
+        var entity = Context.Set<Database.Katalog>()
+            .Include(k => k.Korisnik)
+            .Include(k => k.KatalogPostovi)
+                .ThenInclude(kp => kp.Post)
+            .FirstOrDefault(k => k.KatalogId == id);
+
+        return Mapper.Map<Model.Katalog>(entity);
+    }
+
 }

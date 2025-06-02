@@ -12,8 +12,8 @@ using PlantCare.Services.Database;
 namespace PlantCare.Services.Migrations
 {
     [DbContext(typeof(PlantCareContext))]
-    [Migration("20250529172805_settingUp")]
-    partial class settingUp
+    [Migration("20250601201019_PlantCareContextModelSnapshotFIX")]
+    partial class PlantCareContextModelSnapshotFIX
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -134,7 +134,7 @@ namespace PlantCare.Services.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("KatalogPost");
+                    b.ToTable("KatalogPostovi");
 
                     b.HasData(
                         new

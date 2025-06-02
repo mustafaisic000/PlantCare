@@ -15,7 +15,10 @@ public class Katalog
     public DateTime DatumDo { get; set; }
 
     public int KorisnikId { get; set; }
-    public Korisnik Korisnik { get; set; } = null!;
+    public string KorisnickoIme { get; set; } = null!;
+    public string Email { get; set; } = null!;
 
-    public virtual ICollection<KatalogPost> KatalogPostovi { get; set; } = new List<KatalogPost>();
+    public ICollection<KatalogPost> KatalogPostovi { get; set; } = new List<KatalogPost>();
 }
+
+

@@ -1,8 +1,9 @@
-﻿using PlantCare.Model;
-using PlantCare.Model.SearchObjects;
+﻿// PlantCare.Services/IKategorijaService.cs
+using PlantCare.Model;
+using PlantCare.Model.DTO;
 using PlantCare.Model.Requests;
-
-namespace PlantCare.Services;
+using PlantCare.Model.SearchObjects;
+using PlantCare.Services;
 
 public interface IKategorijaService
     : ICRUDService<
@@ -11,5 +12,6 @@ public interface IKategorijaService
          KategorijaInsertRequest,
          KategorijaUpdateRequest>
 {
-    // any category-specific methods later
+    PagedResult<KategorijaBasic> GetBasic(KategorijaSearchObject search);
+    KategorijeWithSubkategorijeBasicPaged GetWithSubsPaged(int id, BaseSearchObject subSearch);
 }
