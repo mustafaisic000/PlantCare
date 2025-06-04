@@ -46,17 +46,13 @@ builder.Services.AddDbContext<PlantCareContext>(opts =>
 // ── 5) Manual Mapster setup ───────────────────────────────────────────────────
 // 5a) configure and scan for mappings
 var mapsterConfig = TypeAdapterConfig.GlobalSettings;
-mapsterConfig.Scan(typeof(Program).Assembly);
 
-mapsterConfig.ForType<PlantCare.Services.Database.KatalogPost, PlantCare.Model.KatalogPost>()
-    .Map(dest => dest.PostNaslov, src => src.Post.Naslov)
-    .Map(dest => dest.PostSlika, src => src.Post.Slika)
-    .Map(dest => dest.Premium, src => src.Post.Premium);
+// Register your centralized mapping rules
+PlantCare.WebAPI.Mapping.MapsterConfiguration.RegisterMappings();
 
-
-// 5b) register the config and the mapper
+// Register Mapster with DI
 builder.Services
-    .AddSingleton<TypeAdapterConfig>(mapsterConfig)
+    .AddSingleton(mapsterConfig)
     .AddScoped<IMapper, ServiceMapper>();
 
 // ── 6) Build & run ────────────────────────────────────────────────────────────
