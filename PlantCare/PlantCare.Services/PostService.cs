@@ -29,6 +29,10 @@ public class PostService
     {
         query = base.AddFilter(search, query);
 
+        query = query
+             .Include(x => x.Korisnik)
+             .Include(x => x.Subkategorija);
+
         if (!string.IsNullOrWhiteSpace(search.FTS))
         {
             query = query.Where(x =>

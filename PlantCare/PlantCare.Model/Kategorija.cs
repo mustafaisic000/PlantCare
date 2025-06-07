@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PlantCare.Model.DTO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,5 +10,5 @@ public class Kategorija
 {
     public int KategorijaId { get; set; }
     public string Naziv { get; set; } = null!;
-    public virtual ICollection<Subkategorija> Subkategorije { get; set; } = new List<Subkategorija>();
+    public List<SubkategorijaBasic>? Subkategorije { get; set; }
 }

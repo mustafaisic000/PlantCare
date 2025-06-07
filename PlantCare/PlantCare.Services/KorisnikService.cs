@@ -25,15 +25,13 @@ namespace PlantCare.Services
         {
         }
 
-        // ── Filtering ───────────────────────────────────────────────────────
         protected override IQueryable<Database.Korisnik> AddFilter(
             KorisnikSearchObject search,
             IQueryable<Database.Korisnik> query)
         {
             query = base.AddFilter(search, query);
 
-            if (search.IncludeUloga)
-                query = query.Include(x => x.Uloga);
+            query = query.Include(x => x.Uloga);
 
             if (!string.IsNullOrWhiteSpace(search.Ime))
                 query = query.Where(x => x.Ime.Contains(search.Ime));

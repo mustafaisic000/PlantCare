@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using PlantCare.Model;
-using PlantCare.Model.DTO;
 using PlantCare.Model.Requests;
 using PlantCare.Model.SearchObjects;
 using PlantCare.Services;
@@ -12,7 +11,9 @@ namespace PlantCare.WebAPI.Controllers
     public class KategorijaController : ControllerBase
     {
         private readonly IKategorijaService _service;
-        public KategorijaController(IKategorijaService service) => _service = service;
+
+        public KategorijaController(IKategorijaService service)
+            => _service = service;
 
         [HttpGet]
         public ActionResult<PagedResult<Kategorija>> Get([FromQuery] KategorijaSearchObject search)
@@ -36,24 +37,5 @@ namespace PlantCare.WebAPI.Controllers
         [HttpPut("{id}")]
         public ActionResult<Kategorija> Update(int id, KategorijaUpdateRequest request)
             => Ok(_service.Update(id, request));
-
-
-        [HttpGet("basic")]
-        public ActionResult<IEnumerable<KategorijaBasic>> GetBasic([FromQuery] KategorijaSearchObject search)
-        {
-            var result = _service.GetBasic(search);
-            return Ok(result);
-        }
-
-        [HttpGet("{id}/subs")]
-        public ActionResult<KategorijeWithSubkategorijeBasicPaged> GetWithSubsPaged(int id, [FromQuery] BaseSearchObject subSearch)
-        {
-            var result = _service.GetWithSubsPaged(id, subSearch);
-            if (result == null) return NotFound();
-            return Ok(result);
-        }
-
-
-
     }
 }

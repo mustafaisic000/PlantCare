@@ -29,6 +29,10 @@ public class ReportService
     {
         query = base.AddFilter(search, query);
 
+        query = query
+             .Include(x => x.Korisnik)
+             .Include(x => x.Post);
+
         if (search.PostId.HasValue)
             query = query.Where(x => x.PostId == search.PostId.Value);
 

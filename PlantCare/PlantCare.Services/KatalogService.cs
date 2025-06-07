@@ -33,8 +33,6 @@ public class KatalogService
        .Include(x => x.KatalogPostovi)
            .ThenInclude(kp => kp.Post);
 
-
-
         if (!string.IsNullOrWhiteSpace(search.Naslov))
             query = query.Where(x => x.Naslov.Contains(search.Naslov));
 

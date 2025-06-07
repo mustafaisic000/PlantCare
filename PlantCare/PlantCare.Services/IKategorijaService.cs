@@ -12,6 +12,5 @@ public interface IKategorijaService
          KategorijaInsertRequest,
          KategorijaUpdateRequest>
 {
-    PagedResult<KategorijaBasic> GetBasic(KategorijaSearchObject search);
-    KategorijeWithSubkategorijeBasicPaged GetWithSubsPaged(int id, BaseSearchObject subSearch);
+
 }

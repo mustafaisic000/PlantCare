@@ -10,6 +10,5 @@ public class Subkategorija
     public int SubkategorijaId { get; set; }
     public string Naziv { get; set; } = null!;
     public int KategorijaId { get; set; }
-    public string KategorijaNaziv { get; set; } = null!;
 }
 

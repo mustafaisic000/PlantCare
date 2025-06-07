@@ -28,6 +28,12 @@ public class KomentarService
     {
         query = base.AddFilter(search, query);
 
+
+        query = query
+             .Include(x => x.Korisnik)
+             .Include(x => x.Post);
+
+
         if (search.PostId.HasValue)
             query = query.Where(x => x.PostId == search.PostId.Value);
 
@@ -42,57 +48,4 @@ public class KomentarService
 
         return query;
     }
-
-    public override PagedResult<Model.Komentar> GetPaged(KomentarSearchObject search)
-    {
-        var query = AddFilter(search, Context.Komentari
-            .Include(x => x.Korisnik)
-            .Include(x => x.Post));
-
-        var page = search.Page ?? 1;
-        var pageSize = search.PageSize ?? 10;
-
-        var list = query
-            .OrderBy(x => x.KomentarId)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-
-        var result = list.Select(x => new Model.Komentar
-        {
-            KomentarId = x.KomentarId,
-            Sadrzaj = x.Sadrzaj,
-            DatumKreiranja = x.DatumKreiranja,
-            KorisnickoIme = x.Korisnik?.KorisnickoIme,
-            PostNaslov = x.Post?.Naslov
-        }).ToList();
-
-        return new PagedResult<Model.Komentar>
-        {
-            Count = query.Count(),
-            ResultList = result
-        };
-    }
-
-    public override Model.Komentar GetById(int id)
-    {
-        var entity = Context.Komentari
-            .Include(x => x.Korisnik)
-            .Include(x => x.Post)
-            .FirstOrDefault(x => x.KomentarId == id);
-
-        if (entity == null)
-            return null;
-
-        return new Model.Komentar
-        {
-            KomentarId = entity.KomentarId,
-            Sadrzaj = entity.Sadrzaj,
-            DatumKreiranja = entity.DatumKreiranja,
-            KorisnickoIme = entity.Korisnik?.KorisnickoIme,
-            PostNaslov = entity.Post?.Naslov
-        };
-    }
-
-
 }

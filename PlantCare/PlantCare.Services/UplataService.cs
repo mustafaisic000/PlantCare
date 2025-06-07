@@ -28,6 +28,8 @@ public class UplataService
     {
         query = base.AddFilter(search, query);
 
+        query = query.Include(x => x.Korisnik);
+
         if (search.KorisnikId.HasValue)
             query = query.Where(x => x.KorisnikId == search.KorisnikId.Value);
 
