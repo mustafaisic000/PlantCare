@@ -24,7 +24,10 @@ public class KategorijaService : BaseCRUDService<
     {
         query = base.AddFilter(search, query);
 
-        query = query.Include(k => k.Subkategorije);
+        if (search.IncludeSubkategorije == true)
+        {
+            query = query.Include(k => k.Subkategorije);
+        }
 
         if (!string.IsNullOrWhiteSpace(search.Naziv))
             query = query.Where(x => x.Naziv.StartsWith(search.Naziv));
@@ -34,10 +37,11 @@ public class KategorijaService : BaseCRUDService<
 
     public override Model.Kategorija GetById(int id)
     {
-        var entity = Context.Kategorije
+        var query = Context.Kategorije
             .Include(k => k.Subkategorije)
-            .FirstOrDefault(k => k.KategorijaId == id);
+            .AsQueryable();
 
+        var entity = query.FirstOrDefault(k => k.KategorijaId == id);
         return entity == null ? null! : Mapper.Map<Model.Kategorija>(entity);
     }
 

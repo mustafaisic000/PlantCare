@@ -8,5 +8,6 @@ namespace PlantCare.Model.SearchObjects;
 
 public class KategorijaSearchObject : BaseSearchObject
 {
-    public string? Naziv { get; set; }  
+    public string? Naziv { get; set; }
+    public bool? IncludeSubkategorije { get; set; }
 }

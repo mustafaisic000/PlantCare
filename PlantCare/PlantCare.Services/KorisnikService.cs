@@ -31,25 +31,28 @@ namespace PlantCare.Services
         {
             query = base.AddFilter(search, query);
 
-            query = query.Include(x => x.Uloga);
+            if (!string.IsNullOrWhiteSpace(search.ImeGTE))
+                query = query.Where(x => x.Ime.Contains(search.ImeGTE));
 
-            if (!string.IsNullOrWhiteSpace(search.Ime))
-                query = query.Where(x => x.Ime.Contains(search.Ime));
-
-            if (!string.IsNullOrWhiteSpace(search.Prezime))
-                query = query.Where(x => x.Prezime.Contains(search.Prezime));
+            if (!string.IsNullOrWhiteSpace(search.PrezimeGTE))
+                query = query.Where(x => x.Prezime.Contains(search.PrezimeGTE));
 
             if (!string.IsNullOrWhiteSpace(search.Email))
                 query = query.Where(x => x.Email == search.Email);
 
-            if (!string.IsNullOrWhiteSpace(search.KorisnickoIme))
-                query = query.Where(x => x.KorisnickoIme.Contains(search.KorisnickoIme));
+            if (!string.IsNullOrWhiteSpace(search.KorisnickoImeGTE))
+                query = query.Where(x => x.KorisnickoIme.Contains(search.KorisnickoImeGTE));
 
             if (search.UlogaId.HasValue)
                 query = query.Where(x => x.UlogaId == search.UlogaId);
 
             if (search.Status.HasValue)
                 query = query.Where(x => x.Status == search.Status.Value);
+
+            if (search.IncludeUloga == true)
+            {
+                query = query.Include(x => x.Uloga);
+            }
 
             return query;
         }
