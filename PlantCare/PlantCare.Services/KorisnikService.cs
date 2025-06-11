@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
 using PlantCare.Model.SearchObjects;
@@ -20,9 +21,11 @@ namespace PlantCare.Services
                           KorisnikUpdateRequest>,
           IKorisnikService
     {
-        public KorisnikService(PlantCareContext context, IMapper mapper)
+        ILogger<KorisnikService> _logger;
+        public KorisnikService(PlantCareContext context, IMapper mapper, ILogger<KorisnikService> logger)
             : base(context, mapper)
         {
+            _logger = logger;
         }
 
         protected override IQueryable<Database.Korisnik> AddFilter(
@@ -57,11 +60,11 @@ namespace PlantCare.Services
             return query;
         }
 
-        // ── Hooks ────────────────────────────────────────────────────────────
         protected override void BeforeInsert(
             KorisnikInsertRequest request,
             Database.Korisnik entity)
         {
+            _logger.LogInformation($"Dodavanje korisnika : {entity.KorisnickoIme}");
             if (request.Lozinka != request.LozinkaPotvrda)
                 throw new InvalidOperationException("Lozinka i potvrda lozinke se ne poklapaju.");
 
@@ -84,14 +87,11 @@ namespace PlantCare.Services
             }
         }
 
-        // ── Basic CRUD overrides ────────────────────────────────────────────
         public override Model.Korisnik Insert(KorisnikInsertRequest request)
             => base.Insert(request);
 
         public override Model.Korisnik Update(int id, KorisnikUpdateRequest request)
             => base.Update(id, request);
-
-        // ── Custom operations ────────────────────────────────────────────────
 
         public Model.Korisnik Login(string username, string password)
         {

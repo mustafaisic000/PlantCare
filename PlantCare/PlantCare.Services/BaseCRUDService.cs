@@ -45,7 +45,7 @@ namespace PlantCare.Services
             return Mapper.Map<TModel>(entity);
         }
 
-        public virtual void BeforeUpdate(TUpdate? request, TDbEntity? entity)
+        public virtual void BeforeUpdate(TUpdate request, TDbEntity entity)
         {
            
         }

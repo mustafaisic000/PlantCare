@@ -1,15 +1,16 @@
 ﻿using PlantCare.WebAPI;
-// using PlantCare.WebAPI.Filters;   // Uncomment if you add filters
 using PlantCare.Services;
 using PlantCare.Services.Database;
 using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using PlantCare.WebAPI.Filters;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── 1) Register your application services as transient ────────────────────────
+// ── 1) Register your application services as transient
 builder.Services.AddTransient<IKorisnikService, KorisnikService>();
 builder.Services.AddTransient<IUlogaService, UlogaService>();
 builder.Services.AddTransient<IKategorijaService, KategorijaService>();
@@ -29,7 +30,7 @@ builder.Services.AddTransient<IKatalogService, KatalogService>();
 builder.Services.AddHttpContextAccessor();
 
 // ── 2) Add controllers (and optional filters) ─────────────────────────────────
-builder.Services.AddControllers(/*opts => opts.Filters.Add<ExceptionFilter>()*/);
+builder.Services.AddControllers(opts => opts.Filters.Add<ExceptionFilter>());
 
 // ── 3) Swagger / OpenAPI setup ────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
@@ -54,6 +55,9 @@ PlantCare.WebAPI.Mapping.MapsterConfiguration.RegisterMappings();
 builder.Services
     .AddSingleton(mapsterConfig)
     .AddScoped<IMapper, ServiceMapper>();
+
+builder.Services.AddAuthentication("BasicAuthentication")
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
 // ── 6) Build & run ────────────────────────────────────────────────────────────
 var app = builder.Build();
