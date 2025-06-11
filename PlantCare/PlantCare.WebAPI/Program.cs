@@ -36,9 +36,24 @@ builder.Services.AddControllers(opts => opts.Filters.Add<ExceptionFilter>());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "PlantCare API", Version = "v1" });
-    // … any security definitions …
+    c.AddSecurityDefinition("basicAuth", new Microsoft.OpenApi.Models.OpenApiSecurityScheme()
+    {
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "basic"
+    });
+
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference{Type = ReferenceType.SecurityScheme, Id = "basicAuth"}
+            },
+            new string[]{}
+    } });
+
 });
+
 
 // ── 4) Configure EF Core DbContext ────────────────────────────────────────────
 builder.Services.AddDbContext<PlantCareContext>(opts =>
