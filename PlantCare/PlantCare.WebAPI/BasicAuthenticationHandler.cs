@@ -40,7 +40,7 @@ namespace PlantCare.WebAPI
             }
 
             if (user == null)
-                return AuthenticateResult.Fail("Invalid Username or Password");
+                return AuthenticateResult.Fail("Authentication Failed");
 
             var claims = new[] {
                 new Claim(ClaimTypes.NameIdentifier, user.KorisnickoIme),

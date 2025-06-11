@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PlantCare.Model;
 using PlantCare.Model.SearchObjects;
 using PlantCare.Services;
@@ -7,6 +8,7 @@ namespace PlantCare.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class BaseController<TModel, TSearch> : ControllerBase where TSearch : BaseSearchObject
     {
         protected readonly IService<TModel, TSearch> _service;
