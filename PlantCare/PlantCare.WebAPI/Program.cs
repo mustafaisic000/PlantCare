@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();        // (opcionalno, ako želiš samo konzolu)
+builder.Logging.AddConsole();            // ✅ Ovo omogućava logove u Dockeru
+
 // ── 1) Register your application services as transient
 builder.Services.AddTransient<IKorisnikService, KorisnikService>();
 builder.Services.AddTransient<IUlogaService, UlogaService>();
@@ -26,6 +29,7 @@ builder.Services.AddTransient<IKomentarService, KomentarService>();
 builder.Services.AddTransient<IKatalogPostService, KatalogPostService>();
 builder.Services.AddTransient<IKatalogService, KatalogService>();
 
+builder.Services.AddTransient<IEmailService, EmailService>();
 // Optional helper to access HttpContext in services
 builder.Services.AddHttpContextAccessor();
 
@@ -86,6 +90,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 using (var scope = app.Services.CreateScope())

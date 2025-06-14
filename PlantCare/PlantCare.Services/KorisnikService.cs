@@ -103,10 +103,13 @@ namespace PlantCare.Services
                 return null;
 
             var hash = GenerateHash(user.LozinkaSalt, password);
+            _logger.LogInformation("Expected Hash: " + user.LozinkaHash);
+            _logger.LogInformation("Generated Hash: " + GenerateHash(user.LozinkaSalt, password));
             if (hash != user.LozinkaHash)
                 return null;
-
+          
             return Mapper.Map<Model.Korisnik>(user);
+          
         }
 
         public Model.Korisnik UpdateMobile(int id, KorisnikMobileUpdateRequest req)
@@ -150,17 +153,18 @@ namespace PlantCare.Services
             return Convert.ToBase64String(buff);
         }
 
-        private static string GenerateHash(string salt, string pwd)
+        public static string GenerateHash(string salt, string password)
         {
-            var src = Convert.FromBase64String(salt);
-            var pb = Encoding.UTF8.GetBytes(pwd);
-            var dst = new byte[src.Length + pb.Length];
+            byte[] src = Convert.FromBase64String(salt);
+            byte[] bytes = Encoding.Unicode.GetBytes(password);
+            byte[] dst = new byte[src.Length + bytes.Length];
 
             Buffer.BlockCopy(src, 0, dst, 0, src.Length);
-            Buffer.BlockCopy(pb, 0, dst, src.Length, pb.Length);
+            Buffer.BlockCopy(bytes, 0, dst, src.Length, bytes.Length);
 
-            using var sha = SHA256.Create();
-            return Convert.ToBase64String(sha.ComputeHash(dst));
+            using HashAlgorithm algorithm = HashAlgorithm.Create("SHA1");
+            byte[] inArray = algorithm.ComputeHash(dst);
+            return Convert.ToBase64String(inArray);
         }
 
         private static string GenerateRandomPassword(int len)

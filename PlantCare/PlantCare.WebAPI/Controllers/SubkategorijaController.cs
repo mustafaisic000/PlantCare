@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Query;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
@@ -12,5 +14,9 @@ namespace PlantCare.WebAPI.Controllers
             : base(service)
         {
         }
+
+
+
+      
     }
 }

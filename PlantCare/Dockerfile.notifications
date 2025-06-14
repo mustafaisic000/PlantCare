@@ -1,0 +1,26 @@
+﻿
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+WORKDIR /src
+EXPOSE 80
+EXPOSE 443
+
+
+COPY ["PlantCare.RabbitMQ/PlantCare.RabbitMQ.csproj", "PlantCare.RabbitMQ/"]
+RUN dotnet restore "PlantCare.RabbitMQ/PlantCare.RabbitMQ.csproj"
+
+
+COPY . .
+WORKDIR "/src/PlantCare.RabbitMQ"
+RUN dotnet build "PlantCare.RabbitMQ.csproj" -c Release -o /app/build
+
+
+FROM build AS publish
+RUN dotnet publish "PlantCare.RabbitMQ.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+
+ENTRYPOINT ["dotnet", "PlantCare.RabbitMQ.dll"]

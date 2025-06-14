@@ -3,6 +3,7 @@ using PlantCare.Model;
 using PlantCare.Model.Requests;
 using PlantCare.Model.SearchObjects;
 using PlantCare.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace PlantCare.WebAPI.Controllers
 {
@@ -21,7 +22,7 @@ namespace PlantCare.WebAPI.Controllers
         public virtual ActionResult<TModel> Insert([FromBody] TInsert request)
         {
             var created = _service.Insert(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.GetType().GetProperty("Id")?.GetValue(created) }, created);
+             return Ok(created);
         }
 
         [HttpPut("{id}")]

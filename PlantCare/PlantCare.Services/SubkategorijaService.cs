@@ -18,9 +18,12 @@ public class SubkategorijaService
         SubkategorijaUpdateRequest>,
       ISubkategorijaService
 {
-    public SubkategorijaService(PlantCareContext ctx, IMapper mapper)
+
+    private readonly IEmailService _emailService;
+    public SubkategorijaService(PlantCareContext ctx, IMapper mapper, IEmailService emailService)
         : base(ctx, mapper)
     {
+        _emailService=emailService;
     }
 
     protected override IQueryable<Database.Subkategorija> AddFilter(
@@ -36,5 +39,21 @@ public class SubkategorijaService
             query = query.Where(x => x.KategorijaId == search.KategorijaId.Value);
 
         return query;
+    }
+
+    public override Model.Subkategorija Insert(SubkategorijaInsertRequest request)
+    {
+        var email="beki74gi@live.com";
+        Notifier testRabbitaIMaila = new Notifier
+        {
+            Datum = DateTime.Now,
+            Email = email,
+            Naslov = "Hvala što ste se testirali RabbitMQ",
+            Tekst = $"Poštovani uspjesno ste dodali naziv subkategorije koji glasi = {request.Naziv}"
+        };
+
+        _emailService.SendingObject(testRabbitaIMaila);
+
+        return base.Insert(request);
     }
 }
