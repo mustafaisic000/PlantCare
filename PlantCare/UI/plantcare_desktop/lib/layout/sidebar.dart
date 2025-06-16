@@ -28,9 +28,9 @@ class Sidebar extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           SidebarMenuItem(
-            label: 'Biljke',
+            label: 'Post',
             icon: Icons.local_florist,
-            isActive: selected == 'biljke',
+            isActive: selected == 'post',
             onTap: () => onItemSelected('biljke'),
           ),
           SidebarMenuItem(
