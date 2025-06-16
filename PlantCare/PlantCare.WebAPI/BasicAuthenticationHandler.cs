@@ -28,11 +28,11 @@ namespace PlantCare.WebAPI
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            _logger.LogInformation("🔐 Starting Basic Authentication...");
+            _logger.LogInformation("Starting Basic Authentication...");
 
             if (!Request.Headers.ContainsKey("Authorization"))
             {
-                _logger.LogWarning("❌ Missing Authorization header.");
+                _logger.LogWarning("Missing Authorization header.");
                 return AuthenticateResult.Fail("Missing Authorization header");
             }
 
@@ -41,35 +41,36 @@ namespace PlantCare.WebAPI
             try
             {
                 var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
-                _logger.LogInformation("📨 Raw Authorization header: {Header}", authHeader.Parameter);
+                _logger.LogInformation("Raw Authorization header: {Header}", authHeader.Parameter);
 
                 var credentialBytes = Convert.FromBase64String(authHeader.Parameter);
                 var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] { ':' }, 2);
 
                 if (credentials.Length != 2)
                 {
-                    _logger.LogWarning("❌ Invalid Authorization header format.");
+                    _logger.LogWarning("Invalid Authorization header format.");
                     return AuthenticateResult.Fail("Invalid credential format");
                 }
 
                 var username = credentials[0];
                 var password = credentials[1];
 
-                _logger.LogInformation("👤 Decoded username: {Username}", username);
+                _logger.LogInformation("Decoded username: {Username}", username);
 
                 user = _korisnikService.Login(username, password);
 
                 if (user == null)
                 {
-                    _logger.LogWarning("❌ Login failed for user: {Username}", username);
+                    _logger.LogWarning("Login failed for user: {Username}", username);
                     return AuthenticateResult.Fail("Invalid Username or Password");
                 }
 
-                _logger.LogInformation("✅ Login successful for user: {Username}", username);
+                _logger.LogInformation("Login successful for user: {Username}", username);
+                
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "❌ Exception occurred during authentication.");
+                _logger.LogError(ex, "Exception occurred during authentication.");
                 return AuthenticateResult.Fail("Invalid Authorization Header");
             }
 
@@ -79,6 +80,7 @@ namespace PlantCare.WebAPI
                 new Claim(ClaimTypes.Name, user.Ime),
                 new Claim(ClaimTypes.Role, user.UlogaNaziv),
             };
+            _logger.LogInformation("Login successful for user: {Username}", user.UlogaNaziv);
 
             var identity = new ClaimsIdentity(claims, Scheme.Name);
             var principal = new ClaimsPrincipal(identity);
