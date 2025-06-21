@@ -15,5 +15,6 @@ public class KorisnikUpdateRequest
     public DateTime? DatumRodjenja { get; set; }
     public string? Email { get; set; }
     public string? Telefon { get; set; }
+    public byte[]? Slika { get; set; }
     public int? UlogaId { get; set; }
 }

@@ -16,6 +16,7 @@ public partial class Korisnik
     public string LozinkaHash { get; set; } = null!;
     public string LozinkaSalt { get; set; } = null!;
     public bool Status { get; set; } = true;
+    public byte[]? Slika { get; set; }
     public int UlogaId { get; set; }
     public virtual Uloga Uloga { get; set; } = null!;
 

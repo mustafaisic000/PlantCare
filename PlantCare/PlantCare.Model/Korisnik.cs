@@ -16,6 +16,7 @@ public class Korisnik
     public string? Telefon { get; set; }
     public string KorisnickoIme { get; set; } = null!;
     public bool Status { get; set; }
+    public byte[]? Slika { get; set; }
     public int UlogaId { get; set; }
     public string UlogaNaziv { get; set; } = null!;
 }

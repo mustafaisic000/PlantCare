@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PlantCare.Services.Database;
+using PlantCare.Services.Helper;
+using System;
+using System.Collections.Generic;
 
 
 
@@ -106,9 +107,24 @@ public partial class PlantCareContext: DbContext
 
         // ── Roles ───────────────────────────────────────────────────────────
         modelBuilder.Entity<Uloga>().HasData(
-            new Uloga { UlogaId = 1, Naziv = "Administrator" },
-            new Uloga { UlogaId = 2, Naziv = "Premium User" },
-            new Uloga { UlogaId = 3, Naziv = "User" }
+            new Uloga
+            {
+                UlogaId = 1,
+                Naziv = "Administrator",
+                Opis = "Ima potpunu kontrolu nad sistemom, uključujući korisnike, objave, kataloge i administraciju."
+            },
+            new Uloga
+            {
+                UlogaId = 2,
+                Naziv = "Premium User",
+                Opis = "Korisnik sa premium pretplatom. Ima pristup ekskluzivnim sadržajima i dodatnim funkcijama."
+            },
+            new Uloga
+            {
+                UlogaId = 3,
+                Naziv = "User",
+                Opis = "Standardni korisnik sa osnovnim mogućnostima korištenja platforme."
+            }
         );
 
         // ── Users ───────────────────────────────────────────────────────────
@@ -121,9 +137,11 @@ public partial class PlantCareContext: DbContext
                 Email = "ana.admin@plantcare.com",
                 Telefon = null,
                 KorisnickoIme = "ana_admin",
+                DatumRodjenja = new DateTime(1991, 4, 12),
                 LozinkaHash = "tPW/IOLa2TZIKYSA50IDeaJKYtg=",
                 LozinkaSalt = "2G2wAwYkdFgpMleomcwelg==",
                 Status = true,
+                Slika = SlikaHelper.GetSlika(0),
                 UlogaId = 1
             },
             new Korisnik
@@ -135,7 +153,9 @@ public partial class PlantCareContext: DbContext
                 Telefon = null,
                 KorisnickoIme = "marko_mod",
                 LozinkaHash = "tPW/IOLa2TZIKYSA50IDeaJKYtg=",
+                DatumRodjenja = new DateTime(1995, 4, 12),
                 LozinkaSalt = "2G2wAwYkdFgpMleomcwelg==",
+                Slika = SlikaHelper.GetSlika(1),
                 Status = true,
                 UlogaId = 2
             },
@@ -148,8 +168,10 @@ public partial class PlantCareContext: DbContext
                 Telefon = null,
                 KorisnickoIme = "ivan",
                 LozinkaHash = "tPW/IOLa2TZIKYSA50IDeaJKYtg=",
+                DatumRodjenja = new DateTime(1995, 4, 12),
                 LozinkaSalt = "2G2wAwYkdFgpMleomcwelg==",
                 Status = true,
+                Slika = SlikaHelper.GetSlika(2),
                 UlogaId = 3
             },
             new Korisnik
@@ -162,7 +184,9 @@ public partial class PlantCareContext: DbContext
                 KorisnickoIme = "majam",
                 LozinkaHash = "tPW/IOLa2TZIKYSA50IDeaJKYtg=",
                 LozinkaSalt = "2G2wAwYkdFgpMleomcwelg==",
+                DatumRodjenja = new DateTime(2001, 4, 11),
                 Status = true,
+                Slika = SlikaHelper.GetSlika(3),
                 UlogaId = 3
             },
             new Korisnik
@@ -175,33 +199,39 @@ public partial class PlantCareContext: DbContext
                 KorisnickoIme = "saras",
                 LozinkaHash = "tPW/IOLa2TZIKYSA50IDeaJKYtg=",
                 LozinkaSalt = "2G2wAwYkdFgpMleomcwelg==",
+                DatumRodjenja = new DateTime(2000, 4, 12),
+                Slika = SlikaHelper.GetSlika(4),
                 Status = true,
                 UlogaId = 3
             }
         );
 
-        // ── Categories ──────────────────────────────────────────────────────
+        
         modelBuilder.Entity<Kategorija>().HasData(
-            new Kategorija { KategorijaId = 1, Naziv = "Indoor Plants" },
-            new Kategorija { KategorijaId = 2, Naziv = "Outdoor Plants" },
-            new Kategorija { KategorijaId = 3, Naziv = "Gardening Tips" },
-            new Kategorija { KategorijaId = 4, Naziv = "Plant Care Issues" }
-        );
+            new Kategorija { KategorijaId = 1, Naziv = "Sobne biljke" },
+            new Kategorija { KategorijaId = 2, Naziv = "Vrtne biljke" },
+            new Kategorija { KategorijaId = 3, Naziv = "Savjeti za vrtlarstvo" },
+            new Kategorija { KategorijaId = 4, Naziv = "Problemi u njezi biljaka" }
+);
+
 
         // ── Subcategories ───────────────────────────────────────────────────
         modelBuilder.Entity<Subkategorija>().HasData(
-            new Subkategorija { SubkategorijaId = 1, KategorijaId = 1, Naziv = "Succulents" },
-            new Subkategorija { SubkategorijaId = 2, KategorijaId = 1, Naziv = "Low-light Plants" },
-            new Subkategorija { SubkategorijaId = 3, KategorijaId = 1, Naziv = "Flowering Houseplants" },
-            new Subkategorija { SubkategorijaId = 4, KategorijaId = 2, Naziv = "Perennials" },
-            new Subkategorija { SubkategorijaId = 5, KategorijaId = 2, Naziv = "Seasonal Vegetables" },
-            new Subkategorija { SubkategorijaId = 6, KategorijaId = 2, Naziv = "Flower Beds" },
-            new Subkategorija { SubkategorijaId = 7, KategorijaId = 3, Naziv = "Watering & Fertilizing" },
-            new Subkategorija { SubkategorijaId = 8, KategorijaId = 3, Naziv = "Soil & Repotting" },
-            new Subkategorija { SubkategorijaId = 9, KategorijaId = 3, Naziv = "Propagation Techniques" },
-            new Subkategorija { SubkategorijaId = 10, KategorijaId = 4, Naziv = "Pest Control" },
-            new Subkategorija { SubkategorijaId = 11, KategorijaId = 4, Naziv = "Yellowing Leaves" },
-            new Subkategorija { SubkategorijaId = 12, KategorijaId = 4, Naziv = "Root Rot & Overwatering" }
+           new Subkategorija { SubkategorijaId = 1, KategorijaId = 1, Naziv = "Sukulenti" },
+           new Subkategorija { SubkategorijaId = 2, KategorijaId = 1, Naziv = "Biljke za sjenu" },
+           new Subkategorija { SubkategorijaId = 3, KategorijaId = 1, Naziv = "Cvjetnice" },
+           new Subkategorija { SubkategorijaId = 4, KategorijaId = 2, Naziv = "Višegodišnje biljke" },
+           new Subkategorija { SubkategorijaId = 5, KategorijaId = 2, Naziv = "Povrće" },
+           new Subkategorija { SubkategorijaId = 6, KategorijaId = 2, Naziv = "Cvjetne gredice" },
+           new Subkategorija { SubkategorijaId = 7, KategorijaId = 3, Naziv = "Zalijevanje i đubrenje" },
+           new Subkategorija { SubkategorijaId = 8, KategorijaId = 3, Naziv = "Zemlja i presađivanje" },
+           new Subkategorija { SubkategorijaId = 9, KategorijaId = 3, Naziv = "Razmnožavanje biljaka" },
+           new Subkategorija { SubkategorijaId = 10, KategorijaId = 4, Naziv = "Suzbijanje štetočina" },
+           new Subkategorija { SubkategorijaId = 11, KategorijaId = 4, Naziv = "Žutilo listova" },
+           new Subkategorija { SubkategorijaId = 12, KategorijaId = 4, Naziv = "Trulež korijena" }
+
+
+
         );
 
         // ── Posts ────────────────────────────────────────────────────────────
@@ -209,71 +239,122 @@ public partial class PlantCareContext: DbContext
             new Post
             {
                 PostId = 1,
-                Naslov = "Help with my succulents",
-                Sadrzaj = "My succulents have soft leaves and I think I'm overwatering them. Any advice on how to help them recover?",
+                Naslov = "Pomoć sa sukulentima",
+                Sadrzaj = "Listovi mojih sukulenata postali su mekani i prozirni. Mislim da ih previše zalijevam. Šta da radim prije nego se potpuno raspadnu?",
                 DatumKreiranja = new DateTime(2024, 3, 1, 10, 0, 0),
                 KorisnikId = 3,
                 SubkategorijaId = 1,
+                Slika = SlikaHelper.GetSlika(5),
                 Premium = false
             },
             new Post
             {
                 PostId = 2,
-                Naslov = "Best flowers for spring",
-                Sadrzaj = "Looking for suggestions on the best flowers to plant this spring that are easy to maintain and bloom brightly.",
-                DatumKreiranja = new DateTime(2024, 4, 10, 9, 30, 0),
+                Naslov = "Moje iskustvo sa višegodišnjim biljkama",
+                Sadrzaj = "Prošle godine sam posadio lavandu i ruzmarin. Prezimili su bez problema, a zahtijevaju minimalnu njegu. Preporučujem svakome.",
+                DatumKreiranja = new DateTime(2024, 4, 3, 9, 15, 0),
                 KorisnikId = 4,
                 SubkategorijaId = 4,
+                Slika = SlikaHelper.GetSlika(6),
                 Premium = false
             },
             new Post
             {
                 PostId = 3,
-                Naslov = "Watering schedule for herbs",
-                Sadrzaj = "I'm growing a variety of herbs on my balcony. How often should I water them to keep them healthy?",
-                DatumKreiranja = new DateTime(2024, 2, 20, 8, 45, 0),
+                Naslov = "Biljne vaške – prirodno rješenje?",
+                Sadrzaj = "Na ružama sam primijetila biljne vaške. Čula sam da sapunica pomaže. Ima li neko iskustvo s tim?",
+                DatumKreiranja = new DateTime(2024, 5, 2, 11, 30, 0),
                 KorisnikId = 5,
-                SubkategorijaId = 7,
+                SubkategorijaId = 10,
+                Slika = SlikaHelper.GetSlika(7),
                 Premium = false
             },
             new Post
             {
                 PostId = 4,
-                Naslov = "Tomato plant issues",
-                Sadrzaj = "My tomato plant's leaves are wilting and have brown spots. What could be the issue and how can I treat it?",
-                DatumKreiranja = new DateTime(2024, 5, 5, 14, 0, 0),
-                KorisnikId = 4,
-                SubkategorijaId = 5,
+                Naslov = "Koliko često zalijevati mentu u tegli?",
+                Sadrzaj = "Imam mentu na prozoru, ali nisam siguran kad je previše vode. Ponekad uvene iako je zemlja vlažna.",
+                DatumKreiranja = new DateTime(2024, 5, 20, 12, 0, 0),
+                KorisnikId = 2,
+                SubkategorijaId = 7,
+                Slika = SlikaHelper.GetSlika(8),
                 Premium = false
             },
             new Post
             {
                 PostId = 5,
-                Naslov = "Dealing with aphids",
-                Sadrzaj = "I've noticed a lot of small green insects (aphids) on my rose bushes. What's the best way to get rid of them without harming the plants?",
-                DatumKreiranja = new DateTime(2024, 6, 15, 16, 30, 0),
-                KorisnikId = 2,
-                SubkategorijaId = 9,
+                Naslov = "Kako presađujem monsteru",
+                Sadrzaj = "Koristim mješavinu zemlje za sobne biljke, perlita i malo kokosovog vlakna. Presađujem jednom godišnje u proljeće.",
+                DatumKreiranja = new DateTime(2024, 6, 5, 14, 20, 0),
+                KorisnikId = 4,
+                SubkategorijaId = 8,
+                Slika = SlikaHelper.GetSlika(9),
                 Premium = false
             },
+
+            // ───── Premium postovi sa edukativnim savjetima ───────────────
             new Post
             {
                 PostId = 6,
-                Naslov = "New tropical plant varieties",
-                Sadrzaj = "Check out these newly available tropical plant varieties – they have unique foliage and are great for indoor growing!",
-                DatumKreiranja = new DateTime(2024, 7, 1, 11, 0, 0),
+                Naslov = "Kako pravilno njegovati sukulente tokom godine",
+                Sadrzaj = "Sukulenti trebaju mnogo svjetlosti, ali ne direktno sunce u podne. U proljeće i ljeto ih zalijevajte svakih 10-14 dana, a zimi samo jednom mjesečno. Koristite propusnu zemlju sa dodatkom pijeska ili perlita.",
+                DatumKreiranja = new DateTime(2024, 2, 15, 8, 30, 0),
                 KorisnikId = 1,
-                SubkategorijaId = 2,
+                SubkategorijaId = 1,
+                Slika = SlikaHelper.GetSlika(10),
+                Premium = true
+            },
+            new Post
+            {
+                PostId = 7,
+                Naslov = "Top 5 višegodišnjih biljaka za početnike",
+                Sadrzaj = "Lavanda, žalfija, domaća metvica, hosta i dan-noć su otporne višegodišnje biljke. Pogodne su za klimu BiH i zahtijevaju minimalno održavanje nakon sadnje.",
+                DatumKreiranja = new DateTime(2024, 3, 28, 10, 45, 0),
+                KorisnikId = 1,
+                SubkategorijaId = 4,
+                Slika = SlikaHelper.GetSlika(11),
+                Premium = true
+            },
+            new Post
+            {
+                PostId = 8,
+                Naslov = "Razmnožavanje sobnih biljaka: 3 provjerene metode",
+                Sadrzaj = "Reznice u vodi, podjela korijena i slojevanje su tri najčešća načina razmnožavanja biljaka. Najlakši način za početnike je puštanje korijena u vodi iz zdravog lista ili stabljike.",
+                DatumKreiranja = new DateTime(2024, 4, 14, 13, 10, 0),
+                KorisnikId = 1,
+                SubkategorijaId = 9,
+                Slika = SlikaHelper.GetSlika(12),
+                Premium = true
+            },
+            new Post
+            {
+                PostId = 9,
+                Naslov = "Cvjetnice koje uspijevaju u stanu",
+                Sadrzaj = "Spatifilum, anthurium i afrička ljubičica odlično uspijevaju u zatvorenim prostorima. Potrebna im je filtrirana svjetlost, umjerena vlaga i redovno uklanjanje osušenih cvjetova.",
+                DatumKreiranja = new DateTime(2024, 5, 10, 16, 0, 0),
+                KorisnikId = 1,
+                SubkategorijaId = 3,
+                Slika = SlikaHelper.GetSlika(13),
+                Premium = true
+            },
+            new Post
+            {
+                PostId = 10,
+                Naslov = "Kako spriječiti trulež korijena",
+                Sadrzaj = "Trulež korijena se najčešće javlja zbog prekomjernog zalijevanja i loše drenaže. Obavezno koristite posude s rupama i izbjegavajte zalijevanje ako je zemlja još vlažna. Uklonite zaražene dijelove čim ih primijetite.",
+                DatumKreiranja = new DateTime(2024, 6, 22, 10, 0, 0),
+                KorisnikId = 1,
+                SubkategorijaId = 12,
+                Slika = SlikaHelper.GetSlika(14),
                 Premium = true
             }
         );
 
-        // ── Comments ─────────────────────────────────────────────────────────
         modelBuilder.Entity<Komentar>().HasData(
             new Komentar
             {
                 KomentarId = 1,
-                Sadrzaj = "I had the same issue with mine. Let the soil dry out completely before watering again and it helped.",
+                Sadrzaj = "Imao sam isti problem. Pusti da se zemlja potpuno osuši prije nego što ponovo zaliješ i trebalo bi pomoći.",
                 DatumKreiranja = new DateTime(2024, 3, 2, 12, 0, 0),
                 KorisnikId = 4,
                 PostId = 1
@@ -281,46 +362,85 @@ public partial class PlantCareContext: DbContext
             new Komentar
             {
                 KomentarId = 2,
-                Sadrzaj = "Try watering less frequently. Succulents need much less water than other plants.",
+                Sadrzaj = "Sukulenti zaista ne vole stalnu vlagu. Zalijevaj ih tek kad primijetiš da je zemlja potpuno suha.",
                 DatumKreiranja = new DateTime(2024, 3, 3, 9, 15, 0),
                 KorisnikId = 5,
                 PostId = 1
             },
+
             new Komentar
             {
                 KomentarId = 3,
-                Sadrzaj = "Great tips! I'll try this on my rose bushes.",
-                DatumKreiranja = new DateTime(2024, 6, 16, 10, 0, 0),
+                Sadrzaj = "Slažem se! I meni su lavanda i ruzmarin preživjeli zimu bez ikakvih problema.",
+                DatumKreiranja = new DateTime(2024, 4, 4, 10, 30, 0),
                 KorisnikId = 3,
-                PostId = 5
+                PostId = 2
             },
+
             new Komentar
             {
                 KomentarId = 4,
-                Sadrzaj = "Beautiful selection of flowers!",
-                DatumKreiranja = new DateTime(2024, 4, 11, 15, 45, 0),
-                KorisnikId = 5,
-                PostId = 2
+                Sadrzaj = "Sapunica (blagi deterdžent i voda) mi je pomogla kod vaški, ali moraš paziti da ne spališ biljku.",
+                DatumKreiranja = new DateTime(2024, 5, 3, 8, 20, 0),
+                KorisnikId = 1,
+                PostId = 3
             },
+
             new Komentar
             {
                 KomentarId = 5,
-                Sadrzaj = "Have you checked the soil pH? Sometimes nutrient deficiencies can cause those spots.",
-                DatumKreiranja = new DateTime(2024, 5, 6, 8, 30, 0),
-                KorisnikId = 1,
+                Sadrzaj = "Menta ne voli previše vode. Ja je zalijevam samo kad listovi počnu malo da se opuštaju.",
+                DatumKreiranja = new DateTime(2024, 5, 21, 17, 45, 0),
+                KorisnikId = 5,
                 PostId = 4
             },
+
             new Komentar
             {
                 KomentarId = 6,
-                Sadrzaj = "These are amazing, thanks for sharing!",
-                DatumKreiranja = new DateTime(2024, 7, 2, 14, 20, 0),
-                KorisnikId = 4,
+                Sadrzaj = "Kombinacija perlita i kokosovog vlakna zvuči odlično! Probaću to sljedeći put kad presađujem.",
+                DatumKreiranja = new DateTime(2024, 6, 6, 15, 30, 0),
+                KorisnikId = 2,
+                PostId = 5
+            },
+
+            new Komentar
+            {
+                KomentarId = 7,
+                Sadrzaj = "Odličan vodič! Nisam znao da zimi treba zalijevati samo jednom mjesečno.",
+                DatumKreiranja = new DateTime(2024, 2, 16, 9, 10, 0),
+                KorisnikId = 3,
                 PostId = 6
+            },
+
+            new Komentar
+            {
+                KomentarId = 8,
+                Sadrzaj = "Super izbor biljaka! Hosta mi je baš draga jer traži malo pažnje.",
+                DatumKreiranja = new DateTime(2024, 3, 29, 11, 0, 0),
+                KorisnikId = 4,
+                PostId = 7
+            },
+
+            new Komentar
+            {
+                KomentarId = 9,
+                Sadrzaj = "Nikad nisam probao slojevanje, zvuči zanimljivo. Hvala na objašnjenju!",
+                DatumKreiranja = new DateTime(2024, 4, 15, 14, 10, 0),
+                KorisnikId = 5,
+                PostId = 8
+            },
+
+            new Komentar
+            {
+                KomentarId = 10,
+                Sadrzaj = "Afrička ljubičica mi uspijeva već dvije godine, totalno se slažem sa listom.",
+                DatumKreiranja = new DateTime(2024, 5, 11, 18, 20, 0),
+                KorisnikId = 2,
+                PostId = 9
             }
         );
 
-        // ── Likes ─────────────────────────────────────────────────────────────
         modelBuilder.Entity<Lajk>().HasData(
             new Lajk { LajkId = 1, KorisnikId = 4, PostId = 1, Datum = new DateTime(2024, 3, 1, 12, 30, 0) },
             new Lajk { LajkId = 2, KorisnikId = 5, PostId = 1, Datum = new DateTime(2024, 3, 1, 13, 0, 0) },
@@ -331,87 +451,88 @@ public partial class PlantCareContext: DbContext
             new Lajk { LajkId = 7, KorisnikId = 2, PostId = 6, Datum = new DateTime(2024, 7, 1, 12, 0, 0) }
         );
 
-        // ── Notifications ───────────────────────────────────────────────────
         modelBuilder.Entity<Notifikacija>().HasData(
-            new Notifikacija
-            {
-                NotifikacijaId = 1,
-                Naslov = "New Like",
-                Sadrzaj = "Maja liked your post 'Help with my succulents'.",
-                Datum = new DateTime(2024, 3, 1, 12, 30, 0),
-                KorisnikId = 3,
-                PostId = 1,
-                Procitano = false
-            },
-            new Notifikacija
-            {
-                NotifikacijaId = 2,
-                Naslov = "New Comment",
-                Sadrzaj = "Sara commented on your post 'Best flowers for spring'.",
-                Datum = new DateTime(2024, 4, 11, 16, 0, 0),
-                KorisnikId = 4,
-                PostId = 2,
-                Procitano = false
-            },
-            new Notifikacija
-            {
-                NotifikacijaId = 3,
-                Naslov = "New Comment",
-                Sadrzaj = "Ivan commented on your post 'Dealing with aphids'.",
-                Datum = new DateTime(2024, 6, 16, 11, 0, 0),
-                KorisnikId = 2,
-                PostId = 5,
-                Procitano = false
-            },
-            new Notifikacija
-            {
-                NotifikacijaId = 4,
-                Naslov = "New Comment",
-                Sadrzaj = "Maja commented on your post 'New tropical plant varieties'.",
-                Datum = new DateTime(2024, 7, 2, 15, 0, 0),
-                KorisnikId = 1,
-                PostId = 6,
-                Procitano = false
-            },
-            new Notifikacija
-            {
-                NotifikacijaId = 5,
-                Naslov = "New Comment",
-                Sadrzaj = "Ana commented on your post 'Tomato plant issues'.",
-                Datum = new DateTime(2024, 5, 6, 9, 0, 0),
-                KorisnikId = 4,
-                PostId = 4,
-                Procitano = false
-            }
-        );
+    new Notifikacija
+    {
+        NotifikacijaId = 1,
+        Naslov = "Novi lajk",
+        Sadrzaj = "Vaš post je dobio novi lajk.",
+        Datum = new DateTime(2024, 3, 1, 12, 30, 0),
+        KorisnikId = 3,
+        PostId = 1,
+        Procitano = false
+    },
+    new Notifikacija
+    {
+        NotifikacijaId = 2,
+        Naslov = "Novi komentar",
+        Sadrzaj = "Vaš post je komentarisao drugi korisnik.",
+        Datum = new DateTime(2024, 4, 11, 16, 0, 0),
+        KorisnikId = 4,
+        PostId = 2,
+        Procitano = false
+    },
+    new Notifikacija
+    {
+        NotifikacijaId = 3,
+        Naslov = "Novi komentar",
+        Sadrzaj = "Dobili ste novi komentar.",
+        Datum = new DateTime(2024, 6, 16, 11, 0, 0),
+        KorisnikId = 2,
+        PostId = 5,
+        Procitano = false
+    },
+    new Notifikacija
+    {
+        NotifikacijaId = 4,
+        Naslov = "Novi komentar",
+        Sadrzaj = "Neko je komentarisao vaš post.",
+        Datum = new DateTime(2024, 7, 2, 15, 0, 0),
+        KorisnikId = 1,
+        PostId = 6,
+        Procitano = false
+    },
+    new Notifikacija
+    {
+        NotifikacijaId = 5,
+        Naslov = "Novi komentar",
+        Sadrzaj = "Vaš post je upravo komentiran.",
+        Datum = new DateTime(2024, 5, 6, 9, 0, 0),
+        KorisnikId = 4,
+        PostId = 4,
+        Procitano = false
+    }
+);
+
 
         // ── Announcements ────────────────────────────────────────────────────
         modelBuilder.Entity<Obavijest>().HasData(
-            new Obavijest
-            {
-                ObavijestId = 1,
-                Naslov = "Welcome to PlantCare",
-                Sadrzaj = "Hello and welcome to PlantCare! This platform is for plant lovers to share tips, ask questions, and help each other grow thriving plants.",
-                Datum = new DateTime(2024, 1, 1, 0, 0, 0),
-                KorisnikId = 1
-            },
-            new Obavijest
-            {
-                ObavijestId = 2,
-                Naslov = "Community Gardening Event",
-                Sadrzaj = "Join our spring gardening event on May 15th! Share your progress and tips with the community. Prizes await the best garden!",
-                Datum = new DateTime(2024, 4, 1, 0, 0, 0),
-                KorisnikId = 1
-            },
-            new Obavijest
-            {
-                ObavijestId = 3,
-                Naslov = "Scheduled Maintenance",
-                Sadrzaj = "PlantCare will undergo maintenance on June 1st at 12:00 AM UTC for about 2 hours. Thank you for your patience during this time.",
-                Datum = new DateTime(2024, 5, 20, 0, 0, 0),
-                KorisnikId = 1
-            }
-        );
+             new Obavijest
+             {
+                 ObavijestId = 1,
+                 Naslov = "Dobrodošli na PlantCare",
+                 Sadrzaj = "Pozdrav i dobrodošli na PlantCare! Ova platforma je namijenjena ljubiteljima biljaka za razmjenu savjeta, postavljanje pitanja i međusobnu pomoć u njezi biljaka.",
+                 Datum = new DateTime(2024, 1, 1, 0, 0, 0),
+                 KorisnikId = 1
+             },
+             new Obavijest
+             {
+                 ObavijestId = 2,
+                 Naslov = "Proljetni događaj u zajednici",
+                 Sadrzaj = "Pridružite se našem proljetnom događaju 15. maja! Podijelite svoj napredak i savjete s drugima. Najbolji vrtovi osvajaju nagrade!",
+                 Datum = new DateTime(2024, 4, 1, 0, 0, 0),
+                 KorisnikId = 1
+             },
+             new Obavijest
+             {
+                 ObavijestId = 3,
+                 Naslov = "Najavljena tehnička održavanja",
+                 Sadrzaj = "Platforma PlantCare će biti privremeno nedostupna 1. juna od 00:00 sati zbog planiranog održavanja. Hvala na strpljenju!",
+                 Datum = new DateTime(2024, 5, 20, 0, 0, 0),
+                 KorisnikId = 1
+             }
+         );
+
 
         // ── Favorites ────────────────────────────────────────────────────────
         modelBuilder.Entity<OmiljeniPost>().HasData(
@@ -450,7 +571,7 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 3,
                 Iznos = 19.99m,
                 Datum = new DateTime(2024, 2, 15, 13, 0, 0),
-                TipPretplate = "Monthly"
+                TipPretplate = "Mjesecni"
             },
             new Uplata
             {
@@ -458,7 +579,7 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 5,
                 Iznos = 9.99m,
                 Datum = new DateTime(2024, 4, 10, 11, 30, 0),
-                TipPretplate = "Basic"
+                TipPretplate = "Godisnji"
             },
             new Uplata
             {
@@ -466,7 +587,7 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 4,
                 Iznos = 14.50m,
                 Datum = new DateTime(2024, 7, 22, 17, 45, 0),
-                TipPretplate = "Premium"
+                TipPretplate = "Mjesecni"
             }
         );
 
@@ -475,67 +596,59 @@ public partial class PlantCareContext: DbContext
             new Katalog
             {
                 KatalogId = 1,
-                Naslov = "Rose",
-                Opis = "",
-                DatumOd = new DateTime(2024, 1, 1),
-                DatumDo = new DateTime(2024, 12, 31),
+                Naslov = "Biljka mjeseca – Aloe Vera",
+                Opis = "Zbog otpornosti i koristi za njegu kože, Aloe Vera je biljka juna.",
+                DatumOd = new DateTime(2024, 6, 1),
+                DatumDo = new DateTime(2024, 6, 30),
                 KorisnikId = 1
             },
             new Katalog
             {
                 KatalogId = 2,
-                Naslov = "Tulip",
-                Opis = "",
-                DatumOd = new DateTime(2024, 1, 1),
-                DatumDo = new DateTime(2024, 12, 31),
+                Naslov = "Najviše lajkova – Sukulenti",
+                Opis = "Postovi o sukulentima su izazvali najveću pažnju i reakcije korisnika.",
+                DatumOd = new DateTime(2024, 5, 1),
+                DatumDo = new DateTime(2024, 5, 31),
                 KorisnikId = 1
             },
             new Katalog
             {
                 KatalogId = 3,
-                Naslov = "Aloe Vera",
-                Opis = "",
-                DatumOd = new DateTime(2024, 1, 1),
-                DatumDo = new DateTime(2024, 12, 31),
+                Naslov = "Preporuka urednika",
+                Opis = "Odabrani postovi koji sadrže korisne, provjerene i edukativne savjete za uzgoj biljaka.",
+                DatumOd = new DateTime(2024, 4, 1),
+                DatumDo = new DateTime(2024, 4, 30),
                 KorisnikId = 1
             },
             new Katalog
             {
                 KatalogId = 4,
-                Naslov = "Monstera Deliciosa",
-                Opis = "",
-                DatumOd = new DateTime(2024, 1, 1),
-                DatumDo = new DateTime(2024, 12, 31),
-                KorisnikId = 1
-            },
-            new Katalog
-            {
-                KatalogId = 5,
-                Naslov = "Tomato",
-                Opis = "",
-                DatumOd = new DateTime(2024, 1, 1),
-                DatumDo = new DateTime(2024, 12, 31),
-                KorisnikId = 1
-            },
-            new Katalog
-            {
-                KatalogId = 6,
-                Naslov = "Basil",
-                Opis = "",
-                DatumOd = new DateTime(2024, 1, 1),
-                DatumDo = new DateTime(2024, 12, 31),
+                Naslov = "Najljepša ruža u vrtu",
+                Opis = "Estetski najljepši post o ružama koji je zabilježen ovog mjeseca.",
+                DatumOd = new DateTime(2024, 3, 1),
+                DatumDo = new DateTime(2024, 3, 31),
                 KorisnikId = 1
             }
         );
 
-        // ── Catalog-Post Links ───────────────────────────────────────────────
         modelBuilder.Entity<KatalogPost>().HasData(
-            new KatalogPost { KatalogPostId = 1, KatalogId = 3, PostId = 1 },
-            new KatalogPost { KatalogPostId = 2, KatalogId = 2, PostId = 2 },
-            new KatalogPost { KatalogPostId = 3, KatalogId = 6, PostId = 3 },
-            new KatalogPost { KatalogPostId = 4, KatalogId = 5, PostId = 4 },
-            new KatalogPost { KatalogPostId = 5, KatalogId = 1, PostId = 5 },
-            new KatalogPost { KatalogPostId = 6, KatalogId = 4, PostId = 6 }
-        );
+    // Biljka mjeseca – Aloe Vera
+            new KatalogPost { KatalogPostId = 1, KatalogId = 1, PostId = 6 }, // Premium savjet za sukulente
+            new KatalogPost { KatalogPostId = 2, KatalogId = 1, PostId = 1 }, // Forum post o sukulentima
+
+            // Najviše lajkova – Sukulenti
+            new KatalogPost { KatalogPostId = 3, KatalogId = 2, PostId = 1 },
+            new KatalogPost { KatalogPostId = 4, KatalogId = 2, PostId = 2 },
+
+            // Preporuka urednika
+            new KatalogPost { KatalogPostId = 5, KatalogId = 3, PostId = 5 }, // Presađivanje monstere
+            new KatalogPost { KatalogPostId = 6, KatalogId = 3, PostId = 8 }, // Premium razmnožavanje
+            new KatalogPost { KatalogPostId = 7, KatalogId = 3, PostId = 10 }, // Premium trulež korijena
+
+            // Najljepša ruža
+            new KatalogPost { KatalogPostId = 8, KatalogId = 4, PostId = 5 } // Post o vašima na ruži
+);
+
+
     }
 }

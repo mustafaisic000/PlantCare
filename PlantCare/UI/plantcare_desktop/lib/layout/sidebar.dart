@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plantcare_desktop/common/widgets/sidebar_menu_item.dart';
+import 'package:plantcare_desktop/core/theme.dart';
 
 class Sidebar extends StatelessWidget {
   final String selected;
@@ -15,23 +16,29 @@ class Sidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 220,
-      color: const Color(0xFF00C853),
+      color: AppTheme.primaryGreen,
+      padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 48),
           const Center(
             child: Text(
               'ZeleniKutak',
-              style: TextStyle(color: Colors.white, fontSize: 20),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(height: 32),
+
+          // Meniji koji odgovaraju tačno rutama u main.dart
           SidebarMenuItem(
-            label: 'Post',
+            label: 'Postovi',
             icon: Icons.local_florist,
             isActive: selected == 'post',
-            onTap: () => onItemSelected('biljke'),
+            onTap: () => onItemSelected('post'),
           ),
           SidebarMenuItem(
             label: 'Korisnici',
@@ -59,15 +66,39 @@ class Sidebar extends StatelessWidget {
           ),
           SidebarMenuItem(
             label: 'Obavijesti',
-            icon: Icons.notifications,
+            icon: Icons.announcement,
             isActive: selected == 'obavijesti',
             onTap: () => onItemSelected('obavijesti'),
+          ),
+          SidebarMenuItem(
+            label: 'Notifikacije',
+            icon: Icons.notifications,
+            isActive: selected == 'notifikacije',
+            onTap: () => onItemSelected('notifikacije'),
           ),
           SidebarMenuItem(
             label: 'Izvještaji',
             icon: Icons.insert_chart,
             isActive: selected == 'izvjestaji',
             onTap: () => onItemSelected('izvjestaji'),
+          ),
+
+          const Spacer(),
+
+          // Logout dugme
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppTheme.primaryGreen,
+                ),
+                onPressed: () => onItemSelected('logout'),
+                icon: const Icon(Icons.logout),
+                label: const Text("Log out"),
+              ),
+            ),
           ),
         ],
       ),

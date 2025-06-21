@@ -1,62 +1,104 @@
 import 'package:flutter/material.dart';
 import 'package:plantcare_desktop/layout/sidebar.dart';
+import 'package:plantcare_desktop/providers/auth_provider.dart';
+import 'package:plantcare_desktop/providers/util.dart';
 
 class MainLayout extends StatelessWidget {
   final String title;
   final Widget child;
+  final VoidCallback? onAddPressed;
+  final ValueChanged<String>? onSearch;
+  final ValueChanged<String>? onSectionChange;
 
-  const MainLayout({required this.title, required this.child, super.key});
+  const MainLayout({
+    required this.title,
+    required this.child,
+    this.onAddPressed,
+    this.onSearch,
+    this.onSectionChange,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Row(
         children: [
-          // Sidebar
           Sidebar(
-            selected: 'biljke', // privremeno statički — kasnije dinamički
-            onItemSelected: (route) {
-              // ovdje ne možemo koristiti setState jer je StatelessWidget
-              // pravićemo wrapper za to
-            },
+            selected: title.toLowerCase(),
+            onItemSelected: onSectionChange!,
           ),
-          // Glavni sadržaj
           Expanded(
             child: Column(
               children: [
-                // Topbar
                 Container(
-                  height: 60,
-                  color: Colors.white,
+                  height: 72,
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  alignment: Alignment.centerLeft,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 4),
+                    ],
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        title,
+                        _capitalize(title),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      SizedBox(
-                        width: 240,
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Pretraga...',
-                            prefixIcon: const Icon(Icons.search),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 240,
+                            child: TextField(
+                              onSubmitted: onSearch,
+                              decoration: InputDecoration(
+                                hintText: 'Pretraga...',
+                                prefixIcon: const Icon(Icons.search),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          const SizedBox(width: 16),
+                          ElevatedButton.icon(
+                            onPressed: onAddPressed ?? () {},
+                            icon: const Icon(Icons.add),
+                            label: const Text('Dodaj'),
+                          ),
+                          const SizedBox(width: 16),
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: Colors.grey[200],
+                            child: ClipOval(
+                              child:
+                                  AuthProvider.korisnik?.slika != null &&
+                                      AuthProvider.korisnik!.slika!.isNotEmpty
+                                  ? SizedBox(
+                                      width: 40,
+                                      height: 40,
+                                      child: imageFromString(
+                                        AuthProvider.korisnik!.slika!,
+                                      ),
+                                    )
+                                  : Image.asset(
+                                      'assets/images/placeholder.png',
+                                      width: 40,
+                                      height: 40,
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-
-                // Content
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(32),
@@ -69,5 +111,10 @@ class MainLayout extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _capitalize(String input) {
+    if (input.isEmpty) return input;
+    return input[0].toUpperCase() + input.substring(1);
   }
 }

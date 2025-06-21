@@ -12,4 +12,6 @@ public class KorisnikMobileUpdateRequest
     public string? Prezime { get; set; }
     public string? Telefon { get; set; }
     public string? Email { get; set; }
+    public byte[]? Slika { get; set; }
+
 }
