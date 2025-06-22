@@ -35,3 +35,12 @@ String formatDateAndHours(DateTime? date) {
   if (date == null) return '';
   return DateFormat('dd.MM.yyyy HH:mm').format(date);
 }
+
+DateTime? parseDate(String? dateStr) {
+  if (dateStr == null || dateStr.isEmpty) return null;
+  try {
+    return DateFormat('dd.MM.yyyy').parse(dateStr);
+  } catch (e) {
+    return null;
+  }
+}

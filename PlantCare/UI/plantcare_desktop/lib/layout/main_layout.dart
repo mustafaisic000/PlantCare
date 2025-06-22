@@ -49,27 +49,9 @@ class MainLayout extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          SizedBox(
-                            width: 240,
-                            child: TextField(
-                              onSubmitted: onSearch,
-                              decoration: InputDecoration(
-                                hintText: 'Pretraga...',
-                                prefixIcon: const Icon(Icons.search),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          ElevatedButton.icon(
-                            onPressed: onAddPressed ?? () {},
-                            icon: const Icon(Icons.add),
-                            label: const Text('Dodaj'),
+                          Text(
+                            'Dobrodošli, ${AuthProvider.korisnik?.ime ?? ''}',
+                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
                           const SizedBox(width: 16),
                           CircleAvatar(
@@ -100,7 +82,7 @@ class MainLayout extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: SingleChildScrollView(
+                  child: Padding(
                     padding: const EdgeInsets.all(32),
                     child: child,
                   ),

@@ -17,6 +17,12 @@ List<FormFieldConfig> getFormConfig(String type, {bool readOnly = false}) {
           readOnly: readOnly,
         ),
         FormFieldConfig(
+          key: 'korisnickoIme',
+          label: 'Korisničko ime',
+          required: true,
+          readOnly: readOnly,
+        ),
+        FormFieldConfig(
           key: 'email',
           label: 'Email',
           required: true,
@@ -27,19 +33,21 @@ List<FormFieldConfig> getFormConfig(String type, {bool readOnly = false}) {
           key: 'telefon',
           label: 'Telefon',
           required: true,
-          type: FieldType.email,
+          type: FieldType.text,
           readOnly: readOnly,
         ),
         FormFieldConfig(
           key: 'datumRodjenja',
           label: 'Datum rođenja',
           type: FieldType.date,
+          required: true,
           readOnly: readOnly,
         ),
         FormFieldConfig(
           key: 'ulogaId',
           label: 'Uloga',
           type: FieldType.dropdown,
+          required: true,
           readOnly: readOnly,
         ),
       ];

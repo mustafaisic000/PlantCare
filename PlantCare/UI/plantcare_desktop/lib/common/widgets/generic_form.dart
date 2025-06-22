@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:plantcare_desktop/common/config/form_field_config.dart';
 import 'package:plantcare_desktop/providers/util.dart';
@@ -29,16 +31,19 @@ class _GenericFormState extends State<GenericForm> {
   late Map<String, TextEditingController> controllers;
   final _internalFormKey = GlobalKey<FormState>();
   Map<String, List<Map<String, String>>> dynamicDropdownOptions = {};
+  String? base64Image;
 
   @override
   void initState() {
     super.initState();
     controllers = {
       for (var field in widget.config)
-        field.key: TextEditingController(
-          text: _initialValue(field.key, field.type),
-        ),
+        if (field.type != FieldType.image)
+          field.key: TextEditingController(
+            text: _initialValue(field.key, field.type),
+          ),
     };
+    base64Image = widget.initialData['slika'];
     _loadDynamicDropdowns();
   }
 
@@ -65,28 +70,63 @@ class _GenericFormState extends State<GenericForm> {
     return value.toString();
   }
 
-  @override
-  void dispose() {
-    for (var c in controllers.values) {
-      c.dispose();
-    }
-    super.dispose();
-  }
-
   void _submit() {
     final formKey = widget.formKey ?? _internalFormKey;
     if (formKey.currentState!.validate()) {
       final data = {
         for (var field in widget.config)
-          field.key: field.type == FieldType.date
-              ? controllers[field.key]!.text
-              : controllers[field.key]!.text.trim(),
+          if (field.type != FieldType.image)
+            field.key: field.type == FieldType.date
+                ? controllers[field.key]!.text
+                : controllers[field.key]!.text.trim(),
       };
+      if (widget.config.any((f) => f.type == FieldType.image)) {
+        data['slika'] = base64Image ?? '';
+      }
       widget.onSubmit(data);
     }
   }
 
+  Future<void> _pickImage() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (result != null && result.files.single.bytes != null) {
+      setState(() {
+        base64Image = base64Encode(result.files.single.bytes!);
+      });
+    }
+  }
+
   Widget _buildField(FormFieldConfig field) {
+    if (field.type == FieldType.image) {
+      return Expanded(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 16, right: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (base64Image != null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.memory(
+                    base64Decode(base64Image!),
+                    height: 140,
+                    width: 140,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              const SizedBox(height: 8),
+              if (!widget.readOnly)
+                ElevatedButton.icon(
+                  onPressed: _pickImage,
+                  icon: const Icon(Icons.image),
+                  label: const Text('Dodaj sliku'),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final controller = controllers[field.key]!;
 
     if (field.type == FieldType.date) {
@@ -133,24 +173,25 @@ class _GenericFormState extends State<GenericForm> {
       return Expanded(
         child: Padding(
           padding: const EdgeInsets.only(bottom: 16, right: 16),
-          child: DropdownButtonFormField<String>(
-            value: controller.text.isNotEmpty ? controller.text : null,
+          child: DropdownButtonFormField<int>(
+            value: int.tryParse(controller.text),
             items: options
                 .map(
-                  (opt) => DropdownMenuItem<String>(
-                    value: opt['value'],
+                  (opt) => DropdownMenuItem<int>(
+                    value: int.parse(opt['value']!),
                     child: Text(opt['label'] ?? ''),
                   ),
                 )
                 .toList(),
-            onChanged: widget.readOnly ? null : (val) => controller.text = val!,
+            onChanged: widget.readOnly
+                ? null
+                : (val) => controller.text = val?.toString() ?? '',
             decoration: InputDecoration(
               labelText: field.label,
               border: const OutlineInputBorder(),
             ),
             validator: field.required && !widget.readOnly
-                ? (value) =>
-                      value == null || value.isEmpty ? 'Obavezno polje' : null
+                ? (value) => value == null ? 'Obavezno polje' : null
                 : null,
           ),
         ),
@@ -167,6 +208,7 @@ class _GenericFormState extends State<GenericForm> {
             labelText: field.label,
             border: const OutlineInputBorder(),
           ),
+          maxLines: field.multiline ? null : 1,
           validator: field.required && !widget.readOnly
               ? (value) =>
                     value == null || value.isEmpty ? 'Obavezno polje' : null
@@ -191,24 +233,27 @@ class _GenericFormState extends State<GenericForm> {
       );
     }
 
-    return Form(
-      key: formKey,
-      child: Column(
-        children: [
-          ...rows,
-          if (!widget.readOnly) ...[
-            const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.center,
-              child: ElevatedButton(
-                onPressed: widget.isLoading ? null : _submit,
-                child: widget.isLoading
-                    ? const CircularProgressIndicator()
-                    : const Text("Sačuvaj"),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 600),
+      child: Form(
+        key: formKey,
+        child: Column(
+          children: [
+            ...rows,
+            if (!widget.readOnly) ...[
+              const SizedBox(height: 16),
+              Align(
+                alignment: Alignment.center,
+                child: ElevatedButton(
+                  onPressed: widget.isLoading ? null : _submit,
+                  child: widget.isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text("Sačuvaj"),
+                ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

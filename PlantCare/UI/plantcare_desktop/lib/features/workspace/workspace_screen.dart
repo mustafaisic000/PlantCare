@@ -46,9 +46,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
   Widget build(BuildContext context) {
     return MainLayout(
       title: selectedSection,
-      onAddPressed: () {
-        // Ovdje kasnije dodaješ logiku po sekciji ako treba otvoriti formu
-      },
+      onAddPressed: () {},
       onSearch: (query) {
         print('Search in $selectedSection: $query');
       },
