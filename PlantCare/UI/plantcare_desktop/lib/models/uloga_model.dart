@@ -7,7 +7,9 @@ class Uloga {
 
   factory Uloga.fromJson(Map<String, dynamic> json) {
     return Uloga(
-      ulogaId: json['ulogaId'],
+      ulogaId: json['ulogaId'] is int
+          ? json['ulogaId']
+          : int.parse(json['ulogaId'].toString()),
       naziv: json['naziv'],
       opis: json['opis'],
     );

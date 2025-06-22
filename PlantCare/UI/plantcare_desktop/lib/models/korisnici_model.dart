@@ -1,5 +1,5 @@
 class Korisnik {
-  final int korisnikId;
+  final int? korisnikId;
   final String ime;
   final String prezime;
   final DateTime? datumRodjenja;

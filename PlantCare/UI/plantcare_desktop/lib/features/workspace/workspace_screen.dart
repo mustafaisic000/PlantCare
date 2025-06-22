@@ -47,9 +47,6 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
     return MainLayout(
       title: selectedSection,
       onAddPressed: () {},
-      onSearch: (query) {
-        print('Search in $selectedSection: $query');
-      },
       child: getSectionContent(),
       onSectionChange: (newSection) {
         if (newSection == 'logout') {

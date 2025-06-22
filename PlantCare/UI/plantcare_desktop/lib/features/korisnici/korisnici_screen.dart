@@ -65,26 +65,42 @@ class _KorisniciScreenState extends State<KorisniciScreen> {
     });
   }
 
-  void _showDetails(Korisnik k, {bool readOnly = true}) {
-    showDialog(
+  void _showDetails(Korisnik k, {bool readOnly = true}) async {
+    await showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        content: SingleChildScrollView(
-          child: KorisnikForm(
-            korisnik: k,
-            readOnly: readOnly,
-            onClose: loadData,
+      builder: (_) => Dialog(
+        insetPadding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          child: SizedBox(
+            width: 900,
+            child: KorisnikForm(
+              korisnik: k,
+              readOnly: readOnly,
+              onClose: () async {
+                await loadData();
+              },
+            ),
           ),
         ),
       ),
     );
   }
 
-  void _showAddForm() {
-    showDialog(
+  void _showAddForm() async {
+    await showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        content: SingleChildScrollView(child: KorisnikForm(onClose: loadData)),
+      builder: (_) => Dialog(
+        insetPadding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          child: SizedBox(
+            width: 900,
+            child: KorisnikForm(
+              onClose: () async {
+                await loadData(); // odmah nakon dodavanja, učitaj podatke ponovo
+              },
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -102,60 +118,69 @@ class _KorisniciScreenState extends State<KorisniciScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Wrap(
-          spacing: 12,
-          runSpacing: 8,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            SizedBox(
-              width: 180,
-              child: TextField(
-                controller: imeController,
-                onChanged: (_) => loadData(),
-                decoration: const InputDecoration(labelText: 'Ime'),
-              ),
-            ),
-            SizedBox(
-              width: 180,
-              child: TextField(
-                controller: prezimeController,
-                onChanged: (_) => loadData(),
-                decoration: const InputDecoration(labelText: 'Prezime'),
-              ),
-            ),
-            SizedBox(
-              width: 180,
-              child: DropdownButtonFormField<int>(
-                value: selectedUlogaId,
-                decoration: const InputDecoration(labelText: 'Uloga'),
-                items: uloge
-                    .map(
-                      (u) => DropdownMenuItem(
-                        value: u.ulogaId,
-                        child: Text(u.naziv),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Filteri
+              Expanded(
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
+                  children: [
+                    SizedBox(
+                      width: 180,
+                      child: TextField(
+                        controller: imeController,
+                        onChanged: (_) => loadData(),
+                        decoration: const InputDecoration(labelText: 'Ime'),
                       ),
-                    )
-                    .toList(),
-                onChanged: (val) {
-                  setState(() => selectedUlogaId = val);
-                  loadData();
-                },
+                    ),
+                    SizedBox(
+                      width: 180,
+                      child: TextField(
+                        controller: prezimeController,
+                        onChanged: (_) => loadData(),
+                        decoration: const InputDecoration(labelText: 'Prezime'),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 180,
+                      child: DropdownButtonFormField<int>(
+                        value: selectedUlogaId,
+                        decoration: const InputDecoration(labelText: 'Uloga'),
+                        items: uloge
+                            .map(
+                              (u) => DropdownMenuItem(
+                                value: u.ulogaId,
+                                child: Text(u.naziv),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (val) {
+                          setState(() => selectedUlogaId = val);
+                          loadData();
+                        },
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: _clearFilters,
+                      icon: const Icon(Icons.clear),
+                      label: const Text('Očisti filtere'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            ElevatedButton.icon(
-              onPressed: _clearFilters,
-              icon: const Icon(Icons.clear),
-              label: const Text('Očisti filtere'),
-            ),
-            const Spacer(),
-            ElevatedButton.icon(
-              onPressed: _showAddForm,
-              icon: const Icon(Icons.add),
-              label: const Text('Dodaj'),
-            ),
-          ],
+              const SizedBox(width: 12),
+              ElevatedButton.icon(
+                onPressed: _showAddForm,
+                icon: const Icon(Icons.add),
+                label: const Text('Dodaj'),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 20),
         Expanded(
           child: GenericPaginatedTable<Korisnik>(
             data: _data,
