@@ -17,8 +17,5 @@ public partial class Notifikacija
     [Required]
     public int KorisnikId { get; set; }      
     public virtual Korisnik Korisnik { get; set; } = null!;
-
-    public int? PostId { get; set; }
-    public virtual Post? Post { get; set; }
     public bool Procitano { get; set; } = false; 
 }

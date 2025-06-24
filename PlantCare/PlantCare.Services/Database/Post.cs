@@ -9,13 +9,13 @@ public partial class Post
     [Key]
     public int PostId { get; set; }          
 
-    [Required, MaxLength(200)]
-    public string Naslov { get; set; }        
+    [Required, MaxLength(100)]
+    public string Naslov { get; set; }
 
-    [Required]
+    [Required, MaxLength(250)]
     public string Sadrzaj { get; set; }      
 
-    public byte[]? Slika { get; set; }    
+    public byte[] Slika { get; set; }    
 
     public DateTime DatumKreiranja { get; set; } = DateTime.Now; 
 

@@ -11,7 +11,7 @@ public partial class Katalog
 
     [Required, MaxLength(100)]
     public string Naslov { get; set; } = default!;
-
+    [Required, MaxLength(250)]
     public string Opis { get; set; } = default!;
     public bool Aktivan { get; set; }
     [Required]

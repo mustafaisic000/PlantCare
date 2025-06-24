@@ -137,7 +137,7 @@ public partial class PlantCareContext: DbContext
                 Ime = "Ana",
                 Prezime = "Admin",
                 Email = "ana.admin@plantcare.com",
-                Telefon = null,
+                Telefon = "060",
                 KorisnickoIme = "ana_admin",
                 DatumRodjenja = new DateTime(1991, 4, 12),
                 LozinkaHash = "tPW/IOLa2TZIKYSA50IDeaJKYtg=",
@@ -152,7 +152,7 @@ public partial class PlantCareContext: DbContext
                 Ime = "Marko",
                 Prezime = "Mod",
                 Email = "marko.mod@plantcare.com",
-                Telefon = null,
+                Telefon = "060",
                 KorisnickoIme = "marko_mod",
                 LozinkaHash = "tPW/IOLa2TZIKYSA50IDeaJKYtg=",
                 DatumRodjenja = new DateTime(1995, 4, 12),
@@ -167,7 +167,7 @@ public partial class PlantCareContext: DbContext
                 Ime = "Ivan",
                 Prezime = "Ivić",
                 Email = "ivan.ivic@plantcare.com",
-                Telefon = null,
+                Telefon = "060",
                 KorisnickoIme = "ivan",
                 LozinkaHash = "tPW/IOLa2TZIKYSA50IDeaJKYtg=",
                 DatumRodjenja = new DateTime(1995, 4, 12),
@@ -182,7 +182,7 @@ public partial class PlantCareContext: DbContext
                 Ime = "Maja",
                 Prezime = "Majić",
                 Email = "maja.majic@plantcare.com",
-                Telefon = null,
+                Telefon = "060",
                 KorisnickoIme = "majam",
                 LozinkaHash = "tPW/IOLa2TZIKYSA50IDeaJKYtg=",
                 LozinkaSalt = "2G2wAwYkdFgpMleomcwelg==",
@@ -197,7 +197,7 @@ public partial class PlantCareContext: DbContext
                 Ime = "Sara",
                 Prezime = "Sarić",
                 Email = "sara.saric@plantcare.com",
-                Telefon = null,
+                Telefon = "060",
                 KorisnickoIme = "saras",
                 LozinkaHash = "tPW/IOLa2TZIKYSA50IDeaJKYtg=",
                 LozinkaSalt = "2G2wAwYkdFgpMleomcwelg==",
@@ -471,7 +471,6 @@ public partial class PlantCareContext: DbContext
         Sadrzaj = "Vaš post je dobio novi lajk.",
         Datum = new DateTime(2024, 3, 1, 12, 30, 0),
         KorisnikId = 3,
-        PostId = 1,
         Procitano = false
     },
     new Notifikacija
@@ -481,7 +480,6 @@ public partial class PlantCareContext: DbContext
         Sadrzaj = "Vaš post je komentarisao drugi korisnik.",
         Datum = new DateTime(2024, 4, 11, 16, 0, 0),
         KorisnikId = 4,
-        PostId = 2,
         Procitano = false
     },
     new Notifikacija
@@ -491,7 +489,6 @@ public partial class PlantCareContext: DbContext
         Sadrzaj = "Dobili ste novi komentar.",
         Datum = new DateTime(2024, 6, 16, 11, 0, 0),
         KorisnikId = 2,
-        PostId = 5,
         Procitano = false
     },
     new Notifikacija
@@ -501,7 +498,6 @@ public partial class PlantCareContext: DbContext
         Sadrzaj = "Neko je komentarisao vaš post.",
         Datum = new DateTime(2024, 7, 2, 15, 0, 0),
         KorisnikId = 1,
-        PostId = 6,
         Procitano = false
     },
     new Notifikacija
@@ -511,7 +507,6 @@ public partial class PlantCareContext: DbContext
         Sadrzaj = "Vaš post je upravo komentiran.",
         Datum = new DateTime(2024, 5, 6, 9, 0, 0),
         KorisnikId = 4,
-        PostId = 4,
         Procitano = false
     }
 );

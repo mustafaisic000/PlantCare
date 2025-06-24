@@ -35,7 +35,7 @@ class _KategorijaFormState extends State<KategorijaForm> {
     } else {
       await kategorijaProvider.update(widget.kategorija!.kategorijaId, request);
     }
-
+    if (!mounted) return;
     if (widget.onSuccess != null) widget.onSuccess!();
     Navigator.of(context).pop();
   }
@@ -53,8 +53,16 @@ class _KategorijaFormState extends State<KategorijaForm> {
           child: TextFormField(
             controller: nazivController,
             decoration: const InputDecoration(labelText: 'Naziv'),
-            validator: (value) =>
-                value == null || value.isEmpty ? 'Unesite naziv' : null,
+            maxLength: 100,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Unesite naziv';
+              }
+              if (value.length > 100) {
+                return 'Maksimalno 100 karaktera';
+              }
+              return null;
+            },
           ),
         ),
       ),

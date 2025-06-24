@@ -3,37 +3,82 @@ import 'package:plantcare_desktop/models/notifikacija_model.dart';
 import 'package:plantcare_desktop/providers/util.dart';
 import 'package:plantcare_desktop/providers/notifikacija_provider.dart';
 
-class NotificationCard extends StatelessWidget {
+class NotificationCard extends StatefulWidget {
   final Notifikacija notifikacija;
+  final VoidCallback? onRefresh;
+  final VoidCallback? onDelete;
 
-  const NotificationCard({super.key, required this.notifikacija});
+  const NotificationCard({
+    super.key,
+    required this.notifikacija,
+    this.onRefresh,
+    this.onDelete,
+  });
+
+  @override
+  State<NotificationCard> createState() => _NotificationCardState();
+}
+
+class _NotificationCardState extends State<NotificationCard> {
+  late bool isRead;
+
+  @override
+  void initState() {
+    super.initState();
+    isRead = widget.notifikacija.procitano;
+  }
+
+  Future<void> markAsRead() async {
+    if (!isRead) {
+      try {
+        final provider = NotifikacijaProvider();
+        await provider.markAsRead(widget.notifikacija.notifikacijaId);
+        setState(() => isRead = true);
+        widget.onRefresh?.call();
+      } catch (_) {
+        // silent fail
+      }
+    }
+  }
+
+  void showDetailsPopup() async {
+    await markAsRead();
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(widget.notifikacija.naslov),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.notifikacija.sadrzaj),
+            const SizedBox(height: 16),
+            if (widget.notifikacija.korisnickoIme != null)
+              Text("Korisnik: ${widget.notifikacija.korisnickoIme!}"),
+            const SizedBox(height: 10),
+            Text("Vrijeme: ${formatDateAndHours(widget.notifikacija.datum)}"),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Zatvori"),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final bool isRead = notifikacija.procitano;
-
     return GestureDetector(
-      onTap: () async {
-        // Ako nije pročitana, označi kao pročitanu
-        if (!isRead) {
-          final provider = NotifikacijaProvider();
-          await provider.update(notifikacija.notifikacijaId, {
-            "procitano": true,
-          });
-
-          // Osvježi UI
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Notifikacija označena kao pročitana."),
-              ),
-            );
-          }
-        }
-      },
+      onTap: showDetailsPopup,
       child: Container(
         decoration: BoxDecoration(
-          color: isRead ? const Color(0xFFF3F9F2) : const Color(0xFFE3F2FD),
+          color: isRead ? Colors.white : const Color(0xFFE3F2FD),
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
@@ -53,33 +98,22 @@ class NotificationCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    notifikacija.naslov,
+                    widget.notifikacija.naslov,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(notifikacija.sadrzaj),
+                  Text(widget.notifikacija.sadrzaj),
                   const SizedBox(height: 12),
-                  if (notifikacija.postNaslov != null)
-                    Row(
-                      children: [
-                        const Icon(Icons.article_outlined, size: 16),
-                        const SizedBox(width: 6),
-                        Text(
-                          "Post: ${notifikacija.postNaslov!}",
-                          style: const TextStyle(color: Colors.black54),
-                        ),
-                      ],
-                    ),
-                  if (notifikacija.korisnickoIme != null)
+                  if (widget.notifikacija.korisnickoIme != null)
                     Row(
                       children: [
                         const Icon(Icons.person_outline, size: 16),
                         const SizedBox(width: 6),
                         Text(
-                          "Korisnik: ${notifikacija.korisnickoIme!}",
+                          "Korisnik: ${widget.notifikacija.korisnickoIme!}",
                           style: const TextStyle(color: Colors.black54),
                         ),
                       ],
@@ -90,9 +124,25 @@ class NotificationCard extends StatelessWidget {
             Positioned(
               top: 0,
               right: 0,
-              child: Text(
-                formatDateAndHours(notifikacija.datum),
-                style: const TextStyle(color: Colors.black45),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    formatDateAndHours(widget.notifikacija.datum),
+                    style: const TextStyle(color: Colors.black45),
+                  ),
+                  const SizedBox(width: 8),
+                  if (widget.onDelete != null)
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        size: 20,
+                        color: Colors.red,
+                      ),
+                      onPressed: widget.onDelete,
+                      tooltip: 'Obriši notifikaciju',
+                    ),
+                ],
               ),
             ),
             if (!isRead)
@@ -103,7 +153,7 @@ class NotificationCard extends StatelessWidget {
                   width: 10,
                   height: 10,
                   decoration: const BoxDecoration(
-                    color: Colors.redAccent,
+                    color: Colors.red,
                     shape: BoxShape.circle,
                   ),
                 ),

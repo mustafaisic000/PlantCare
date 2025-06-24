@@ -28,15 +28,10 @@ public class NotifikacijaService
     {
         query = base.AddFilter(search, query);
 
-        query = query
-             .Include(x => x.Korisnik)
-             .Include(x => x.Post);
+        query = query.Include(x => x.Korisnik);
 
         if (search.KorisnikId.HasValue)
             query = query.Where(x => x.KorisnikId == search.KorisnikId.Value);
-
-        if (search.PostId.HasValue)
-            query = query.Where(x => x.PostId == search.PostId.Value);
 
         if (search.Procitano.HasValue)
             query = query.Where(x => x.Procitano == search.Procitano.Value);

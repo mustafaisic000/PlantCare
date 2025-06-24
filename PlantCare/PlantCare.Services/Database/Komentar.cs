@@ -5,9 +5,9 @@ namespace PlantCare.Services.Database;
 public class Komentar
 {
     [Key]
-    public int KomentarId { get; set; }      
+    public int KomentarId { get; set; }
 
-    [Required]
+    [Required, MaxLength(200)]
     public string Sadrzaj { get; set; }      
 
     public DateTime DatumKreiranja { get; set; } = DateTime.Now;  

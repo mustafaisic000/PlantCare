@@ -33,6 +33,7 @@ class _KatalogFormState extends State<KatalogForm> {
   List<Post> _filtriraniPostovi = [];
   List<int> _odabraniPostIds = [];
 
+  bool _showPostError = false;
   @override
   void initState() {
     super.initState();
@@ -57,7 +58,16 @@ class _KatalogFormState extends State<KatalogForm> {
   }
 
   void _submit() async {
+    setState(() => _showPostError = false);
     if (!_formKey.currentState!.validate()) return;
+
+    if (_odabraniPostIds.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Morate odabrati barem jedan post.")),
+      );
+      return;
+    }
 
     if (_odabraniPostIds.length > 8) {
       if (!mounted) return;
@@ -69,6 +79,7 @@ class _KatalogFormState extends State<KatalogForm> {
 
     final korisnikId = AuthProvider.korisnik?.korisnikId;
     if (korisnikId == null) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Niste logirani.")));
@@ -102,10 +113,11 @@ class _KatalogFormState extends State<KatalogForm> {
         }
       }
 
-      widget.onClose();
       if (!mounted) return;
+      widget.onClose();
       Navigator.of(context).pop();
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Greška pri spremanju: $e")));
@@ -135,8 +147,15 @@ class _KatalogFormState extends State<KatalogForm> {
                 TextFormField(
                   controller: _naslovController,
                   decoration: const InputDecoration(labelText: "Naslov"),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? "Unesite naslov" : null,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Unesite naslov";
+                    }
+                    if (value.length > 100) {
+                      return "Naslov može imati najviše 100 karaktera";
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -144,6 +163,12 @@ class _KatalogFormState extends State<KatalogForm> {
                   decoration: const InputDecoration(labelText: "Opis"),
                   maxLength: 250,
                   maxLines: 3,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Unesite opis";
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -158,7 +183,7 @@ class _KatalogFormState extends State<KatalogForm> {
                 const SizedBox(height: 12),
                 const Align(
                   alignment: Alignment.centerLeft,
-                  child: Text("Odaberite postove (max 8)"),
+                  child: Text("Odaberite postove (min 1 - max 8)"),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -183,41 +208,59 @@ class _KatalogFormState extends State<KatalogForm> {
                 SizedBox(
                   height: 150,
                   child: SingleChildScrollView(
-                    child: Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: _filtriraniPostovi.map((post) {
-                        final selected = _odabraniPostIds.contains(post.postId);
-                        return FilterChip(
-                          label: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(post.naslov),
-                              if (post.premium)
-                                const Padding(
-                                  padding: EdgeInsets.only(left: 6),
-                                  child: Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                    size: 16,
-                                  ),
-                                ),
-                            ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: _filtriraniPostovi.map((post) {
+                            final selected = _odabraniPostIds.contains(
+                              post.postId,
+                            );
+                            return FilterChip(
+                              label: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(post.naslov),
+                                  if (post.premium)
+                                    const Padding(
+                                      padding: EdgeInsets.only(left: 6),
+                                      child: Icon(
+                                        Icons.star,
+                                        color: Colors.amber,
+                                        size: 16,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              selected: selected,
+                              onSelected: (_) {
+                                setState(() {
+                                  if (selected) {
+                                    _odabraniPostIds.remove(post.postId);
+                                  } else {
+                                    if (_odabraniPostIds.length < 8) {
+                                      _odabraniPostIds.add(post.postId);
+                                    }
+                                  }
+                                  if (_odabraniPostIds.isNotEmpty) {
+                                    _showPostError = false;
+                                  }
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                        if (_showPostError)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 8),
+                            child: Text(
+                              'Morate odabrati barem jedan post.',
+                              style: TextStyle(color: Colors.red),
+                            ),
                           ),
-                          selected: selected,
-                          onSelected: (_) {
-                            setState(() {
-                              if (selected) {
-                                _odabraniPostIds.remove(post.postId);
-                              } else {
-                                if (_odabraniPostIds.length < 8) {
-                                  _odabraniPostIds.add(post.postId);
-                                }
-                              }
-                            });
-                          },
-                        );
-                      }).toList(),
+                      ],
                     ),
                   ),
                 ),

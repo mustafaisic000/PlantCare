@@ -68,9 +68,16 @@ class _ObavijestFormState extends State<ObavijestForm> {
             children: [
               TextFormField(
                 controller: naslovController,
+                maxLength: 100, // ← Ovdje ograničenje
                 decoration: const InputDecoration(labelText: 'Naslov'),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Unesite naslov' : null,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Unesite naslov';
+                  } else if (value.length > 100) {
+                    return 'Naslov može imati maksimalno 100 karaktera';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               TextFormField(

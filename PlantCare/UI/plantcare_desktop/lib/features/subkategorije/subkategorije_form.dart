@@ -62,7 +62,8 @@ class _SubkategorijeFormState extends State<SubkategorijeForm> {
       );
     }
 
-    if (widget.onSuccess != null) widget.onSuccess!();
+    if (!mounted) return;
+    widget.onSuccess?.call();
     Navigator.of(context).pop();
   }
 
@@ -86,9 +87,15 @@ class _SubkategorijeFormState extends State<SubkategorijeForm> {
                     TextFormField(
                       controller: nazivController,
                       decoration: const InputDecoration(labelText: 'Naziv'),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Unesite naziv'
-                          : null,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Unesite naziv';
+                        }
+                        if (value.length > 100) {
+                          return 'Maksimalno 100 karaktera';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<int>(

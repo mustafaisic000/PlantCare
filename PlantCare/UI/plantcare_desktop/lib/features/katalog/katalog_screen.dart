@@ -83,12 +83,42 @@ class _KatalogScreenState extends State<KatalogScreen> {
     );
   }
 
-  void _deleteDummy(Katalog katalog) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Brisanje kataloga još nije implementirano."),
+  void _deleteKatalog(Katalog katalog) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Potvrda"),
+        content: const Text(
+          "Da li ste sigurni da želite obrisati ovaj katalog?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text("Otkaži"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text("Obriši"),
+          ),
+        ],
       ),
     );
+
+    if (confirmed == true) {
+      try {
+        await _provider.delete(katalog.katalogId);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Katalog uspješno obrisan.")),
+        );
+        await loadData();
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Greška: ${e.toString()}")));
+      }
+    }
   }
 
   @override
@@ -146,7 +176,7 @@ class _KatalogScreenState extends State<KatalogScreen> {
               onPageChanged: _onPageChanged,
               onEdit: (k) => _openForm(katalog: k),
               onView: _viewDetails,
-              onDelete: _deleteDummy,
+              onDelete: _deleteKatalog,
             ),
           ),
         ),

@@ -79,12 +79,46 @@ class _KategorijeScreenState extends State<KategorijeScreen> {
     );
   }
 
-  void _deleteDummy(Kategorija kategorija) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Delete funkcionalnost još nije implementirana."),
+  void _deleteKategorija(Kategorija kategorija) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Potvrda brisanja"),
+        content: Text("Da li želiš obrisati kategoriju: ${kategorija.naziv}?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Odustani"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Obriši"),
+          ),
+        ],
       ),
     );
+
+    if (confirmed == true) {
+      try {
+        await _provider.delete(kategorija.kategorijaId);
+
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Kategorija uspješno obrisana.")),
+        );
+
+        await loadData();
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Greška: Ne možete obrisati kategoriju koja sadrži subkategorije.",
+            ),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -142,7 +176,7 @@ class _KategorijeScreenState extends State<KategorijeScreen> {
               onPageChanged: _onPageChanged,
               onEdit: (k) => _openForm(kategorija: k),
               onView: _viewDetails,
-              onDelete: _deleteDummy,
+              onDelete: _deleteKategorija,
             ),
           ),
         ),

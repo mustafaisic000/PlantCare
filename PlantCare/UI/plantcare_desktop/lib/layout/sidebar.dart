@@ -94,7 +94,32 @@ class Sidebar extends StatelessWidget {
                   backgroundColor: Colors.white,
                   foregroundColor: AppTheme.primaryGreen,
                 ),
-                onPressed: () => onItemSelected('logout'),
+                onPressed: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Potvrda'),
+                      content: const Text(
+                        'Da li ste sigurni da se želite odjaviti?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Otkaži'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text('Odjavi se'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmed == true) {
+                    onItemSelected('logout');
+                  }
+                },
+
                 icon: const Icon(Icons.logout),
                 label: const Text("Log out"),
               ),

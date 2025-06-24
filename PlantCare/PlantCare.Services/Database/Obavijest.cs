@@ -8,9 +8,9 @@ public class Obavijest
     public int ObavijestId { get; set; }      
 
     [Required, MaxLength(100)]
-    public string Naslov { get; set; }       
+    public string Naslov { get; set; }
 
-    [Required]
+    [Required, MaxLength(250)]
     public string Sadrzaj { get; set; }
     [Required]
     public bool Aktivan { get; set; }

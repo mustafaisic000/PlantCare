@@ -85,12 +85,42 @@ class _ObavijestiScreenState extends State<ObavijestiScreen> {
     );
   }
 
-  void _deleteDummy(Obavijest obavijest) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Delete funkcionalnost još nije implementirana."),
+  void _deleteObavijest(Obavijest obavijest) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Potvrda"),
+        content: const Text(
+          "Da li ste sigurni da želite obrisati ovu obavijest?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text("Otkaži"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text("Obriši"),
+          ),
+        ],
       ),
     );
+
+    if (confirmed == true) {
+      try {
+        await _provider.delete(obavijest.obavijestId);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Obavijest uspješno obrisana.")),
+        );
+        await loadData();
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Greška: ${e.toString()}")));
+      }
+    }
   }
 
   @override
@@ -148,7 +178,7 @@ class _ObavijestiScreenState extends State<ObavijestiScreen> {
               onPageChanged: _onPageChanged,
               onEdit: (o) => _openForm(obavijest: o),
               onView: _viewDetails,
-              onDelete: _deleteDummy,
+              onDelete: _deleteObavijest,
             ),
           ),
         ),

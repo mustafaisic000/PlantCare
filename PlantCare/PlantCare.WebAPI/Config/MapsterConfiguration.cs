@@ -27,8 +27,7 @@ namespace PlantCare.WebAPI.Mapping
 
             TypeAdapterConfig<Services.Database.Notifikacija, Model.Notifikacija>
                 .NewConfig()
-                .Map(dest => dest.KorisnickoIme, src => src.Korisnik.KorisnickoIme)
-                .Map(dest => dest.PostNaslov, src => src.Post != null ? src.Post.Naslov : "Unknown");
+                .Map(dest => dest.KorisnickoIme, src => src.Korisnik.KorisnickoIme);
 
             TypeAdapterConfig<Services.Database.Report, Model.Report>
                 .NewConfig()

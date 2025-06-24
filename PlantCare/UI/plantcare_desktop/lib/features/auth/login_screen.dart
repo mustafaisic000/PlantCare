@@ -21,21 +21,38 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => isLoading = true);
 
     try {
-      // Setuj privremeno kredencijale za autentikaciju
       AuthProvider.username = usernameController.text;
       AuthProvider.password = passwordController.text;
 
       final korisnikProvider = KorisnikProvider();
       final korisnik = await korisnikProvider.authenticate();
+      if (!mounted) return;
+      if (korisnik.ulogaId != 1) {
+        // Korisnik nije admin → prekini
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text("Pristup odbijen"),
+            content: const Text(
+              "Samo administrator ima pristup ovoj aplikaciji.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
 
-      // Nakon što dobijemo validnog korisnika — sačuvaj sve u AuthProvider
+      // Uloguj ako je admin
       AuthProvider.login(
         usernameController.text,
         passwordController.text,
         korisnik,
       );
-
-      print("Login successful as: ${korisnik.ime}");
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const WorkspaceScreen()),
@@ -77,9 +94,6 @@ class _LoginScreenState extends State<LoginScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20),
-              ],
             ),
             child: Row(
               children: [
@@ -119,6 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           label: 'Username',
                           controller: usernameController,
                           icon: Icons.person,
+                          maxLength: 70,
                         ),
                         const SizedBox(height: 16),
                         CustomInput(
@@ -126,6 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: passwordController,
                           icon: Icons.lock,
                           obscureText: true,
+                          maxLength: 70,
                         ),
                         const SizedBox(height: 24),
                         CustomButton(

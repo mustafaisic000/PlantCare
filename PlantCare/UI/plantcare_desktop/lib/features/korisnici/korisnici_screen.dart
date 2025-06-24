@@ -193,8 +193,39 @@ class _KorisniciScreenState extends State<KorisniciScreen> {
             onView: (k) => _showDetails(k, readOnly: true),
             onEdit: (k) => _showDetails(k, readOnly: false),
             onDelete: (k) async {
-              await _provider.deleteKorisnik(k.korisnikId);
-              await loadData();
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text("Potvrda"),
+                  content: Text(
+                    "Da li želiš deaktivirati korisnika ${k.korisnickoIme}?",
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text("Odustani"),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text("Deaktiviraj"),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirmed == true) {
+                try {
+                  await _provider.softDelete(k.korisnikId!);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Korisnik je deaktiviran.")),
+                  );
+                  await loadData(); // reload tabele
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Greška: ${e.toString()}")),
+                  );
+                }
+              }
             },
           ),
         ),

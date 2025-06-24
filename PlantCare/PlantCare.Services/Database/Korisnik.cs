@@ -1,22 +1,28 @@
-﻿using System;
+﻿using PlantCare.Model;
+using System;
 using System.Collections.Generic;
-using PlantCare.Model;
+using System.ComponentModel.DataAnnotations;
 
 namespace PlantCare.Services.Database;
 
 public partial class Korisnik
 {
     public int KorisnikId { get; set; }
+    [Required, MaxLength(100)]
     public string Ime { get; set; } = null!;
+    [Required, MaxLength(100)]
     public string Prezime { get; set; } = null!;
-    public DateTime? DatumRodjenja { get; set; }
-    public string? Email { get; set; }
-    public string? Telefon { get; set; }
+    public DateTime DatumRodjenja { get; set; }
+    [Required, MaxLength(100)]
+    public string Email { get; set; }
+    [Required, MaxLength(20)]
+    public string Telefon { get; set; }
+    [Required, MaxLength(20)]
     public string KorisnickoIme { get; set; } = null!;
     public string LozinkaHash { get; set; } = null!;
     public string LozinkaSalt { get; set; } = null!;
     public bool Status { get; set; } = true;
-    public byte[]? Slika { get; set; }
+    public byte[] Slika { get; set; }
     public int UlogaId { get; set; }
     public virtual Uloga Uloga { get; set; } = null!;
 

@@ -40,6 +40,7 @@ class _KorisnikFormState extends State<KorisnikForm> {
   int ulogaId = 3; // default "User"
   Uint8List? imageData;
   String? originalSlika;
+  bool showSlikaError = false;
   List<DropdownMenuItem<int>> ulogeItems = [];
 
   @override
@@ -85,13 +86,17 @@ class _KorisnikFormState extends State<KorisnikForm> {
       }
 
       if (bytes != null) {
-        setState(() => imageData = bytes);
+        setState(() {
+          imageData = bytes;
+          showSlikaError = false;
+        });
       }
     }
   }
 
   Widget buildImagePreview() {
     Widget imageWidget;
+
     if (imageData != null) {
       imageWidget = Image.memory(imageData!, fit: BoxFit.cover);
     } else if (originalSlika != null && originalSlika!.isNotEmpty) {
@@ -112,8 +117,8 @@ class _KorisnikFormState extends State<KorisnikForm> {
     }
 
     return Container(
-      width: 240,
-      height: 260,
+      width: 200,
+      height: 220,
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -124,7 +129,20 @@ class _KorisnikFormState extends State<KorisnikForm> {
   }
 
   Future<void> save() async {
-    if (!_formKey.currentState!.validate()) return;
+    final bool hasValidImage =
+        imageData != null ||
+        (originalSlika != null && originalSlika!.isNotEmpty);
+
+    // Validiraj formu
+    final bool isFormValid = _formKey.currentState!.validate();
+
+    // Prikaži ili sakrij grešku za sliku
+    setState(() {
+      showSlikaError = !hasValidImage;
+    });
+
+    // Ako forma ili slika nisu validni, prekini
+    if (!isFormValid || !hasValidImage) return;
 
     final korisnikMap = {
       'ime': imeController.text,
@@ -132,7 +150,7 @@ class _KorisnikFormState extends State<KorisnikForm> {
       'email': emailController.text,
       'telefon': telefonController.text,
       'korisnickoIme': korisnickoImeController.text,
-      'datumRodjenja': parseDate(datumController.text)?.toIso8601String(),
+      'datumRodjenja': parseDate(datumController.text)!.toIso8601String(),
       'ulogaId': ulogaId,
       'slika': imageData != null
           ? base64Encode(imageData!)
@@ -182,7 +200,27 @@ class _KorisnikFormState extends State<KorisnikForm> {
                   padding: const EdgeInsets.only(right: 10),
                   child: Column(
                     children: [
-                      buildImagePreview(),
+                      Container(
+                        width: 200,
+                        height: 220,
+                        clipBehavior: Clip.hardEdge,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey[200],
+                        ),
+                        child: imageData != null
+                            ? Image.memory(imageData!, fit: BoxFit.cover)
+                            : (originalSlika != null &&
+                                  originalSlika!.isNotEmpty)
+                            ? Image.memory(
+                                base64Decode(originalSlika!),
+                                fit: BoxFit.cover,
+                              )
+                            : Image.asset(
+                                'assets/images/placeholder.png',
+                                fit: BoxFit.cover,
+                              ),
+                      ),
                       const SizedBox(height: 12),
                       ElevatedButton.icon(
                         onPressed: widget.readOnly ? null : pickImage,
@@ -193,8 +231,25 @@ class _KorisnikFormState extends State<KorisnikForm> {
                             horizontal: 16,
                             vertical: 12,
                           ),
+                          backgroundColor: const Color(0xFF50C878),
+                          foregroundColor: Colors.white,
                         ),
                       ),
+                      if (showSlikaError)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            "Slika je obavezna.",
+                            style: TextStyle(
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).inputDecorationTheme.errorStyle?.color ??
+                                  const Color(0xFFB00020),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -209,10 +264,47 @@ class _KorisnikFormState extends State<KorisnikForm> {
                       _buildInput(korisnickoImeController, "Korisničko ime"),
                       _buildInput(emailController, "Email"),
                       _buildInput(telefonController, "Telefon"),
-                      _buildInput(
-                        datumController,
-                        "Datum rođenja",
-                        hintText: "DD.MM.GGGG",
+                      SizedBox(
+                        width: 250,
+                        child: GestureDetector(
+                          onTap: widget.readOnly
+                              ? null
+                              : () async {
+                                  final DateTime? pickedDate =
+                                      await showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime(1900),
+                                        lastDate: DateTime.now(),
+                                      );
+                                  if (pickedDate != null) {
+                                    setState(() {
+                                      datumController.text = formatDate(
+                                        pickedDate,
+                                      );
+                                    });
+                                  }
+                                },
+                          child: AbsorbPointer(
+                            child: TextFormField(
+                              controller: datumController,
+                              decoration: const InputDecoration(
+                                labelText: "Datum rođenja",
+                                hintText: "DD.MM.GGGG",
+                              ),
+                              validator: (value) {
+                                if (widget.readOnly) return null;
+                                if (value == null || value.trim().isEmpty) {
+                                  return "Datum rođenja je obavezno polje";
+                                }
+                                if (parseDate(value) == null) {
+                                  return "Datum mora biti u formatu DD.MM.GGGG";
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
                       ),
                       SizedBox(
                         width: 250,
@@ -285,10 +377,31 @@ class _KorisnikFormState extends State<KorisnikForm> {
         decoration: InputDecoration(labelText: label, hintText: hintText),
         validator: (value) {
           if (widget.readOnly) return null;
-          if (label == "Šifra" &&
-              widget.korisnik == null &&
-              (value == null || value.length < 6)) {
-            return "Minimalno 6 karaktera";
+
+          if (value == null || value.trim().isEmpty) {
+            return "$label je obavezno polje";
+          }
+
+          final length = value.trim().length;
+
+          switch (label) {
+            case "Ime":
+            case "Prezime":
+            case "Email":
+            case "Korisničko ime":
+              if (length > 100) {
+                return "Max 100 karaktera";
+              }
+              break;
+            case "Telefon":
+              if (length > 20) return "Max 20 karaktera";
+              break;
+            case "Šifra":
+              if (widget.korisnik == null && length < 6) {
+                return "Minimalno 6 karaktera";
+              }
+              if (length > 20) return "Max 20 karaktera";
+              break;
           }
           return null;
         },

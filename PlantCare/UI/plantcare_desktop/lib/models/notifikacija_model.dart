@@ -43,8 +43,6 @@ class Notifikacija {
       'datum': datum.toIso8601String(),
       'korisnikId': korisnikId,
       'korisnickoIme': korisnickoIme,
-      'postId': postId,
-      'postNaslov': postNaslov,
       'procitano': procitano,
     };
   }

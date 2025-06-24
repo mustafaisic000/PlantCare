@@ -33,6 +33,7 @@ class _PostScreenState extends State<PostScreen> {
 
   Future<void> loadData() async {
     final filters = {
+      'status': 'true',
       if (searchController.text.isNotEmpty) 'fts': searchController.text,
       if (selectedPremium != null)
         'premium': selectedPremium == "Da" ? 'true' : 'false',
@@ -65,14 +66,6 @@ class _PostScreenState extends State<PostScreen> {
     showDialog(
       context: context,
       builder: (_) => PostForm(post: post, readOnly: true),
-    );
-  }
-
-  void _deleteDummy(Post post) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Delete funkcionalnost još nije implementirana."),
-      ),
     );
   }
 
@@ -148,7 +141,41 @@ class _PostScreenState extends State<PostScreen> {
               onPageChanged: _onPageChanged,
               onEdit: (o) => _openForm(post: o),
               onView: _viewDetails,
-              onDelete: _deleteDummy,
+              onDelete: (post) async {
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: const Text("Potvrda"),
+                    content: Text(
+                      "Da li želiš deaktivirati post: ${post.naslov}?",
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text("Odustani"),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text("Deaktiviraj"),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirmed == true) {
+                  try {
+                    await _provider.softDelete(post.postId);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Post je deaktiviran.")),
+                    );
+                    await loadData();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Greška: ${e.toString()}")),
+                    );
+                  }
+                }
+              },
             ),
           ),
         ),

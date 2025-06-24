@@ -29,6 +29,7 @@ class _PostFormState extends State<PostForm> {
   int? subkategorijaId;
   Uint8List? imageData;
   String? originalSlika;
+  bool showSlikaError = false;
   List<DropdownMenuItem<int>> subOptions = [];
 
   bool premium = false;
@@ -37,7 +38,7 @@ class _PostFormState extends State<PostForm> {
   void initState() {
     super.initState();
     loadSubkategorije();
-
+    sadrzajController.addListener(() => setState(() {}));
     if (widget.post != null) {
       final p = widget.post!;
       naslovController.text = p.naslov;
@@ -69,7 +70,10 @@ class _PostFormState extends State<PostForm> {
         bytes = await file.readAsBytes();
       }
       if (bytes != null) {
-        setState(() => imageData = bytes);
+        setState(() {
+          imageData = bytes;
+          showSlikaError = false;
+        });
       }
     }
   }
@@ -108,7 +112,17 @@ class _PostFormState extends State<PostForm> {
   }
 
   Future<void> save() async {
-    if (!_formKey.currentState!.validate()) return;
+    final isFormValid = _formKey.currentState!.validate();
+
+    final bool hasValidImage =
+        imageData != null ||
+        (originalSlika != null && originalSlika!.isNotEmpty);
+
+    setState(() {
+      showSlikaError = !hasValidImage;
+    });
+
+    if (!isFormValid || !hasValidImage) return;
 
     final postMap = {
       'naslov': naslovController.text,
@@ -142,6 +156,7 @@ class _PostFormState extends State<PostForm> {
         padding: const EdgeInsets.all(24),
         child: Form(
           key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -150,92 +165,138 @@ class _PostFormState extends State<PostForm> {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 24),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    children: [
-                      buildImagePreview(),
-                      const SizedBox(height: 12),
-                      ElevatedButton.icon(
-                        onPressed: widget.readOnly ? null : pickImage,
-                        icon: const Icon(Icons.image),
-                        label: const Text("Dodaj sliku"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF50C878),
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 24),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          controller: naslovController,
-                          readOnly: widget.readOnly,
-                          decoration: const InputDecoration(
-                            labelText: "Naslov",
-                            border: OutlineInputBorder(),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 200,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          buildImagePreview(),
+                          const SizedBox(height: 12),
+                          ElevatedButton.icon(
+                            onPressed: widget.readOnly ? null : pickImage,
+                            icon: const Icon(Icons.image),
+                            label: const Text("Dodaj sliku"),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              backgroundColor: const Color(0xFF50C878),
+                              foregroundColor: Colors.white,
+                            ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Unesite naslov";
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: DropdownButtonFormField<int>(
-                                value: subkategorijaId,
-                                items: subOptions,
-                                onChanged: widget.readOnly
-                                    ? null
-                                    : (val) =>
-                                          setState(() => subkategorijaId = val),
-                                decoration: const InputDecoration(
-                                  labelText: "Subkategorija",
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: (val) => val == null
-                                    ? "Odaberi subkategoriju"
-                                    : null,
+                          if (showSlikaError)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Text(
+                                "Slika je obavezna.",
+                                style:
+                                    Theme.of(
+                                      context,
+                                    ).inputDecorationTheme.errorStyle ??
+                                    const TextStyle(
+                                      color: Color(0xFFB00020),
+                                      fontSize: 13,
+                                    ),
                               ),
                             ),
-                            const SizedBox(width: 16),
-                            Checkbox(
-                              value: premium,
-                              onChanged: widget.readOnly
-                                  ? null
-                                  : (val) => setState(() => premium = val!),
-                            ),
-                            const Text("Premium post"),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: sadrzajController,
-                          maxLines: 4,
-                          readOnly: widget.readOnly,
-                          decoration: const InputDecoration(
-                            labelText: "Sadržaj",
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Unesite sadržaj";
-                            }
-                            return null;
-                          },
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+
+                    const SizedBox(width: 24),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: naslovController,
+                            readOnly: widget.readOnly,
+                            decoration: const InputDecoration(
+                              labelText: "Naslov",
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Unesite naslov";
+                              }
+                              if (value.length > 100) {
+                                return "Maksimalno 100 karaktera";
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: DropdownButtonFormField<int>(
+                                  value: subkategorijaId,
+                                  items: subOptions,
+                                  onChanged: widget.readOnly
+                                      ? null
+                                      : (val) => setState(
+                                          () => subkategorijaId = val,
+                                        ),
+                                  decoration: const InputDecoration(
+                                    labelText: "Subkategorija",
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  validator: (val) => val == null
+                                      ? "Odaberi subkategoriju"
+                                      : null,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Switch(
+                                value: premium,
+                                onChanged: widget.readOnly
+                                    ? null
+                                    : (val) => setState(() => premium = val),
+                              ),
+                              const Text("Premium post"),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: sadrzajController,
+                            maxLines: 4,
+                            maxLength: 250,
+                            readOnly: widget.readOnly,
+                            decoration: const InputDecoration(
+                              labelText: "Sadržaj",
+                              border: OutlineInputBorder(),
+                              counterText: "", // ukloni defaultni counter
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty)
+                                return "Unesite sadržaj";
+                              if (value.length > 250)
+                                return "Maksimalno 250 karaktera";
+                              return null;
+                            },
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                "${sadrzajController.text.length} / 250",
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
               Row(

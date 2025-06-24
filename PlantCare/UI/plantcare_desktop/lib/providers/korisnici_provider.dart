@@ -28,16 +28,15 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
     }
   }
 
-  Future<void> deleteKorisnik(int? id) async {
-    var url = "$fullUrl/$id/DeleteKorisnik";
-    var uri = Uri.parse(url);
-    var headers = createHeaders();
+  Future<void> softDelete(int id) async {
+    final url = "$fullUrl/$id/soft-delete";
+    final uri = Uri.parse(url);
+    final headers = createHeaders();
 
-    var response = await http!.put(uri, headers: headers);
-    if (isValidResponse(response)) {
-      print("Korisnik obrisan.");
-    } else {
-      throw Exception("Neuspješno brisanje korisnika.");
+    final response = await http!.patch(uri, headers: headers);
+
+    if (!isValidResponse(response)) {
+      throw Exception("Greška prilikom deaktivacije korisnika.");
     }
   }
 

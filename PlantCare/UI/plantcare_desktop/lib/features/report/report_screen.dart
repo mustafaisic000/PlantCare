@@ -67,10 +67,42 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  void _deleteDummy(Report report) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text("Brisanje nije omogućeno.")));
+  void _deleteReport(Report report) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Potvrda"),
+        content: const Text(
+          "Da li ste sigurni da želite obrisati ovaj izvještaj?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text("Otkaži"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text("Obriši"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _provider.delete(report.reportId);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Izvještaj uspješno obrisan.")),
+        );
+        await loadData();
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Greška: ${e.toString()}")));
+      }
+    }
   }
 
   @override
@@ -129,7 +161,7 @@ class _ReportScreenState extends State<ReportScreen> {
               currentPage: _currentPage,
               onPageChanged: _onPageChanged,
               onView: (r) => _viewDetails(r),
-              onDelete: _deleteDummy,
+              onDelete: _deleteReport,
             ),
           ),
         ),
