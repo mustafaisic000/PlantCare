@@ -93,6 +93,11 @@ abstract class BaseProvider<T> with ChangeNotifier {
     }
   }
 
+  Future<List<T>> getAllPaged({int pageSize = 1000}) async {
+    final result = await get(filter: {'page': 1, 'pageSize': pageSize});
+    return result.result;
+  }
+
   Future<T> update(int id, [dynamic request]) async {
     var uri = Uri.parse("$fullUrl/$id");
     var headers = createHeaders();
@@ -111,9 +116,20 @@ abstract class BaseProvider<T> with ChangeNotifier {
   T fromJson(data);
 
   bool isValidResponse(Response response) {
-    if (response.statusCode < 299) return true;
-    if (response.statusCode == 401) throw Exception("Unauthorized");
-    print(response.body);
+    final statusCode = response.statusCode;
+
+    if (statusCode >= 200 && statusCode < 300) return true;
+
+    if (statusCode == 401) {
+      throw Exception("Unauthorized");
+    }
+
+    try {
+      print("Error ${statusCode}: ${response.body}");
+    } catch (e) {
+      print("Error ${statusCode}: Failed to read response body");
+    }
+
     throw Exception("Something went wrong, please try again");
   }
 

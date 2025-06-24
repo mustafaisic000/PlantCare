@@ -11,10 +11,9 @@ public class Obavijest
     public string Naslov { get; set; }       
 
     [Required]
-    public string Sadrzaj { get; set; }      
-
-    public DateTime Datum { get; set; } = DateTime.Now;  
-
+    public string Sadrzaj { get; set; }
+    [Required]
+    public bool Aktivan { get; set; }
     [Required]
     public int KorisnikId { get; set; }
     public virtual Korisnik Korisnik { get; set; }

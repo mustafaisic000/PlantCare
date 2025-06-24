@@ -2,7 +2,7 @@ class KatalogPost {
   final int katalogPostId;
   final int postId;
   final String postNaslov;
-  final String? postSlika; // Base64-encoded string or URL
+  final String? postSlika;
   final bool premium;
 
   KatalogPost({
@@ -21,15 +21,5 @@ class KatalogPost {
       postSlika: json['postSlika'],
       premium: json['premium'],
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'katalogPostId': katalogPostId,
-      'postId': postId,
-      'postNaslov': postNaslov,
-      'postSlika': postSlika,
-      'premium': premium,
-    };
   }
 }

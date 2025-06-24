@@ -44,11 +44,20 @@ class GenericPaginatedTable<T> extends StatelessWidget {
                 constraints: BoxConstraints(minWidth: constraints.maxWidth),
                 child: DataTable(
                   headingRowHeight: 48,
-                  dataRowMinHeight: 40,
-                  columnSpacing: 24,
+                  dataRowMinHeight: 48,
+                  columnSpacing: 48,
                   columns: [
-                    ...columns.map((c) => DataColumn(label: Text(c))),
-                    const DataColumn(label: Text('Akcije')),
+                    ...columns.map(
+                      (col) => DataColumn(
+                        label: Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(col),
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Container(alignment: Alignment.centerRight),
+                    ),
                   ],
                   rows: visibleData.map((item) {
                     return DataRow(
@@ -63,9 +72,10 @@ class GenericPaginatedTable<T> extends StatelessWidget {
                         ),
                         DataCell(
                           Container(
-                            alignment: Alignment.centerLeft,
+                            alignment: Alignment.centerRight,
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 if (onView != null)
                                   IconButton(

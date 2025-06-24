@@ -11,4 +11,5 @@ public interface IKomentarService
         KomentarInsertRequest,
         KomentarUpdateRequest>
 {
+    void Delete(int id);
 }

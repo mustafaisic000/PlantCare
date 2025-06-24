@@ -2,7 +2,7 @@ class Post {
   final int postId;
   final String naslov;
   final String sadrzaj;
-  final String? slikaBase64;
+  final String? slika;
   final DateTime datumKreiranja;
   final int korisnikId;
   final String korisnickoIme;
@@ -14,7 +14,7 @@ class Post {
     required this.postId,
     required this.naslov,
     required this.sadrzaj,
-    this.slikaBase64,
+    this.slika,
     required this.datumKreiranja,
     required this.korisnikId,
     required this.korisnickoIme,
@@ -28,7 +28,7 @@ class Post {
       postId: json['postId'],
       naslov: json['naslov'],
       sadrzaj: json['sadrzaj'],
-      slikaBase64: json['slika'], // može biti null
+      slika: json['slika'], // može biti null
       datumKreiranja: DateTime.parse(json['datumKreiranja']),
       korisnikId: json['korisnikId'],
       korisnickoIme: json['korisnickoIme'],
@@ -43,7 +43,7 @@ class Post {
       'postId': postId,
       'naslov': naslov,
       'sadrzaj': sadrzaj,
-      'slika': slikaBase64,
+      'slika': slika,
       'datumKreiranja': datumKreiranja.toIso8601String(),
       'korisnikId': korisnikId,
       'korisnickoIme': korisnickoIme,

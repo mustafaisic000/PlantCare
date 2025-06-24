@@ -31,13 +31,8 @@ public class KatalogPostService
 
         query = query.Include(x => x.Post);
 
-
-        if (search.KatalogId.HasValue)
-            query = query.Where(x => x.KatalogId == search.KatalogId.Value);
-
-        if (search.PostId.HasValue)
-            query = query.Where(x => x.PostId == search.PostId.Value);
-
+        if (!string.IsNullOrWhiteSpace(search.PostNaslov))
+            query = query.Where(x => x.Post.Naslov.Contains(search.PostNaslov));
         return query;
     }
 
@@ -53,5 +48,14 @@ public class KatalogPostService
         return Mapper.Map<Model.KatalogPost>(entity);
     }
 
+    public async Task DeleteByKatalogIdAsync(int katalogId)
+    {
+        var entities = await Context.KatalogPostovi
+            .Where(x => x.KatalogId == katalogId)
+            .ToListAsync();
+
+        Context.KatalogPostovi.RemoveRange(entities);
+        await Context.SaveChangesAsync();
+    }
 
 }

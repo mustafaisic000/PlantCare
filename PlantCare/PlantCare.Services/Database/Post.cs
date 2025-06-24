@@ -24,6 +24,8 @@ public partial class Post
     public virtual Korisnik Korisnik { get; set; } = null!;
     public bool Premium { get; set; }
 
+    public bool Status { get; set; } = true; 
+
     [Required]
     public int SubkategorijaId { get; set; }
     public virtual Subkategorija Subkategorija { get; set; } = null!;

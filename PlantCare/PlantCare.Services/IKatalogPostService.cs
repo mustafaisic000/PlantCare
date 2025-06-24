@@ -11,4 +11,5 @@ public interface IKatalogPostService
         KatalogPostInsertRequest,
         KatalogPostUpdateRequest>
 {
+    Task DeleteByKatalogIdAsync(int katalogId);
 }

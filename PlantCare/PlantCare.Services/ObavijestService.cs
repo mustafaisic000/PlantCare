@@ -31,19 +31,20 @@ public class ObavijestService
 
         query = query.Include(x => x.Korisnik);
 
-
-        if (search.KorisnikId.HasValue)
-            query = query.Where(x => x.KorisnikId == search.KorisnikId.Value);
-
         if (!string.IsNullOrWhiteSpace(search.Naslov))
             query = query.Where(x => x.Naslov.Contains(search.Naslov));
 
-        if (search.DatumOd.HasValue)
-            query = query.Where(x => x.Datum >= search.DatumOd.Value);
-
-        if (search.DatumDo.HasValue)
-            query = query.Where(x => x.Datum <= search.DatumDo.Value);
-
         return query;
     }
+
+    public void Delete(int id)
+    {
+        var entity = Context.Set<Database.Obavijest>().Find(id);
+        if (entity == null)
+            throw new Exception("Obavijest not found");
+
+        Context.Set<Database.Obavijest>().Remove(entity);
+        Context.SaveChanges();
+    }
+
 }

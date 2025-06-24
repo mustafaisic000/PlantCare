@@ -9,6 +9,5 @@ namespace PlantCare.Model.Requests;
 public class UplataInsertRequest
 {
     public decimal? Iznos { get; set; }
-    public string? TipPretplate { get; set; }
     public int? KorisnikId { get; set; }
 }

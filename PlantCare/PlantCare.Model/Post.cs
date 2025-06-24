@@ -15,6 +15,7 @@ public class Post
     public int KorisnikId { get; set; }
     public string KorisnickoIme { get; set; } = null!;
     public bool Premium { get; set; }
+    public bool Status { get; set; } = true; 
     public int SubkategorijaId { get; set; }
     public string SubkategorijaNaziv { get; set; } = null!;
 }

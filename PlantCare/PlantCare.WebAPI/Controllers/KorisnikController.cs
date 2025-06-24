@@ -43,6 +43,21 @@ namespace PlantCare.WebAPI.Controllers
             );
         }
 
+        [HttpPatch("{id}/soft-delete")]
+        public IActionResult SoftDelete(int id)
+        {
+            try
+            {
+                _service.SoftDelete(id);
+                return Ok(new { message = "Korisnik je deaktiviran (soft deleted)." });
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+
 
     }
 }

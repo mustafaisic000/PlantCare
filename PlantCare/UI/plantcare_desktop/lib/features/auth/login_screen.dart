@@ -13,21 +13,30 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  TextEditingController usernameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
 
   void handleLogin() async {
     setState(() => isLoading = true);
 
-    AuthProvider.username = usernameController.text;
-    AuthProvider.password = passwordController.text;
-
     try {
+      // Setuj privremeno kredencijale za autentikaciju
+      AuthProvider.username = usernameController.text;
+      AuthProvider.password = passwordController.text;
+
       final korisnikProvider = KorisnikProvider();
       final korisnik = await korisnikProvider.authenticate();
 
+      // Nakon što dobijemo validnog korisnika — sačuvaj sve u AuthProvider
+      AuthProvider.login(
+        usernameController.text,
+        passwordController.text,
+        korisnik,
+      );
+
       print("Login successful as: ${korisnik.ime}");
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const WorkspaceScreen()),
       );
@@ -35,12 +44,12 @@ class _LoginScreenState extends State<LoginScreen> {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: Text("Greška"),
-          content: Text("Pogrešno korisničko ime ili lozinka."),
+          title: const Text("Greška"),
+          content: const Text("Pogrešno korisničko ime ili lozinka."),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text("OK"),
+              child: const Text("OK"),
             ),
           ],
         ),

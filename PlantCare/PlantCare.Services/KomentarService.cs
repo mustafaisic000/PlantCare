@@ -48,4 +48,15 @@ public class KomentarService
 
         return query;
     }
+
+    public void Delete(int id)
+    {
+        var entity = Context.Set<Database.Komentar>().Find(id);
+        if (entity == null)
+            throw new Exception("Komentar not found");
+
+        Context.Remove(entity);
+        Context.SaveChanges();
+    }
+
 }

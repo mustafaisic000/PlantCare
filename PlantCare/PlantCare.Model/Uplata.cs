@@ -11,7 +11,6 @@ public class Uplata
     public int UplataId { get; set; }
     public decimal Iznos { get; set; }
     public DateTime Datum { get; set; }
-    public string TipPretplate { get; set; } = null!;
     public string KorisnickoIme { get; set; } = null!;
 }
 

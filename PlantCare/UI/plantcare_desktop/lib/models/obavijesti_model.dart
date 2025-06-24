@@ -2,7 +2,7 @@ class Obavijest {
   final int obavijestId;
   final String naslov;
   final String sadrzaj;
-  final DateTime datum;
+  final bool aktivan;
   final int korisnikId;
   final String korisnickoIme;
 
@@ -10,7 +10,7 @@ class Obavijest {
     required this.obavijestId,
     required this.naslov,
     required this.sadrzaj,
-    required this.datum,
+    required this.aktivan,
     required this.korisnikId,
     required this.korisnickoIme,
   });
@@ -20,7 +20,7 @@ class Obavijest {
       obavijestId: json['obavijestId'],
       naslov: json['naslov'],
       sadrzaj: json['sadrzaj'],
-      datum: DateTime.parse(json['datum']),
+      aktivan: json['aktivan'],
       korisnikId: json['korisnikId'],
       korisnickoIme: json['korisnickoIme'],
     );
@@ -31,7 +31,7 @@ class Obavijest {
       'obavijestId': obavijestId,
       'naslov': naslov,
       'sadrzaj': sadrzaj,
-      'datum': datum.toIso8601String(),
+      'datum': aktivan,
       'korisnikId': korisnikId,
       'korisnickoIme': korisnickoIme,
     };

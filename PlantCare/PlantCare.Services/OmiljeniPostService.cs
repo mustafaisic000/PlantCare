@@ -41,4 +41,15 @@ public class OmiljeniPostService
 
         return query;
     }
+
+    public void Delete(int id)
+    {
+        var entity = Context.Set<Database.OmiljeniPost>().Find(id);
+        if (entity == null)
+            throw new Exception("Omiljeni post nije pronađen");
+
+        Context.Remove(entity);
+        Context.SaveChanges();
+    }
+
 }

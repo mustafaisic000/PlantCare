@@ -33,9 +33,6 @@ public class UplataService
         if (search.KorisnikId.HasValue)
             query = query.Where(x => x.KorisnikId == search.KorisnikId.Value);
 
-        if (!string.IsNullOrWhiteSpace(search.TipPretplate))
-            query = query.Where(x => x.TipPretplate.Contains(search.TipPretplate));
-
         return query;
     }
 }

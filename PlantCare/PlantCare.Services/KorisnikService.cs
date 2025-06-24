@@ -175,5 +175,16 @@ namespace PlantCare.Services
                 .Select(_ => chars[RandomNumberGenerator.GetInt32(chars.Length)])
                 .ToArray());
         }
+
+        public void SoftDelete(int id)
+        {
+            var korisnik = Context.Korisnici.Find(id);
+            if (korisnik == null)
+                throw new Exception("Korisnik nije pronađen.");
+
+            korisnik.Status = false;
+            Context.SaveChanges();
+        }
+
     }
 }

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.AspNetCore.Mvc;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
 using PlantCare.Model.SearchObjects;
@@ -6,11 +6,34 @@ using PlantCare.Services;
 
 namespace PlantCare.WebAPI.Controllers
 {
-    public class ReportController : BaseCRUDController<Report, ReportSearchObject, ReportInsertRequest, ReportUpdateRequest>
+    [ApiController]
+    [Route("[controller]")]
+    public class ReportController : BaseCRUDController<
+        Report,
+        ReportSearchObject,
+        ReportInsertRequest,
+        ReportUpdateRequest>
     {
+        private readonly IReportService _reportService;
+
         public ReportController(IReportService service)
             : base(service)
         {
+            _reportService = service;
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                _reportService.Delete(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
     }
 }

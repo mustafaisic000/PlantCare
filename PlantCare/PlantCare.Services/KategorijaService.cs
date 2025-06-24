@@ -45,4 +45,19 @@ public class KategorijaService : BaseCRUDService<
         return entity == null ? null! : Mapper.Map<Model.Kategorija>(entity);
     }
 
+    public void Delete(int id)
+    {
+        var entity = Context.Kategorije
+            .Include(k => k.Subkategorije)
+            .FirstOrDefault(k => k.KategorijaId == id);
+
+        if (entity == null)
+            throw new Exception("Kategorija nije pronađena.");
+
+        if (entity.Subkategorije != null && entity.Subkategorije.Any())
+            throw new Exception("Nije moguće obrisati kategoriju jer sadrži povezane subkategorije.");
+
+        Context.Kategorije.Remove(entity);
+        Context.SaveChanges();
+    }
 }

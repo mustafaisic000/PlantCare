@@ -6,6 +6,7 @@ class Report {
   final String postNaslov;
   final int brojLajkova;
   final int brojOmiljenih;
+  final int brojKomentara;
 
   Report({
     required this.reportId,
@@ -15,6 +16,7 @@ class Report {
     required this.postNaslov,
     required this.brojLajkova,
     required this.brojOmiljenih,
+    required this.brojKomentara,
   });
 
   factory Report.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class Report {
       postNaslov: json['postNaslov'],
       brojLajkova: json['brojLajkova'],
       brojOmiljenih: json['brojOmiljenih'],
+      brojKomentara: json['brojKomentara'],
     );
   }
 
@@ -38,6 +41,7 @@ class Report {
       'postNaslov': postNaslov,
       'brojLajkova': brojLajkova,
       'brojOmiljenih': brojOmiljenih,
+      'brojKomentara': brojKomentara,
     };
   }
 }

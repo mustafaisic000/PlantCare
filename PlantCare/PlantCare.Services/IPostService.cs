@@ -11,4 +11,5 @@ public interface IPostService
         PostInsertRequest,
         PostUpdateRequest>
 {
+    void SoftDelete(int id);
 }

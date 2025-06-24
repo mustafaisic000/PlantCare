@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
 using PlantCare.Model.SearchObjects;
@@ -11,5 +12,13 @@ namespace PlantCare.WebAPI.Controllers
             : base(service)
         {
         }
+        [HttpDelete("ByKatalog/{katalogId}")]
+        public async Task<IActionResult> DeleteByKatalogId(int katalogId)
+        {
+            var service = (IKatalogPostService)_service;
+            await service.DeleteByKatalogIdAsync(katalogId);
+            return NoContent();
+        }
+
     }
 }

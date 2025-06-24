@@ -55,6 +55,10 @@ namespace PlantCare.WebAPI.Mapping
             TypeAdapterConfig<Services.Database.Kategorija, Model.Kategorija>
              .NewConfig()
              .Map(dest => dest.Subkategorije, src => src.Subkategorije.Select(sk => sk.Adapt<SubkategorijaBasic>()).ToList());
+
+            TypeAdapterConfig<Services.Database.Subkategorija, Model.Subkategorija>
+             .NewConfig()
+             .Map(dest => dest.KategorijaNaziv, src => src.Kategorija.Naziv);
         }
     }
 }

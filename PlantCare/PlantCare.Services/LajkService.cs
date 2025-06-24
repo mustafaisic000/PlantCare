@@ -40,4 +40,15 @@ public class LajkService
 
         return query;
     }
+
+    public void Delete(int id)
+    {
+        var entity = Context.Set<Database.Lajk>().Find(id);
+        if (entity == null)
+            throw new Exception("Lajk not found");
+
+        Context.Remove(entity);
+        Context.SaveChanges();
+    }
+
 }

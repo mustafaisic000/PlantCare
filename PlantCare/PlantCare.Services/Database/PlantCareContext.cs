@@ -29,6 +29,8 @@ public partial class PlantCareContext: DbContext
     public DbSet<Report> Reporti { get; set; }
     public DbSet<Uplata> Uplate { get; set; }
     public DbSet<KatalogPost> KatalogPostovi { get; set; }
+    public DbSet<OmiljeniPost> OmiljeniPostovi { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -245,7 +247,8 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 3,
                 SubkategorijaId = 1,
                 Slika = SlikaHelper.GetSlika(5),
-                Premium = false
+                Premium = false,
+                Status = true
             },
             new Post
             {
@@ -256,7 +259,8 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 4,
                 SubkategorijaId = 4,
                 Slika = SlikaHelper.GetSlika(6),
-                Premium = false
+                Premium = false,
+                Status = true
             },
             new Post
             {
@@ -267,7 +271,8 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 5,
                 SubkategorijaId = 10,
                 Slika = SlikaHelper.GetSlika(7),
-                Premium = false
+                Premium = false,
+                Status = true
             },
             new Post
             {
@@ -278,7 +283,8 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 2,
                 SubkategorijaId = 7,
                 Slika = SlikaHelper.GetSlika(8),
-                Premium = false
+                Premium = false,
+                Status = true
             },
             new Post
             {
@@ -289,7 +295,8 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 4,
                 SubkategorijaId = 8,
                 Slika = SlikaHelper.GetSlika(9),
-                Premium = false
+                Premium = false,
+                Status = true
             },
 
             // ───── Premium postovi sa edukativnim savjetima ───────────────
@@ -302,7 +309,8 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 1,
                 SubkategorijaId = 1,
                 Slika = SlikaHelper.GetSlika(10),
-                Premium = true
+                Premium = true,
+                Status = true
             },
             new Post
             {
@@ -313,7 +321,8 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 1,
                 SubkategorijaId = 4,
                 Slika = SlikaHelper.GetSlika(11),
-                Premium = true
+                Premium = true,
+                Status = true
             },
             new Post
             {
@@ -324,7 +333,8 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 1,
                 SubkategorijaId = 9,
                 Slika = SlikaHelper.GetSlika(12),
-                Premium = true
+                Premium = true,
+                Status = true
             },
             new Post
             {
@@ -335,7 +345,8 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 1,
                 SubkategorijaId = 3,
                 Slika = SlikaHelper.GetSlika(13),
-                Premium = true
+                Premium = true,
+                Status = true
             },
             new Post
             {
@@ -346,7 +357,8 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 1,
                 SubkategorijaId = 12,
                 Slika = SlikaHelper.GetSlika(14),
-                Premium = true
+                Premium = true,
+                Status = true
             }
         );
 
@@ -512,7 +524,7 @@ public partial class PlantCareContext: DbContext
                  ObavijestId = 1,
                  Naslov = "Dobrodošli na PlantCare",
                  Sadrzaj = "Pozdrav i dobrodošli na PlantCare! Ova platforma je namijenjena ljubiteljima biljaka za razmjenu savjeta, postavljanje pitanja i međusobnu pomoć u njezi biljaka.",
-                 Datum = new DateTime(2024, 1, 1, 0, 0, 0),
+                 Aktivan = true,
                  KorisnikId = 1
              },
              new Obavijest
@@ -520,7 +532,7 @@ public partial class PlantCareContext: DbContext
                  ObavijestId = 2,
                  Naslov = "Proljetni događaj u zajednici",
                  Sadrzaj = "Pridružite se našem proljetnom događaju 15. maja! Podijelite svoj napredak i savjete s drugima. Najbolji vrtovi osvajaju nagrade!",
-                 Datum = new DateTime(2024, 4, 1, 0, 0, 0),
+                 Aktivan = true,
                  KorisnikId = 1
              },
              new Obavijest
@@ -528,7 +540,7 @@ public partial class PlantCareContext: DbContext
                  ObavijestId = 3,
                  Naslov = "Najavljena tehnička održavanja",
                  Sadrzaj = "Platforma PlantCare će biti privremeno nedostupna 1. juna od 00:00 sati zbog planiranog održavanja. Hvala na strpljenju!",
-                 Datum = new DateTime(2024, 5, 20, 0, 0, 0),
+                 Aktivan = false,
                  KorisnikId = 1
              }
          );
@@ -543,25 +555,38 @@ public partial class PlantCareContext: DbContext
 
         // ── Reports ─────────────────────────────────────────────────────────
         modelBuilder.Entity<Report>().HasData(
-            new Report
-            {
-                ReportId = 1,
-                PostId = 4,
-                KorisnikId = 5,
-                Datum = new DateTime(2024, 5, 6, 10, 0, 0),
-                BrojLajkova = 0,
-                BrojOmiljenih = 0
-            },
-            new Report
-            {
-                ReportId = 2,
-                PostId = 3,
-                KorisnikId = 3,
-                Datum = new DateTime(2024, 2, 21, 14, 0, 0),
-                BrojLajkova = 0,
-                BrojOmiljenih = 0
-            }
-        );
+     new Report
+     {
+         ReportId = 1,
+         PostId = 4,
+         KorisnikId = 5,
+         Datum = new DateTime(2024, 5, 6, 10, 0, 0),
+         BrojLajkova = 13,
+         BrojOmiljenih = 7,
+         BrojKomentara = 5
+     },
+     new Report
+     {
+         ReportId = 2,
+         PostId = 3,
+         KorisnikId = 3,
+         Datum = new DateTime(2024, 2, 21, 14, 0, 0),
+         BrojLajkova = 4,
+         BrojOmiljenih = 2,
+         BrojKomentara = 1
+     },
+     new Report
+     {
+         ReportId = 3,
+         PostId = 2,
+         KorisnikId = 2,
+         Datum = new DateTime(2024, 6, 10, 9, 30, 0),
+         BrojLajkova = 9,
+         BrojOmiljenih = 3,
+         BrojKomentara = 6
+     }
+ );
+
 
         // ── Payments ────────────────────────────────────────────────────────
         modelBuilder.Entity<Uplata>().HasData(
@@ -571,7 +596,6 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 3,
                 Iznos = 19.99m,
                 Datum = new DateTime(2024, 2, 15, 13, 0, 0),
-                TipPretplate = "Mjesecni"
             },
             new Uplata
             {
@@ -579,7 +603,6 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 5,
                 Iznos = 9.99m,
                 Datum = new DateTime(2024, 4, 10, 11, 30, 0),
-                TipPretplate = "Godisnji"
             },
             new Uplata
             {
@@ -587,7 +610,6 @@ public partial class PlantCareContext: DbContext
                 KorisnikId = 4,
                 Iznos = 14.50m,
                 Datum = new DateTime(2024, 7, 22, 17, 45, 0),
-                TipPretplate = "Mjesecni"
             }
         );
 
@@ -598,8 +620,7 @@ public partial class PlantCareContext: DbContext
                 KatalogId = 1,
                 Naslov = "Biljka mjeseca – Aloe Vera",
                 Opis = "Zbog otpornosti i koristi za njegu kože, Aloe Vera je biljka juna.",
-                DatumOd = new DateTime(2024, 6, 1),
-                DatumDo = new DateTime(2024, 6, 30),
+                Aktivan=true,
                 KorisnikId = 1
             },
             new Katalog
@@ -607,8 +628,7 @@ public partial class PlantCareContext: DbContext
                 KatalogId = 2,
                 Naslov = "Najviše lajkova – Sukulenti",
                 Opis = "Postovi o sukulentima su izazvali najveću pažnju i reakcije korisnika.",
-                DatumOd = new DateTime(2024, 5, 1),
-                DatumDo = new DateTime(2024, 5, 31),
+                Aktivan = false,
                 KorisnikId = 1
             },
             new Katalog
@@ -616,8 +636,7 @@ public partial class PlantCareContext: DbContext
                 KatalogId = 3,
                 Naslov = "Preporuka urednika",
                 Opis = "Odabrani postovi koji sadrže korisne, provjerene i edukativne savjete za uzgoj biljaka.",
-                DatumOd = new DateTime(2024, 4, 1),
-                DatumDo = new DateTime(2024, 4, 30),
+                Aktivan = false,
                 KorisnikId = 1
             },
             new Katalog
@@ -625,8 +644,7 @@ public partial class PlantCareContext: DbContext
                 KatalogId = 4,
                 Naslov = "Najljepša ruža u vrtu",
                 Opis = "Estetski najljepši post o ružama koji je zabilježen ovog mjeseca.",
-                DatumOd = new DateTime(2024, 3, 1),
-                DatumDo = new DateTime(2024, 3, 31),
+                Aktivan = false,
                 KorisnikId = 1
             }
         );

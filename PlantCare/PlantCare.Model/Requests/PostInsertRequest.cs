@@ -13,6 +13,7 @@ public class PostInsertRequest
     public byte[]? Slika { get; set; }
     public int KorisnikId { get; set; }
     public bool Premium { get; set; }
+    public bool Status { get; set; } = true; 
     public int SubkategorijaId { get; set; }
 }
 

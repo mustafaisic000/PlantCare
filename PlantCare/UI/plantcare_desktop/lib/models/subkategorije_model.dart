@@ -2,11 +2,13 @@ class Subkategorija {
   final int subkategorijaId;
   final String naziv;
   final int kategorijaId;
+  final String? kategorijaNaziv; // <- dodano
 
   Subkategorija({
     required this.subkategorijaId,
     required this.naziv,
     required this.kategorijaId,
+    this.kategorijaNaziv, // <- dodano
   });
 
   factory Subkategorija.fromJson(Map<String, dynamic> json) {
@@ -14,6 +16,7 @@ class Subkategorija {
       subkategorijaId: json['subkategorijaId'],
       naziv: json['naziv'],
       kategorijaId: json['kategorijaId'],
+      kategorijaNaziv: json['kategorijaNaziv'], // <- dodano
     );
   }
 
@@ -22,6 +25,7 @@ class Subkategorija {
       'subkategorijaId': subkategorijaId,
       'naziv': naziv,
       'kategorijaId': kategorijaId,
+      'kategorijaNaziv': kategorijaNaziv, // <- dodano
     };
   }
 }

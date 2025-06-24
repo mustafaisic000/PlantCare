@@ -11,4 +11,5 @@ public interface IObavijestService
         ObavijestInsertRequest,
         ObavijestUpdateRequest>
 {
+    void Delete(int id);
 }

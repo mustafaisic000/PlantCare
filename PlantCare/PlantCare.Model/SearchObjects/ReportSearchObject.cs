@@ -8,5 +8,6 @@ namespace PlantCare.Model.SearchObjects;
 
 public class ReportSearchObject : BaseSearchObject
 {
-    public int? PostId { get; set; }         
+    public int? PostId { get; set; }
+    public string? Naslov { get; set; }
 }

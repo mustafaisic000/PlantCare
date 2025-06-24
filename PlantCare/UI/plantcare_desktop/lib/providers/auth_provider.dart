@@ -13,4 +13,10 @@ class AuthProvider {
 
     Navigator.pushReplacementNamed(context, '/login');
   }
+
+  static void login(String user, String pass, Korisnik loggedInUser) {
+    username = user;
+    password = pass;
+    korisnik = loggedInUser;
+  }
 }

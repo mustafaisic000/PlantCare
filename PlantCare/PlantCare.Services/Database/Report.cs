@@ -19,4 +19,5 @@ public class Report
     public virtual Post Post { get; set; }
     public int BrojLajkova { get; set; } = 0;
     public int BrojOmiljenih { get; set; } = 0;
+    public int BrojKomentara { get; set; } = 0;
 }

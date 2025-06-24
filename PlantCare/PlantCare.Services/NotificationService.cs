@@ -46,4 +46,25 @@ public class NotifikacijaService
 
         return query;
     }
+    public void Delete(int id)
+    {
+        var entity = Context.Set<Database.Notifikacija>().Find(id);
+        if (entity == null)
+            throw new Exception("Notifikacija nije pronađena");
+
+        Context.Remove(entity);
+        Context.SaveChanges();
+    }
+
+    public void MarkAsRead(int id)
+    {
+        var entity = Context.Set<Database.Notifikacija>().Find(id);
+        if (entity == null)
+            throw new Exception("Notifikacija nije pronađena");
+
+        entity.Procitano = true;
+        Context.SaveChanges();
+    }
+
+
 }

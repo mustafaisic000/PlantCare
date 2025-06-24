@@ -11,4 +11,5 @@ public interface ILajkService
       LajkInsertRequest,
       LajkUpdateRequest>
 {
+    void Delete(int id);
 }

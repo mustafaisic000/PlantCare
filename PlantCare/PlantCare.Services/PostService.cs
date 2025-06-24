@@ -52,6 +52,20 @@ public class PostService
         if (search.SubkategorijaId.HasValue)
             query = query.Where(x => x.SubkategorijaId == search.SubkategorijaId.Value);
 
+        if (search.Status.HasValue)
+            query = query.Where(x => x.Status == search.Status.Value);
+
         return query;
     }
+
+    public void SoftDelete(int id)
+    {
+        var entity = Context.Postovi.Find(id);
+        if (entity == null)
+            throw new Exception("Post nije pronađen.");
+
+        entity.Status = false;
+        Context.SaveChanges();
+    }
+
 }

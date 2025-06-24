@@ -8,6 +8,6 @@ namespace PlantCare.Model.SearchObjects;
 
 public class KatalogPostSearchObject : BaseSearchObject
 {
-    public int? KatalogId { get; set; } 
-    public int? PostId { get; set; }     
+    public string PostNaslov { get; set; } = null!;
+    public bool Status { get; set; } 
 }

@@ -13,10 +13,7 @@ public partial class Katalog
     public string Naslov { get; set; } = default!;
 
     public string Opis { get; set; } = default!;
-
-    public DateTime DatumOd { get; set; }
-    public DateTime DatumDo { get; set; }
-
+    public bool Aktivan { get; set; }
     [Required]
     public int KorisnikId { get; set; }
     public virtual Korisnik Korisnik { get; set; } = default!;

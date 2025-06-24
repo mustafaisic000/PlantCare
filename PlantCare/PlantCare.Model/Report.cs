@@ -9,10 +9,11 @@ namespace PlantCare.Model;
 public class Report
 {
     public int ReportId { get; set; }
-    public DateTime Datum { get; set; }
+    public DateTime Datum { get; set; } = DateTime.Now;
     public string KorisnickoIme { get; set; } = null!;
     public int PostId { get; set; }
     public string PostNaslov { get; set; } = null!;
     public int BrojLajkova { get; set; }
     public int BrojOmiljenih { get; set; }
+    public int BrojKomentara { get; set; }
 }

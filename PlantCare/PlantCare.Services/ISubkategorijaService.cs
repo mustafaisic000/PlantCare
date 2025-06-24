@@ -11,5 +11,5 @@ public interface ISubkategorijaService
         SubkategorijaInsertRequest,
         SubkategorijaUpdateRequest>
 {
-
+    void Delete(int id);
 }

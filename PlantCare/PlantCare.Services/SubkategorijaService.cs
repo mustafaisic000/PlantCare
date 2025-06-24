@@ -32,6 +32,8 @@ public class SubkategorijaService
     {
         query = base.AddFilter(search, query);
 
+        query = query.Include(x => x.Kategorija);
+
         if (!string.IsNullOrWhiteSpace(search.Naziv))
             query = query.Where(x => x.Naziv.StartsWith(search.Naziv));
 
@@ -41,19 +43,20 @@ public class SubkategorijaService
         return query;
     }
 
-    public override Model.Subkategorija Insert(SubkategorijaInsertRequest request)
+    public void Delete(int id)
     {
-        var email="beki74gi@live.com";
-        Notifier testRabbitaIMaila = new Notifier
-        {
-            Datum = DateTime.Now,
-            Email = email,
-            Naslov = "Hvala što ste se testirali RabbitMQ",
-            Tekst = $"Poštovani uspjesno ste dodali naziv subkategorije koji glasi = {request.Naziv}"
-        };
+        var subkategorija = Context.Subkategorije.Find(id);
+        if (subkategorija == null)
+            throw new Exception("Subkategorija nije pronađena.");
 
-        _emailService.SendingObject(testRabbitaIMaila);
+        // Provjera da li postoji neki post sa ovom subkategorijom
+        var hasPosts = Context.Postovi.Any(p => p.SubkategorijaId == id);
+        if (hasPosts)
+            throw new Exception("Subkategorija se ne može obrisati jer sadrži postove.");
 
-        return base.Insert(request);
+        Context.Subkategorije.Remove(subkategorija);
+        Context.SaveChanges();
     }
+
+
 }

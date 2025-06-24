@@ -11,4 +11,6 @@ public interface INotifikacijaService
         NotifikacijaInsertRequest,
         NotifikacijaUpdateRequest>
 {
+    void Delete(int id);
+    void MarkAsRead(int id);
 }

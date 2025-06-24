@@ -9,5 +9,6 @@ public class ObavijestInsertRequest
 {
     public string Naslov { get; set; } = null!;
     public string Sadrzaj { get; set; } = null!;
+    public bool Aktivan { get; set; }
     public int KorisnikId { get; set; }
 }

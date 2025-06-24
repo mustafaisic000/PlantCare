@@ -11,8 +11,7 @@ public class Katalog
     public int KatalogId { get; set; }
     public string Naslov { get; set; } = null!;
     public string? Opis { get; set; }
-    public DateTime DatumOd { get; set; }
-    public DateTime DatumDo { get; set; }
+    public bool Aktivan { get; set; }
     public string KorisnickoIme { get; set; } = null!;
 
     public ICollection<KatalogPost> KatalogPostovi { get; set; } = new List<KatalogPost>();
