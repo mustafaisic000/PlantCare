@@ -56,6 +56,15 @@ namespace PlantCare.WebAPI.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+        [HttpPost]
+        [AllowAnonymous]
+        public override ActionResult<Korisnik> Insert([FromBody] KorisnikInsertRequest request)
+        {
+            var created = _service.Insert(request);
+            return Ok(created);
+        }
+
+
 
 
 

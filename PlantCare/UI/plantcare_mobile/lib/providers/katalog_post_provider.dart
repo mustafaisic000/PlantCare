@@ -1,4 +1,4 @@
-import 'package:plantcare_desktop/models/katalog_post_model.dart';
+import 'package:plantcare_mobile/models/katalog_post_model.dart';
 import 'base_provider.dart';
 
 class KatalogPostProvider extends BaseProvider<KatalogPost> {

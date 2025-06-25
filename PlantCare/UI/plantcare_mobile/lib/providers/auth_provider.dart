@@ -1,4 +1,4 @@
-import 'package:plantcare_desktop/models/korisnici_model.dart';
+import 'package:plantcare_mobile/models/korisnici_model.dart';
 import 'package:flutter/material.dart';
 
 class AuthProvider {

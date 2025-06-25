@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
-import 'package:plantcare_desktop/models/search_result_model.dart';
-import 'package:plantcare_desktop/providers/auth_provider.dart';
+import 'package:plantcare_mobile/models/search_result_model.dart';
+import 'package:plantcare_mobile/providers/auth_provider.dart';
 
 abstract class BaseProvider<T> with ChangeNotifier {
   static String? _baseUrl;
@@ -17,7 +17,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
   BaseProvider(String endpoint) {
     _baseUrl = const String.fromEnvironment(
       "baseUrl",
-      defaultValue: "http://localhost:6089/",
+      defaultValue: "http://10.0.2.2:6089/",
     );
     if (!_baseUrl!.endsWith("/")) {
       _baseUrl = _baseUrl! + "/";

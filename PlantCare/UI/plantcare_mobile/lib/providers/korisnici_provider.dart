@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:plantcare_desktop/models/korisnici_model.dart';
-import 'package:plantcare_desktop/providers/base_provider.dart';
-import 'package:plantcare_desktop/providers/auth_provider.dart';
+import 'package:plantcare_mobile/models/korisnici_model.dart';
+import 'package:plantcare_mobile/providers/base_provider.dart';
+import 'package:plantcare_mobile/providers/auth_provider.dart';
 
 class KorisnikProvider extends BaseProvider<Korisnik> {
   KorisnikProvider() : super("Korisnik");
@@ -28,16 +28,15 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
     }
   }
 
-  Future<void> deleteKorisnik(int? id) async {
-    var url = "$fullUrl/$id/DeleteKorisnik";
-    var uri = Uri.parse(url);
-    var headers = createHeaders();
+  Future<void> softDelete(int id) async {
+    final url = "$fullUrl/$id/soft-delete";
+    final uri = Uri.parse(url);
+    final headers = createHeaders();
 
-    var response = await http!.put(uri, headers: headers);
-    if (isValidResponse(response)) {
-      print("Korisnik obrisan.");
-    } else {
-      throw Exception("Neuspješno brisanje korisnika.");
+    final response = await http!.patch(uri, headers: headers);
+
+    if (!isValidResponse(response)) {
+      throw Exception("Greška prilikom deaktivacije korisnika.");
     }
   }
 
@@ -83,15 +82,14 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
     }
   }
 
-  Future<Korisnik> insertKorisnik(Korisnik korisnik) async {
+  Future<void> insertKorisnik(Map<String, dynamic> request) async {
     var uri = Uri.parse(fullUrl!);
-    var headers = getHeaders();
-    var jsonRequest = jsonEncode(korisnik.toJson());
+    var headers = {"Content-Type": "application/json"};
+    var jsonRequest = jsonEncode(request);
 
     var response = await http!.post(uri, headers: headers, body: jsonRequest);
-    if (isValidResponse(response)) {
-      return fromJson(jsonDecode(response.body));
-    } else {
+
+    if (!isValidResponse(response)) {
       throw Exception("Greška prilikom dodavanja korisnika.");
     }
   }

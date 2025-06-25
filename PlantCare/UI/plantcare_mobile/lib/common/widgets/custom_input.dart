@@ -6,6 +6,7 @@ class CustomInput extends StatefulWidget {
   final bool obscureText;
   final TextInputType keyboardType;
   final IconData? icon;
+  final int? maxLength;
 
   const CustomInput({
     required this.label,
@@ -13,6 +14,7 @@ class CustomInput extends StatefulWidget {
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.icon,
+    this.maxLength,
     super.key,
   });
 
@@ -35,6 +37,7 @@ class _CustomInputState extends State<CustomInput> {
       controller: widget.controller,
       obscureText: widget.obscureText ? _isObscured : false,
       keyboardType: widget.keyboardType,
+      maxLength: widget.maxLength, // npr. 70 karaktera
       decoration: InputDecoration(
         labelText: widget.label,
         border: const OutlineInputBorder(),
@@ -53,6 +56,7 @@ class _CustomInputState extends State<CustomInput> {
                 },
               )
             : null,
+        counterText: '',
       ),
     );
   }
