@@ -22,18 +22,25 @@ namespace PlantCare.WebAPI.Controllers
             _lajkService = service;
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+
+        [HttpDelete("{lajkId}/korisnik/{korisnikId}")]
+        public IActionResult Delete(int lajkId, int korisnikId)
         {
             try
             {
-                _lajkService.Delete(id);
-                return NoContent(); 
+                _lajkService.Delete(lajkId, korisnikId);
+                return NoContent();
             }
             catch (Exception ex)
             {
-                return NotFound(new { message = ex.Message });
+                return BadRequest(new { message = ex.Message });
             }
+        }
+
+        [HttpGet("count/post/{postId}")]
+        public ActionResult<int> GetLajkCountByPost(int postId)
+        {
+            return _lajkService.GetLajkCountByPost(postId);
         }
     }
 }

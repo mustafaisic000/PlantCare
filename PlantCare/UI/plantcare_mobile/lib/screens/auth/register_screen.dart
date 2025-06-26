@@ -118,8 +118,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       );
     } catch (e) {
-      print("REQUEST: $request");
-      print("ERROR: $e");
       showDialog(
         context: context,
         builder: (_) => AlertDialog(

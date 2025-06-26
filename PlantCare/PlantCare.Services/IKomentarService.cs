@@ -11,5 +11,6 @@ public interface IKomentarService
         KomentarInsertRequest,
         KomentarUpdateRequest>
 {
-    void Delete(int id);
+    void Delete(int komentarId, int korisnikId, int ulogaId);
+
 }

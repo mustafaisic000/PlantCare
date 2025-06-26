@@ -177,4 +177,8 @@ abstract class BaseProvider<T> with ChangeNotifier {
     });
     return query;
   }
+
+  Map<String, dynamic> decodeResponse(Response response) {
+    return json.decode(utf8.decode(response.bodyBytes));
+  }
 }

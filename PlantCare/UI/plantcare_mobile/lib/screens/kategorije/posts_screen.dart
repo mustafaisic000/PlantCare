@@ -5,6 +5,7 @@ import 'package:plantcare_mobile/models/subkategorije_model.dart';
 import 'package:plantcare_mobile/providers/post_provider.dart';
 import 'package:plantcare_mobile/providers/subkategorije_provider.dart';
 import 'package:plantcare_mobile/common/widgets/post_card.dart';
+import 'package:plantcare_mobile/screens/kategorije/post_detail_screen.dart';
 
 class PostsScreen extends StatefulWidget {
   final Kategorija kategorija;
@@ -69,8 +70,6 @@ class _PostsScreenState extends State<PostsScreen> {
       filters['subkategorijaIdList'] = _selectedSubIds;
     }
 
-    print("FILTER MAP: $filters");
-
     final result = await _postProvider.get(filter: filters);
 
     setState(() {
@@ -79,8 +78,6 @@ class _PostsScreenState extends State<PostsScreen> {
       _isFetchingMore = false;
       _hasMore = _posts.length < result.count;
     });
-
-    print("TOTAL POSTS LOADED: ${_posts.length} / ${result.count}");
   }
 
   void _onSearchChanged(String value) {
@@ -191,7 +188,13 @@ class _PostsScreenState extends State<PostsScreen> {
                         return PostCard(
                           post: _posts[index],
                           onTap: () {
-                            // Navigate to detail if needed
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    PostDetailScreen(post: _posts[index]),
+                              ),
+                            );
                           },
                         );
                       },

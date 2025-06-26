@@ -49,14 +49,26 @@ public class KomentarService
         return query;
     }
 
-    public void Delete(int id)
+    public void Delete(int komentarId, int korisnikId, int ulogaId)
     {
-        var entity = Context.Set<Database.Komentar>().Find(id);
+        var entity = Context.Komentari
+            .Include(x => x.Post)
+            .FirstOrDefault(x => x.KomentarId == komentarId);
+
         if (entity == null)
-            throw new Exception("Komentar not found");
+            throw new Exception("Komentar nije pronađen");
+
+        bool imaPravo = ulogaId == 1 ||
+                        entity.KorisnikId == korisnikId ||
+                        entity.Post.KorisnikId == korisnikId;
+
+        if (!imaPravo)
+            throw new Exception("Nemate pravo da obrišete ovaj komentar.");
 
         Context.Remove(entity);
         Context.SaveChanges();
     }
+
+
 
 }

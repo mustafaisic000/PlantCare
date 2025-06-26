@@ -41,14 +41,23 @@ public class LajkService
         return query;
     }
 
-    public void Delete(int id)
+    public void Delete(int lajkId, int korisnikId)
     {
-        var entity = Context.Set<Database.Lajk>().Find(id);
-        if (entity == null)
-            throw new Exception("Lajk not found");
+        var entity = Context.Lajkovi.FirstOrDefault(x => x.LajkId == lajkId);
 
-        Context.Remove(entity);
+        if (entity == null)
+            throw new Exception("Lajk nije pronađen");
+
+        if (entity.KorisnikId != korisnikId)
+            throw new Exception("Nemate pravo da obrišete ovaj lajk");
+
+        Context.Lajkovi.Remove(entity);
         Context.SaveChanges();
+    }
+
+    public int GetLajkCountByPost(int postId)
+    {
+        return Context.Lajkovi.Count(x => x.PostId == postId);
     }
 
 }
