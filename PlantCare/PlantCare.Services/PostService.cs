@@ -55,6 +55,15 @@ public class PostService
         if (search.Status.HasValue)
             query = query.Where(x => x.Status == search.Status.Value);
 
+        if (search.SubkategorijaIdList != null && search.SubkategorijaIdList.Any())
+            query = query.Where(x => search.SubkategorijaIdList.Contains(x.SubkategorijaId));
+
+        if (search.KategorijaId.HasValue)
+        {
+            query = query.Where(x => x.Subkategorija.KategorijaId == search.KategorijaId.Value);
+        }
+
+
         return query;
     }
 

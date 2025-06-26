@@ -49,7 +49,7 @@ class _PostsScreenState extends State<PostsScreen> {
 
   Future<void> _fetchPosts({bool reset = false}) async {
     if (reset) {
-      _page = 1;
+      _page = 0;
       _posts.clear();
       _hasMore = true;
       setState(() => _isLoading = true);
@@ -62,11 +62,14 @@ class _PostsScreenState extends State<PostsScreen> {
       'page': _page,
       'pageSize': _pageSize,
       'status': true,
+      'KategorijaId': widget.kategorija.kategorijaId,
     };
 
     if (_selectedSubIds.isNotEmpty) {
-      filters['subkategorijaId'] = _selectedSubIds.first;
+      filters['subkategorijaIdList'] = _selectedSubIds;
     }
+
+    print("FILTER MAP: $filters");
 
     final result = await _postProvider.get(filter: filters);
 
@@ -76,6 +79,8 @@ class _PostsScreenState extends State<PostsScreen> {
       _isFetchingMore = false;
       _hasMore = _posts.length < result.count;
     });
+
+    print("TOTAL POSTS LOADED: ${_posts.length} / ${result.count}");
   }
 
   void _onSearchChanged(String value) {
@@ -125,21 +130,30 @@ class _PostsScreenState extends State<PostsScreen> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _subkategorije.map((sub) {
-                final selected = _selectedSubIds.contains(sub.subkategorijaId);
-                return ChoiceChip(
-                  label: Text(sub.naziv),
-                  selected: selected,
-                  selectedColor: Colors.green,
-                  onSelected: (_) => _onToggleSub(sub.subkategorijaId),
-                  labelStyle: TextStyle(
-                    color: selected ? Colors.white : Colors.black,
-                  ),
-                );
-              }).toList(),
+            child: SizedBox(
+              height: 40,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _subkategorije.map((sub) {
+                    final selected = _selectedSubIds.contains(
+                      sub.subkategorijaId,
+                    );
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: Text(sub.naziv),
+                        selected: selected,
+                        selectedColor: Colors.green,
+                        onSelected: (_) => _onToggleSub(sub.subkategorijaId),
+                        labelStyle: TextStyle(
+                          color: selected ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 8),

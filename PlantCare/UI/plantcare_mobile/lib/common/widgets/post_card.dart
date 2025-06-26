@@ -13,7 +13,6 @@ class PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isUser = AuthProvider.korisnik?.ulogaId == 3;
     final bool isPremium = post.premium;
-
     final bool locked = isUser && isPremium;
 
     return GestureDetector(
@@ -48,7 +47,13 @@ class PostCard extends StatelessWidget {
                           fit: BoxFit.cover,
                         ),
                 ),
-                Positioned(
+                if (locked)
+                  const Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Icon(Icons.lock, color: Colors.white),
+                  ),
+                const Positioned(
                   top: 8,
                   right: 8,
                   child: Icon(Icons.favorite_border, color: Colors.white),
@@ -58,14 +63,22 @@ class PostCard extends StatelessWidget {
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                post.naslov,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              child: Container(
+                height: 48, // dovoljno za 2 reda
+                alignment: Alignment.center,
+                child: Text(
+                  post.naslov,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 4),
-            if (locked) const Icon(Icons.lock, size: 24, color: Colors.black87),
+            const Spacer(),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(

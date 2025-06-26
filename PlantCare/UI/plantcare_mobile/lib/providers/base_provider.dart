@@ -156,25 +156,20 @@ abstract class BaseProvider<T> with ChangeNotifier {
   }) {
     String query = '';
     params.forEach((key, value) {
-      if (inRecursion) {
-        if (key is int) {
-          key = '[$key]';
-        } else {
-          key = '.$key';
-        }
-      }
-
       if (value is String || value is int || value is double || value is bool) {
         var encoded = (value is String) ? Uri.encodeComponent(value) : value;
         query += '$prefix$key=$encoded';
       } else if (value is DateTime) {
         query += '$prefix$key=${value.toIso8601String()}';
-      } else if (value is List || value is Map) {
-        if (value is List) value = value.asMap();
+      } else if (value is List) {
+        for (var v in value) {
+          query += '$prefix$key=${Uri.encodeComponent(v.toString())}';
+        }
+      } else if (value is Map) {
         value.forEach((k, v) {
           query += getQueryString(
             {k: v},
-            prefix: '$prefix$key',
+            prefix: '$prefix$key.',
             inRecursion: true,
           );
         });
