@@ -19,9 +19,11 @@ public class PostService
         PostUpdateRequest>,
       IPostService
 {
+    private readonly PostRecommender _postRecommender;
     public PostService(PlantCareContext ctx, IMapper mapper)
         : base(ctx, mapper)
     {
+        _postRecommender = new PostRecommender(ctx);
     }
 
     protected override IQueryable<Database.Post> AddFilter(
@@ -91,6 +93,26 @@ public class PostService
 
         return entity.Adapt<Model.Post>();
     }
+
+    public List<Model.Post> Recommend(int korisnikId)
+    {
+        var posts = _postRecommender.Recommend(korisnikId);
+        return posts.Select(p => new Model.Post
+        {
+            PostId = p.PostId,
+            Naslov = p.Naslov,
+            Sadrzaj = p.Sadrzaj,
+            Slika = p.Slika,
+            DatumKreiranja = p.DatumKreiranja,
+            KorisnikId = p.KorisnikId,
+            KorisnickoIme = p.Korisnik?.KorisnickoIme ?? "",
+            Premium = p.Premium,
+            Status = p.Status,
+            SubkategorijaId = p.SubkategorijaId,
+            SubkategorijaNaziv = p.Subkategorija?.Naziv ?? ""
+        }).ToList();
+    }
+
 
 
 }

@@ -12,4 +12,6 @@ public interface IPostService
         PostUpdateRequest>
 {
     void SoftDelete(int id);
+    List<Post> Recommend(int korisnikId);
+
 }

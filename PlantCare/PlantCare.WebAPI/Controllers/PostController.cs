@@ -35,5 +35,13 @@ namespace PlantCare.WebAPI.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+
+        [HttpGet("recommend/{korisnikId}")]
+        public ActionResult<List<Post>> Recommend(int korisnikId)
+        {
+            var result = _postService.Recommend(korisnikId);
+            return Ok(result);
+        }
+
     }
 }
