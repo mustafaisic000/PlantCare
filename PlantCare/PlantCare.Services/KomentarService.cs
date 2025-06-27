@@ -49,7 +49,7 @@ public class KomentarService
         return query;
     }
 
-    public void Delete(int komentarId, int korisnikId, int ulogaId)
+    public void Delete(int komentarId, int korisnikId)
     {
         var entity = Context.Komentari
             .Include(x => x.Post)
@@ -58,8 +58,7 @@ public class KomentarService
         if (entity == null)
             throw new Exception("Komentar nije pronađen");
 
-        bool imaPravo = ulogaId == 1 ||
-                        entity.KorisnikId == korisnikId ||
+        bool imaPravo = entity.KorisnikId == korisnikId ||
                         entity.Post.KorisnikId == korisnikId;
 
         if (!imaPravo)

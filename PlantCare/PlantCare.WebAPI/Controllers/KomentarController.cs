@@ -22,12 +22,12 @@ namespace PlantCare.WebAPI.Controllers
             _komentarService = service;
         }
 
-        [HttpDelete("{komentarId}/korisnik/{korisnikId}/uloga/{ulogaId}")]
-        public IActionResult Delete(int komentarId, int korisnikId, int ulogaId)
+        [HttpDelete("{komentarId}/korisnik/{korisnikId}")]
+        public IActionResult Delete(int komentarId, int korisnikId)
         {
             try
             {
-                _komentarService.Delete(komentarId, korisnikId, ulogaId);
+                _komentarService.Delete(komentarId, korisnikId);
                 return NoContent();
             }
             catch (Exception ex)

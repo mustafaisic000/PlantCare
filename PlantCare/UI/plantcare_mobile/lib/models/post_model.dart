@@ -28,13 +28,13 @@ class Post {
       postId: json['postId'],
       naslov: json['naslov'],
       sadrzaj: json['sadrzaj'],
-      slika: json['slika'], // može biti null
+      slika: json['slika'],
       datumKreiranja: DateTime.parse(json['datumKreiranja']),
       korisnikId: json['korisnikId'],
-      korisnickoIme: json['korisnickoIme'],
+      korisnickoIme: json['korisnickoIme'] ?? '',
       premium: json['premium'],
       subkategorijaId: json['subkategorijaId'],
-      subkategorijaNaziv: json['subkategorijaNaziv'],
+      subkategorijaNaziv: json['subkategorija']?['naziv'] ?? '',
     );
   }
 

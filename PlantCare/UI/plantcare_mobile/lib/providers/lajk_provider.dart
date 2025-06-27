@@ -28,4 +28,18 @@ class LajkProvider extends BaseProvider<Lajk> {
       throw Exception('Nemate pravo da obrišete ovaj lajk.');
     }
   }
+
+  Future<List<Lajk>> getByPostAndKorisnik(int postId, int korisnikId) async {
+    final headers = getHeaders();
+    final url = Uri.parse('$fullUrl?PostId=$postId&KorisnikId=$korisnikId');
+
+    final response = await http!.get(url, headers: headers);
+
+    if (!isValidResponse(response)) {
+      throw Exception('Greška pri dohvatu lajka.');
+    }
+
+    final data = super.decodeResponse(response);
+    return (data['resultList'] as List).map((e) => fromJson(e)).toList();
+  }
 }
