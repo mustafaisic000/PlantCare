@@ -15,21 +15,35 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    KategorijeScreen(),
-    DodajScreen(),
-    ProfilScreen(),
-  ];
+  final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
+  final GlobalKey<KategorijeScreenState> _kategorijeKey =
+      GlobalKey<KategorijeScreenState>();
+  final GlobalKey<DodajScreenState> _dodajKey = GlobalKey<DodajScreenState>();
+  final GlobalKey<ProfilScreenState> _profilKey =
+      GlobalKey<ProfilScreenState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          HomeScreen(key: _homeKey),
+          KategorijeScreen(key: _kategorijeKey),
+          DodajScreen(key: _dodajKey),
+          ProfilScreen(key: _profilKey),
+        ],
+      ),
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() => _currentIndex = index);
+          if (index == 0) {
+            _homeKey.currentState?.loadData();
+          }
+          if (index == 1) _kategorijeKey.currentState?.loadKategorije();
+          if (index == 2) _dodajKey.currentState?.loadDropdowns();
+          if (index == 3) _profilKey.currentState?.loadProfil();
         },
       ),
     );

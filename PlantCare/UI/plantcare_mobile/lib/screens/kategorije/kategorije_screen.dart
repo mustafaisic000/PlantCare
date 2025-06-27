@@ -8,10 +8,10 @@ class KategorijeScreen extends StatefulWidget {
   const KategorijeScreen({super.key});
 
   @override
-  State<KategorijeScreen> createState() => _KategorijeScreenState();
+  State<KategorijeScreen> createState() => KategorijeScreenState();
 }
 
-class _KategorijeScreenState extends State<KategorijeScreen> {
+class KategorijeScreenState extends State<KategorijeScreen> {
   final KategorijaProvider _provider = KategorijaProvider();
   final TextEditingController _searchController = TextEditingController();
 

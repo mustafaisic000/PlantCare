@@ -12,10 +12,10 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   final ObavijestProvider _obavijestProvider = ObavijestProvider();
   final KatalogProvider _katalogProvider = KatalogProvider();
 
@@ -23,11 +23,24 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Katalog> _katalozi = [];
 
   bool _isLoading = true;
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
     super.initState();
     loadData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Provjeravamo da li se ekran ponovo prikazao
+    if (ModalRoute.of(context)?.isCurrent == true && !_isFirstLoad) {
+      loadData();
+    }
+
+    _isFirstLoad = false;
   }
 
   Future<void> loadData() async {
