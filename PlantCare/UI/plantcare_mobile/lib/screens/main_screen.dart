@@ -18,7 +18,8 @@ class _MainScreenState extends State<MainScreen> {
   final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
   final GlobalKey<KategorijeScreenState> _kategorijeKey =
       GlobalKey<KategorijeScreenState>();
-  final GlobalKey<DodajScreenState> _dodajKey = GlobalKey<DodajScreenState>();
+  final GlobalKey<DodajPostScreenState> _dodajKey =
+      GlobalKey<DodajPostScreenState>();
   final GlobalKey<ProfilScreenState> _profilKey =
       GlobalKey<ProfilScreenState>();
 
@@ -30,7 +31,7 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           HomeScreen(key: _homeKey),
           KategorijeScreen(key: _kategorijeKey),
-          DodajScreen(key: _dodajKey),
+          DodajPostScreen(key: _dodajKey),
           ProfilScreen(key: _profilKey),
         ],
       ),

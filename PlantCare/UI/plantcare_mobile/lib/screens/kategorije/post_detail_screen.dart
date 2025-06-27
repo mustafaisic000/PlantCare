@@ -10,6 +10,8 @@ import 'package:plantcare_mobile/providers/lajk_provider.dart';
 import 'package:plantcare_mobile/providers/auth_provider.dart';
 import 'package:plantcare_mobile/common/widgets/like_section.dart';
 import 'package:plantcare_mobile/common/widgets/komentari_section.dart';
+import 'package:plantcare_mobile/providers/post_provider.dart';
+import 'package:plantcare_mobile/screens/dodaj/dodaj_screen.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final Post post;
@@ -21,6 +23,8 @@ class PostDetailScreen extends StatefulWidget {
 }
 
 class _PostDetailScreenState extends State<PostDetailScreen> {
+  final _postProvider = PostProvider();
+  late Post _post;
   final KomentarProvider _komentarProvider = KomentarProvider();
   final TextEditingController _komentarController = TextEditingController();
   final LajkProvider _lajkProvider = LajkProvider();
@@ -37,6 +41,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   @override
   void initState() {
+    _post = widget.post;
     super.initState();
     _imageBytes = base64Decode(widget.post.slika ?? '');
     _loadKomentari(reset: true);
@@ -112,7 +117,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final isUser = AuthProvider.korisnik?.ulogaId == 3;
-    final isPremium = widget.post.premium;
+    final isPremium = _post.premium;
     final locked = isUser && isPremium;
 
     if (locked) {
@@ -144,190 +149,298 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       return const Scaffold();
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.post.naslov,
-          style: const TextStyle(fontSize: 18),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context, _post); // vrati ažurirani post kad klikne nazad
+        return false; // spriječi default zatvaranje jer smo ga već zatvorili
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            _post.naslov,
+            style: const TextStyle(fontSize: 18),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: double.infinity,
-              height:
-                  MediaQuery.of(context).size.height *
-                  0.45, // ~45% visine ekrana
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.memory(
-                  _imageBytes!,
-                  fit: BoxFit.fill,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Center(child: Icon(Icons.broken_image, size: 64)),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.post.korisnickoIme,
-                    style: const TextStyle(
-                      color: Colors.green,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 17,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                height:
+                    MediaQuery.of(context).size.height *
+                    0.45, // ~45% visine ekrana
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.memory(
+                    _imageBytes!,
+                    fit: BoxFit.fill,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Center(child: Icon(Icons.broken_image, size: 64)),
                   ),
                 ),
-
-                LikeSection(
-                  liked: _myLajk != null,
-                  brojLajkova: _brojLajkova,
-                  onToggleLike: () async {
-                    final success = await _toggleLajk();
-                    if (success)
-                      await _loadLajkInfo(); // ⚠️ Ovako će uvijek povući novi broj
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 2),
-            Text(widget.post.sadrzaj),
-            const SizedBox(height: 16),
-            const Divider(),
-            KomentariSection(
-              key: _komentariKey,
-              postId: widget.post.postId,
-              postOwnerId: widget.post.korisnikId,
-            ),
-            const SizedBox(height: 100),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 8,
-          top: 8,
-        ),
-        child: SafeArea(
-          child: StatefulBuilder(
-            builder: (context, setLocalState) {
-              return Row(
+              ),
+              const SizedBox(height: 16),
+              Row(
                 children: [
                   Expanded(
-                    child: TextField(
-                      controller: _komentarController,
-                      maxLength: 200,
-                      maxLines: null,
-                      decoration: InputDecoration(
-                        hintText: 'Dodaj komentar...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.person, size: 20, color: Colors.green),
+                        const SizedBox(width: 4),
+                        Text(
+                          _post.korisnickoIme,
+                          style: const TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 17,
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 14,
-                        ),
-                        counterText: '', // onemogućimo default prikaz
-                      ),
-                      buildCounter:
-                          (
-                            BuildContext context, {
-                            required int currentLength,
-                            required bool isFocused,
-                            required int? maxLength,
-                          }) {
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 4, right: 4),
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  '$currentLength/200',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: currentLength > 200
-                                        ? Colors.red
-                                        : Colors.grey,
+                        if (_post.korisnikId ==
+                            AuthProvider.korisnik?.korisnikId) ...[
+                          const SizedBox(width: 8),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              GestureDetector(
+                                onTap: () async {
+                                  final updatedPost =
+                                      await Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => DodajPostScreen(
+                                            post: widget.post,
+                                          ),
+                                        ),
+                                      );
+
+                                  if (updatedPost is Post) {
+                                    final oldSlika = _post.slika ?? '';
+                                    final newSlika = updatedPost.slika ?? '';
+
+                                    setState(() {
+                                      _post = updatedPost;
+
+                                      if (oldSlika != newSlika) {
+                                        _imageBytes = base64Decode(newSlika);
+                                      }
+                                    });
+
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            "Post uspješno ažuriran.",
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    Navigator.of(context).pop(updatedPost);
+                                  }
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 4),
+                                  child: Icon(
+                                    Icons.edit,
+                                    color: Colors.orange,
+                                    size: 20,
                                   ),
                                 ),
                               ),
-                            );
-                          },
-                      onChanged: (_) => setLocalState(() {}),
+                              GestureDetector(
+                                onTap: () async {
+                                  final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (_) => AlertDialog(
+                                      title: const Text("Potvrda"),
+                                      content: const Text(
+                                        "Da li ste sigurni da želite obrisati post?",
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, false),
+                                          child: const Text("Otkaži"),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, true),
+                                          child: const Text("Obriši"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (confirm == true) {
+                                    await _postProvider.softDelete(
+                                      widget.post.postId,
+                                    );
+                                    if (context.mounted)
+                                      Navigator.pop(context, true);
+                                  }
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 4),
+                                  child: Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.arrow_upward_rounded,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                      onPressed:
-                          _komentarController.text.trim().isEmpty ||
-                              _komentarController.text.length > 200
-                          ? null
-                          : () async {
-                              final tekst = _komentarController.text.trim();
-                              try {
-                                final inserted = await _komentarProvider
-                                    .insert({
-                                      'sadrzaj': tekst,
-                                      'korisnikId':
-                                          AuthProvider.korisnik!.korisnikId!,
-                                      'postId': widget.post.postId,
-                                    });
-
-                                _komentarController.clear();
-                                FocusScope.of(context).unfocus();
-                                final newKomentar = Komentar(
-                                  komentarId: inserted.komentarId,
-                                  sadrzaj: inserted.sadrzaj,
-                                  datumKreiranja: inserted.datumKreiranja,
-                                  korisnikId:
-                                      AuthProvider.korisnik!.korisnikId!,
-                                  korisnickoIme:
-                                      AuthProvider.korisnik!.korisnickoIme,
-                                  postNaslov: inserted.postNaslov,
-                                  postId: widget.post.postId,
-                                );
-
-                                _komentariKey.currentState
-                                    ?.addKomentarNaPocetak(newKomentar);
-                                setState(() {});
-                              } catch (_) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Greška pri dodavanju komentara.",
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                    ),
+                  LikeSection(
+                    liked: _myLajk != null,
+                    brojLajkova: _brojLajkova,
+                    onToggleLike: () async {
+                      final success = await _toggleLajk();
+                      if (success) await _loadLajkInfo();
+                    },
                   ),
                 ],
-              );
-            },
+              ),
+
+              const SizedBox(height: 2),
+              Text(_post.sadrzaj),
+              const SizedBox(height: 16),
+              const Divider(),
+              KomentariSection(
+                key: _komentariKey,
+                postId: _post.postId,
+                postOwnerId: widget.post.korisnikId,
+              ),
+              const SizedBox(height: 100),
+            ],
+          ),
+        ),
+        bottomNavigationBar: Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 8,
+            top: 8,
+          ),
+          child: SafeArea(
+            child: StatefulBuilder(
+              builder: (context, setLocalState) {
+                return Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _komentarController,
+                        maxLength: 200,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          hintText: 'Dodaj komentar...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 14,
+                          ),
+                          counterText: '', // onemogućimo default prikaz
+                        ),
+                        buildCounter:
+                            (
+                              BuildContext context, {
+                              required int currentLength,
+                              required bool isFocused,
+                              required int? maxLength,
+                            }) {
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 4,
+                                  right: 4,
+                                ),
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    '$currentLength/200',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: currentLength > 200
+                                          ? Colors.red
+                                          : Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                        onChanged: (_) => setLocalState(() {}),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.arrow_upward_rounded,
+                          color: Colors.white,
+                          size: 22,
+                        ),
+                        onPressed:
+                            _komentarController.text.trim().isEmpty ||
+                                _komentarController.text.length > 200
+                            ? null
+                            : () async {
+                                final tekst = _komentarController.text.trim();
+                                try {
+                                  final inserted = await _komentarProvider
+                                      .insert({
+                                        'sadrzaj': tekst,
+                                        'korisnikId':
+                                            AuthProvider.korisnik!.korisnikId!,
+                                        'postId': widget.post.postId,
+                                      });
+
+                                  _komentarController.clear();
+                                  FocusScope.of(context).unfocus();
+                                  final newKomentar = Komentar(
+                                    komentarId: inserted.komentarId,
+                                    sadrzaj: inserted.sadrzaj,
+                                    datumKreiranja: inserted.datumKreiranja,
+                                    korisnikId:
+                                        AuthProvider.korisnik!.korisnikId!,
+                                    korisnickoIme:
+                                        AuthProvider.korisnik!.korisnickoIme,
+                                    postNaslov: inserted.postNaslov,
+                                    postId: widget.post.postId,
+                                  );
+
+                                  _komentariKey.currentState
+                                      ?.addKomentarNaPocetak(newKomentar);
+                                  setState(() {});
+                                } catch (_) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Greška pri dodavanju komentara.",
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),

@@ -1,84 +1,281 @@
+import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:plantcare_mobile/models/kategorija_model.dart';
-import 'package:plantcare_mobile/models/subkategorije_model.dart';
-import 'package:plantcare_mobile/providers/kategorija_provider.dart';
+import 'package:plantcare_mobile/models/post_model.dart';
+import 'package:plantcare_mobile/providers/auth_provider.dart';
+import 'package:plantcare_mobile/providers/post_provider.dart';
 import 'package:plantcare_mobile/providers/subkategorije_provider.dart';
 
-class DodajScreen extends StatefulWidget {
-  const DodajScreen({super.key});
+class DodajPostScreen extends StatefulWidget {
+  final Post? post;
+
+  const DodajPostScreen({super.key, this.post});
 
   @override
-  DodajScreenState createState() => DodajScreenState();
+  State<DodajPostScreen> createState() => DodajPostScreenState();
 }
 
-class DodajScreenState extends State<DodajScreen> {
-  final KategorijaProvider _kategorijaProvider = KategorijaProvider();
-  final SubkategorijaProvider _subkategorijaProvider = SubkategorijaProvider();
+class DodajPostScreenState extends State<DodajPostScreen> {
+  AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
+  final _formKey = GlobalKey<FormState>();
+  final _naslovController = TextEditingController();
+  final _sadrzajController = TextEditingController();
 
-  List<Kategorija> _kategorije = [];
-  List<Subkategorija> _subkategorije = [];
+  final SubkategorijaProvider _subProvider = SubkategorijaProvider();
+  final PostProvider _postProvider = PostProvider();
+
+  Uint8List? imageData;
+  String? originalSlika;
+  bool showSlikaError = false;
+  bool premium = false;
+  int? subkategorijaId;
+  List<DropdownMenuItem<int>> subOptions = [];
 
   @override
   void initState() {
     super.initState();
-    loadDropdowns();
+    _loadDropdowns();
+    _sadrzajController.addListener(() => setState(() {}));
+
+    if (widget.post != null) {
+      final p = widget.post!;
+      _naslovController.text = p.naslov;
+      _sadrzajController.text = p.sadrzaj;
+      subkategorijaId = p.subkategorijaId;
+      premium = p.premium;
+      originalSlika = p.slika;
+
+      if (originalSlika != null && originalSlika!.isNotEmpty) {
+        try {
+          imageData = base64Decode(originalSlika!);
+        } catch (_) {
+          imageData = null;
+        }
+      }
+    }
   }
 
-  Future<void> loadDropdowns() async {
-    final katResult = await _kategorijaProvider.get();
-    final subResult = await _subkategorijaProvider.get();
+  void loadDropdowns() {
+    _loadDropdowns();
+  }
+
+  Future<void> _loadDropdowns() async {
+    final result = await _subProvider.get();
+    setState(() {
+      subOptions = result.result.map((s) {
+        return DropdownMenuItem<int>(
+          value: s.subkategorijaId,
+          child: Text(s.naziv),
+        );
+      }).toList();
+    });
+  }
+
+  Future<void> _pickImage() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (result != null) {
+      Uint8List? bytes = result.files.single.bytes;
+      if (bytes == null && result.files.single.path != null) {
+        bytes = await File(result.files.single.path!).readAsBytes();
+      }
+      if (bytes != null) {
+        setState(() {
+          imageData = bytes;
+          showSlikaError = false;
+        });
+      }
+    }
+  }
+
+  Widget _buildImage() {
+    Widget imageWidget;
+
+    if (imageData != null) {
+      imageWidget = Image.memory(imageData!, fit: BoxFit.fill);
+    } else {
+      imageWidget = Image.asset(
+        'assets/images/placeholder.png',
+        fit: BoxFit.fill,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          height: MediaQuery.of(context).size.height * 0.45,
+          clipBehavior: Clip.hardEdge,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.grey[300],
+          ),
+          child: InkWell(onTap: _pickImage, child: imageWidget),
+        ),
+        if (showSlikaError)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Center(
+              child: Text(
+                "Slika je obavezna",
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _save() async {
+    setState(() {
+      _autoValidateMode = AutovalidateMode.onUserInteraction;
+    });
+
+    final isValid = _formKey.currentState!.validate();
+    final hasImage =
+        imageData != null ||
+        (originalSlika != null && originalSlika!.isNotEmpty);
 
     setState(() {
-      _kategorije = katResult.result;
-      _subkategorije = subResult.result;
+      showSlikaError = !hasImage;
     });
+
+    if (!isValid || !hasImage) return;
+
+    final postMap = {
+      'naslov': _naslovController.text.trim(),
+      'sadrzaj': _sadrzajController.text.trim(),
+      'premium': premium,
+      'subkategorijaId': subkategorijaId,
+      'korisnikId': AuthProvider.korisnik!.korisnikId,
+      'slika': imageData != null ? base64Encode(imageData!) : originalSlika,
+    };
+
+    if (widget.post == null) {
+      await _postProvider.insert(postMap);
+    } else {
+      await _postProvider.update(widget.post!.postId, postMap);
+      final updatedPost = await _postProvider.getById(widget.post!.postId);
+      if (!mounted) return;
+      Navigator.of(context).pop(updatedPost);
+    }
+
+    if (!mounted) return;
+
+    _formKey.currentState!.reset();
+    _naslovController.clear();
+    _sadrzajController.clear();
+    setState(() {
+      imageData = null;
+      originalSlika = null;
+      premium = false;
+      subkategorijaId = null;
+      showSlikaError = false;
+      _autoValidateMode = AutovalidateMode.disabled; // 👈 Ovdje resetuješ
+    });
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Uspješno"),
+        content: const Text("Post je uspješno objavljen!"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("U redu"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _kategorije.isEmpty || _subkategorije.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: AppBar(title: const Text("Dodaj")),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          autovalidateMode: _autoValidateMode,
+          child: Column(
+            children: [
+              Text(
+                widget.post == null ? "Dodaj post" : "Uredi post",
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 24),
+              _buildImage(),
+              const SizedBox(height: 24),
+              TextFormField(
+                controller: _naslovController,
+                decoration: const InputDecoration(labelText: "Ime Posta"),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty)
+                    return "Unesite naslov posta";
+                  if (value.length > 100) return "Maksimalno 100 karaktera";
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<int>(
+                value: subkategorijaId,
+                decoration: const InputDecoration(labelText: "Subkategorija"),
+                items: subOptions,
+                onChanged: (val) => setState(() => subkategorijaId = val),
+                validator: (val) =>
+                    val == null ? "Odaberite subkategoriju" : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _sadrzajController,
+                maxLines: 4,
+                maxLength: 250,
+                decoration: const InputDecoration(
+                  labelText: "Opis",
+                  counterText: "",
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty)
+                    return "Unesite opis";
+                  if (value.length > 250) return "Maksimalno 250 karaktera";
+                  return null;
+                },
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text("${_sadrzajController.text.length} / 250"),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Dodavanje sadržaja',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 24),
-                  DropdownButtonFormField<int>(
-                    decoration: const InputDecoration(labelText: 'Kategorija'),
-                    items: _kategorije
-                        .map(
-                          (k) => DropdownMenuItem<int>(
-                            value: k.kategorijaId,
-                            child: Text(k.naziv),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (_) {},
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<int>(
-                    decoration: const InputDecoration(
-                      labelText: 'Subkategorija',
-                    ),
-                    items: _subkategorije
-                        .map(
-                          (s) => DropdownMenuItem<int>(
-                            value: s.subkategorijaId,
-                            child: Text(s.naziv),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (_) {},
+                  const Text("Premium postavka?"),
+                  Switch(
+                    value: premium,
+                    onChanged: (val) => setState(() => premium = val),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _save,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF50C878),
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size.fromHeight(50),
+                ),
+                child: const Text("Objavi"),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
