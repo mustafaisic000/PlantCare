@@ -1,41 +1,16 @@
 import 'package:flutter/material.dart';
 
-class LikeSection extends StatefulWidget {
-  final bool initialLiked;
-  final int initialBrojLajkova;
-  final Future<bool> Function() onToggleLike;
+class LikeSection extends StatelessWidget {
+  final bool liked;
+  final int brojLajkova;
+  final VoidCallback onToggleLike;
 
   const LikeSection({
     super.key,
-    required this.initialLiked,
-    required this.initialBrojLajkova,
+    required this.liked,
+    required this.brojLajkova,
     required this.onToggleLike,
   });
-
-  @override
-  State<LikeSection> createState() => _LikeSectionState();
-}
-
-class _LikeSectionState extends State<LikeSection> {
-  late bool liked;
-  late int brojLajkova;
-
-  @override
-  void initState() {
-    super.initState();
-    liked = widget.initialLiked;
-    brojLajkova = widget.initialBrojLajkova;
-  }
-
-  void _handleLike() async {
-    final success = await widget.onToggleLike();
-    if (!mounted) return;
-
-    setState(() {
-      liked = success ? !liked : liked;
-      brojLajkova += success ? (liked ? 1 : -1) : 0;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +19,7 @@ class _LikeSectionState extends State<LikeSection> {
       children: [
         IconButton(
           icon: Icon(Icons.favorite, color: liked ? Colors.green : Colors.grey),
-          onPressed: _handleLike,
+          onPressed: onToggleLike,
         ),
         Text('$brojLajkova'),
       ],

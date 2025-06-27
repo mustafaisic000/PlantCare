@@ -4,13 +4,20 @@ import 'package:plantcare_mobile/common/widgets/post_card.dart';
 import 'package:plantcare_mobile/providers/post_provider.dart';
 import 'package:plantcare_mobile/screens/kategorije/post_detail_screen.dart';
 
-class KatalogSection extends StatelessWidget {
+class KatalogSection extends StatefulWidget {
   final Katalog katalog;
 
   const KatalogSection({super.key, required this.katalog});
 
   @override
+  State<KatalogSection> createState() => _KatalogSectionState();
+}
+
+class _KatalogSectionState extends State<KatalogSection> {
+  @override
   Widget build(BuildContext context) {
+    final katalog = widget.katalog;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -41,14 +48,13 @@ class KatalogSection extends StatelessWidget {
                 katalogPost: katalogPost,
                 onTap: () async {
                   final post = await PostProvider().getById(katalogPost.postId);
-                  if (context.mounted) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PostDetailScreen(post: post),
-                      ),
-                    );
-                  }
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PostDetailScreen(post: post),
+                    ),
+                  );
+                  setState(() {}); // Sada će raditi
                 },
               );
             },

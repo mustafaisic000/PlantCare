@@ -187,14 +187,19 @@ class _PostsScreenState extends State<PostsScreen> {
                         }
                         return PostCard(
                           post: _posts[index],
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            final updatedPost = await Navigator.push<Post>(
                               context,
                               MaterialPageRoute(
                                 builder: (_) =>
                                     PostDetailScreen(post: _posts[index]),
                               ),
                             );
+                            if (updatedPost != null) {
+                              setState(() {
+                                _posts[index] = updatedPost;
+                              });
+                            }
                           },
                         );
                       },

@@ -190,9 +190,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 ),
 
                 LikeSection(
-                  initialLiked: _myLajk != null,
-                  initialBrojLajkova: _brojLajkova,
-                  onToggleLike: _toggleLajk,
+                  liked: _myLajk != null,
+                  brojLajkova: _brojLajkova,
+                  onToggleLike: () async {
+                    final success = await _toggleLajk();
+                    if (success)
+                      await _loadLajkInfo(); // ⚠️ Ovako će uvijek povući novi broj
+                  },
                 ),
               ],
             ),
