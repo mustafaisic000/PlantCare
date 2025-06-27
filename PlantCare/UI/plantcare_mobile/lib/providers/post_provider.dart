@@ -60,4 +60,17 @@ class PostProvider extends BaseProvider<Post> {
       throw Exception("Failed to fetch posts");
     }
   }
+
+  Future<Post> getById(int id) async {
+    final uri = Uri.parse("$fullUrl/$id");
+    final headers = createHeaders();
+
+    final response = await http!.get(uri, headers: headers);
+    if (isValidResponse(response)) {
+      final data = jsonDecode(response.body);
+      return fromJson(data);
+    } else {
+      throw Exception("Greška prilikom dohvaćanja posta");
+    }
+  }
 }

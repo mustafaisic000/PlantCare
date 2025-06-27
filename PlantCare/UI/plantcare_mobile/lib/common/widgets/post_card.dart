@@ -1,18 +1,29 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:plantcare_mobile/models/post_model.dart';
+import 'package:plantcare_mobile/models/katalog_post_model.dart';
 import 'package:plantcare_mobile/providers/auth_provider.dart';
 
 class PostCard extends StatelessWidget {
-  final Post post;
+  final Post? post;
+  final KatalogPost? katalogPost;
   final VoidCallback onTap;
 
-  const PostCard({super.key, required this.post, required this.onTap});
+  const PostCard({super.key, this.post, this.katalogPost, required this.onTap})
+    : assert(
+        post != null || katalogPost != null,
+        'Either post or katalogPost must be provided',
+      );
 
   @override
   Widget build(BuildContext context) {
     final bool isUser = AuthProvider.korisnik?.ulogaId == 3;
-    final bool isPremium = post.premium;
+    print('ULOGA: ${AuthProvider.korisnik?.ulogaId}');
+    final bool isPremium = post?.premium ?? katalogPost!.premium;
+    print('PREMIUM: $isPremium');
+    final String naslov = post?.naslov ?? katalogPost!.postNaslov;
+    final String? slika = post?.slika ?? katalogPost!.postSlika;
+
     final bool locked = isUser && isPremium;
 
     return GestureDetector(
@@ -27,15 +38,15 @@ class PostCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
-                  child: post.slika != null
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
+              child: Stack(
+                children: [
+                  slika != null
                       ? Image.memory(
-                          base64Decode(post.slika!),
+                          base64Decode(slika),
                           height: 110,
                           width: double.infinity,
                           fit: BoxFit.cover,
@@ -46,28 +57,29 @@ class PostCard extends StatelessWidget {
                           width: double.infinity,
                           fit: BoxFit.cover,
                         ),
-                ),
-                if (locked)
+                  if (locked)
+                    const Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Icon(Icons.lock, color: Colors.white),
+                    ),
                   const Positioned(
                     top: 8,
-                    left: 8,
-                    child: Icon(Icons.lock, color: Colors.white),
+                    right: 8,
+                    child: Icon(Icons.favorite_border, color: Colors.white),
                   ),
-                const Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Icon(Icons.favorite_border, color: Colors.white),
-                ),
-              ],
+                ],
+              ),
             ),
+
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Container(
-                height: 48, // dovoljno za 2 reda
+                height: 48,
                 alignment: Alignment.center,
                 child: Text(
-                  post.naslov,
+                  naslov,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,

@@ -24,18 +24,17 @@ class Post {
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
-    print('POST JSON: $json');
     return Post(
       postId: json['postId'],
       naslov: json['naslov'],
       sadrzaj: json['sadrzaj'],
-      slika: json['slika'],
+      slika: json['slika'], // može biti null
       datumKreiranja: DateTime.parse(json['datumKreiranja']),
       korisnikId: json['korisnikId'],
-      korisnickoIme: json['korisnickoIme'] ?? '',
+      korisnickoIme: json['korisnickoIme'],
       premium: json['premium'],
       subkategorijaId: json['subkategorijaId'],
-      subkategorijaNaziv: json['subkategorija']?['naziv'] ?? '',
+      subkategorijaNaziv: json['subkategorijaNaziv'],
     );
   }
 

@@ -1,4 +1,5 @@
 ﻿// PlantCare.Services/PostService.cs
+using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using PlantCare.Model;
@@ -76,5 +77,20 @@ public class PostService
         entity.Status = false;
         Context.SaveChanges();
     }
+
+    public override Model.Post GetById(int id)
+
+    {
+        var entity = Context.Postovi
+            .Include(x => x.Korisnik)
+            .Include(x => x.Subkategorija)
+            .FirstOrDefault(x => x.PostId == id);
+
+        if (entity == null)
+            throw new Exception("Post nije pronađen");
+
+        return entity.Adapt<Model.Post>();
+    }
+
 
 }

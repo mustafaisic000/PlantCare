@@ -301,7 +301,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                   korisnikId:
                                       AuthProvider.korisnik!.korisnikId!,
                                   korisnickoIme:
-                                      AuthProvider.korisnik!.korisnickoIme!,
+                                      AuthProvider.korisnik!.korisnickoIme,
                                   postNaslov: inserted.postNaslov,
                                   postId: widget.post.postId,
                                 );

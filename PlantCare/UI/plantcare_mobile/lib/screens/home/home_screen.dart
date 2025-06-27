@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:plantcare_mobile/common/widgets/home_header.dart';
 import 'package:plantcare_mobile/common/widgets/expandable_section.dart';
 import 'package:plantcare_mobile/common/widgets/obavijest_card.dart';
+import 'package:plantcare_mobile/common/widgets/katalog_section.dart';
 import 'package:plantcare_mobile/models/obavijesti_model.dart';
+import 'package:plantcare_mobile/models/katalog_model.dart';
 import 'package:plantcare_mobile/providers/obavijest_provider.dart';
+import 'package:plantcare_mobile/providers/katalog_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,32 +16,33 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String selectedFilter = "Sve";
-  final ObavijestProvider _provider = ObavijestProvider();
+  final ObavijestProvider _obavijestProvider = ObavijestProvider();
+  final KatalogProvider _katalogProvider = KatalogProvider();
 
   List<Obavijest> _obavijesti = [];
+  List<Katalog> _katalozi = [];
+
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    loadObavijesti();
+    loadData();
   }
 
-  Future<void> loadObavijesti() async {
+  Future<void> loadData() async {
     try {
-      final result = await _provider.get();
+      final obavijestiResult = await _obavijestProvider.get();
+      final katalogResult = await _katalogProvider.get();
+
       setState(() {
-        _obavijesti = result.result;
+        _obavijesti = obavijestiResult.result;
+        _katalozi = katalogResult.result.where((k) => k.aktivan).toList();
         _isLoading = false;
       });
     } catch (e) {
       setState(() => _isLoading = false);
     }
-  }
-
-  void handleFilterChange(String value) {
-    setState(() => selectedFilter = value);
   }
 
   void openNotifications() {
@@ -53,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
           SafeArea(
             child: HomeHeader(
               onNotificationsTap: openNotifications,
-              onFilterSelected: handleFilterChange,
+              onFilterSelected: (_) {},
             ),
           ),
           Expanded(
@@ -62,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 : SingleChildScrollView(
                     padding: const EdgeInsets.all(16),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ExpandableSection(
                           title: "Obavijesti",
@@ -70,7 +75,18 @@ class _HomeScreenState extends State<HomeScreen> {
                               .toList(),
                         ),
                         const SizedBox(height: 24),
-                        // Ovdje možeš dodati i druge sekcije (npr. Katalog, Preporuke itd.)
+                        if (_katalozi.isNotEmpty)
+                          ExpandableSection(
+                            title: "Katalozi",
+                            children: _katalozi
+                                .map(
+                                  (k) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: KatalogSection(katalog: k),
+                                  ),
+                                )
+                                .toList(),
+                          ),
                       ],
                     ),
                   ),
