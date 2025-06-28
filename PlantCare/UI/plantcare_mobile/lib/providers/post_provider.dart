@@ -73,4 +73,17 @@ class PostProvider extends BaseProvider<Post> {
       throw Exception("Greška prilikom dohvaćanja posta");
     }
   }
+
+  Future<List<Post>> getRecommended(int korisnikId) async {
+    final uri = Uri.parse("$fullUrl/recommend/$korisnikId");
+    final headers = createHeaders();
+
+    final response = await http!.get(uri, headers: headers);
+    if (isValidResponse(response)) {
+      final data = jsonDecode(response.body);
+      return (data as List).map((e) => Post.fromJson(e)).toList();
+    } else {
+      throw Exception("Greška prilikom dohvaćanja preporučenih postova");
+    }
+  }
 }

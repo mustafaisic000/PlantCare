@@ -1,4 +1,5 @@
-﻿using Microsoft.ML;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.ML.Trainers;
 using PlantCare.Services.Database;
@@ -60,10 +61,15 @@ public class PostRecommender
         }
 
         var unseenPosts = _context.Postovi
-            .Where(p => !_context.Lajkovi.Any(l => l.KorisnikId == korisnikId && l.PostId == p.PostId)
-                     && !_context.OmiljeniPostovi.Any(o => o.KorisnikId == korisnikId && o.PostId == p.PostId)
-                     && p.Status == true)
-            .ToList();
+         .Include(p => p.Korisnik)
+         .Include(p => p.Subkategorija) 
+         .Where(p =>
+            !_context.Lajkovi.Any(l => l.KorisnikId == korisnikId && l.PostId == p.PostId) &&
+            !_context.OmiljeniPostovi.Any(o => o.KorisnikId == korisnikId && o.PostId == p.PostId) &&
+            p.KorisnikId != korisnikId &&
+            p.Status == true)
+        .ToList();
+
 
         var results = new List<Tuple<Post, float>>();
 

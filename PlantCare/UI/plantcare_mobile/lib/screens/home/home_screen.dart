@@ -3,6 +3,7 @@ import 'package:plantcare_mobile/common/widgets/home_header.dart';
 import 'package:plantcare_mobile/common/widgets/expandable_section.dart';
 import 'package:plantcare_mobile/common/widgets/obavijest_card.dart';
 import 'package:plantcare_mobile/common/widgets/katalog_section.dart';
+import 'package:plantcare_mobile/common/widgets/recommended_section.dart';
 import 'package:plantcare_mobile/models/obavijesti_model.dart';
 import 'package:plantcare_mobile/models/katalog_model.dart';
 import 'package:plantcare_mobile/providers/obavijest_provider.dart';
@@ -35,7 +36,6 @@ class HomeScreenState extends State<HomeScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Provjeravamo da li se ekran ponovo prikazao
     if (ModalRoute.of(context)?.isCurrent == true && !_isFirstLoad) {
       loadData();
     }
@@ -100,6 +100,8 @@ class HomeScreenState extends State<HomeScreen> {
                                 )
                                 .toList(),
                           ),
+                        const SizedBox(height: 24),
+                        const RecommendedSection(),
                       ],
                     ),
                   ),
