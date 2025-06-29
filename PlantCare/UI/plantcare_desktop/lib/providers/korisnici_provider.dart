@@ -40,16 +40,14 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
     }
   }
 
-  Future<void> resetPassword(int? id) async {
-    var url = "$fullUrl/$id/ResetPassword";
-    var uri = Uri.parse(url);
-    var headers = createHeaders();
+  Future<void> resetPassword(int id) async {
+    final url = "$fullUrl/$id/reset-password";
+    final uri = Uri.parse(url);
+    final headers = createHeaders();
 
-    var response = await http!.post(uri, headers: headers);
-    if (isValidResponse(response)) {
-      print("Lozinka promijenjena.");
-    } else {
-      throw Exception("Neuspješno mijenjanje lozinke.");
+    final response = await http!.patch(uri, headers: headers);
+    if (!isValidResponse(response)) {
+      throw Exception("Neuspješno resetovanje lozinke.");
     }
   }
 

@@ -13,6 +13,7 @@ public interface IKorisnikService: ICRUDService<Korisnik,KorisnikSearchObject,Ko
 {
     Model.Korisnik Login(string username, string password);//kroz cisti get uzmi 
     Model.Korisnik UpdateMobile(int id, KorisnikMobileUpdateRequest request);
-    public Task<bool> ResetPasswordByEmail(string korisnickoIme, string email); //vratiti true ili false
+    Task<bool> ResetPasswordByEmail(string email);
+    Task<bool> ResetPasswordByAdmin(int korisnikId); 
     void SoftDelete(int id);
 }

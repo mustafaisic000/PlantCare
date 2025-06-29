@@ -8,6 +8,7 @@ using PlantCare.Model.SearchObjects;
 using PlantCare.Services.Database;
 using System;
 using System.Linq;
+using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,13 +24,14 @@ namespace PlantCare.Services
           IKorisnikService
     {
         ILogger<KorisnikService> _logger;
-
+        private readonly IEmailService _emailService;
         private readonly INotifikacijaService _notificationservice;
-        public KorisnikService(PlantCareContext context, IMapper mapper, ILogger<KorisnikService> logger, INotifikacijaService notificationservice)
+        public KorisnikService(PlantCareContext context, IMapper mapper, ILogger<KorisnikService> logger, INotifikacijaService notificationservice, IEmailService emailService)
             : base(context, mapper)
         {
             _logger = logger;
-            _notificationservice=notificationservice;
+            _emailService = emailService;
+            _notificationservice =notificationservice;
         }
 
         protected override IQueryable<Database.Korisnik> AddFilter(
@@ -90,25 +92,6 @@ namespace PlantCare.Services
                 entity.LozinkaHash = GenerateHash(entity.LozinkaSalt, request.Lozinka);
             }
         }
-
-
-
-        public override void AfterInsert(Database.Korisnik entity)
-        {
-            
-
-            var insertObj = new NotifikacijaInsertRequest
-            {
-                KorisnikId = entity.KorisnikId,
-                Naslov = "Novi korisnik",
-                Sadrzaj = $"{entity!.KorisnickoIme} se pridružio platformim.",
-                KoPrima= "Desktop"
-
-            };
-            base.AfterInsert(entity);
-        }
-
-
         public Model.Korisnik Login(string username, string password)
         {
             var user = Context.Korisnici
@@ -146,25 +129,96 @@ namespace PlantCare.Services
             return Mapper.Map<Model.Korisnik>(user);
         }
 
-        public async Task<bool> ResetPasswordByEmail(string korisnickoIme, string email)
+        public async Task<bool> ResetPasswordByEmail(string email)
         {
-            var user = await Context.Korisnici
-                .FirstOrDefaultAsync(x => x.KorisnickoIme == korisnickoIme && x.Email == email);
+            var user = await Context.Korisnici.FirstOrDefaultAsync(x => x.Email == email && x.Status);
 
             if (user == null)
-                throw new KeyNotFoundException("Korisnik nije pronađen.");
+                return false;
 
             var newPwd = GenerateRandomPassword(8);
             user.LozinkaSalt = GenerateSalt();
             user.LozinkaHash = GenerateHash(user.LozinkaSalt, newPwd);
-
             await Context.SaveChangesAsync();
 
-            // TODO: publish newPwd via RabbitMQ / email
+            var emailObj = new Notifier
+            {
+                Email = user.Email!,
+                Datum = DateTime.Now,
+                Naslov = "Reset lozinke - Zeleni kutak",
+                Tekst = $"Poštovani {user.Ime} {user.Prezime},\n\n" +
+                        $"Vaša nova lozinka je: {newPwd}\n\n" +
+                        "Preporučujemo da je odmah promijenite nakon prijave.\n\n" +
+                        "Srdačan pozdrav,\nZeleni kutak tim"
+            };
 
+            _emailService.SendingObject(emailObj);
             return true;
         }
-//helper
+
+        public async Task<bool> ResetPasswordByAdmin(int id)
+        {
+            var user = await Context.Korisnici.FindAsync(id);
+            if (user == null || !user.Status)
+                return false;
+
+            var newPwd = GenerateRandomPassword(8);
+            user.LozinkaSalt = GenerateSalt();
+            user.LozinkaHash = GenerateHash(user.LozinkaSalt, newPwd);
+            await Context.SaveChangesAsync();
+
+            var emailObj = new Notifier
+            {
+                Email = user.Email!,
+                Datum = DateTime.Now,
+                Naslov = "Reset lozinke (admin) - Zeleni kutak",
+                Tekst = $"Poštovani {user.Ime} {user.Prezime},\n\n" +
+                        $"Administrator vam je resetovao lozinku. Nova lozinka je: {newPwd}\n\n" +
+                        "Preporučujemo da je odmah promijenite nakon prijave.\n\n" +
+                        "Srdačan pozdrav,\nZeleni kutak tim"
+            };
+
+            _emailService.SendingObject(emailObj);
+            return true;
+        }
+
+        public override Model.Korisnik Insert(KorisnikInsertRequest request)
+        {
+            // Prvo koristi baznu metodu koja poziva BeforeInsert i mapira entitet
+            var entity = base.Insert(request);
+
+            // Napravi notifikaciju
+            var insertObj = new NotifikacijaInsertRequest
+            {
+                KorisnikId = entity.KorisnikId,
+                Naslov = "Novi korisnik",
+                Sadrzaj = $"{entity.KorisnickoIme} se pridružio platformi.",
+                KoPrima = "Desktop"
+            };
+            _notificationservice.Insert(insertObj);
+
+            // Pošalji email
+            var emailObj = new Notifier
+            {
+                Email = entity.Email!,
+                Datum = DateTime.Now,
+                Naslov = "Dobrodošli na Zeleni kutak!",
+                Tekst = $"Poštovani {entity.Ime} {entity.Prezime},\n\n" +
+                        "Uspješno ste kreirali nalog na aplikaciji Zeleni kutak.\n" +
+                        "Hvala što ste se registrovali!\n\n" +
+                        "Srdačan pozdrav,\nZeleni kutak tim"
+            };
+            _emailService.SendingObject(emailObj);
+
+            return entity;
+        }
+
+
+
+
+
+
+        //helper
         private static string GenerateSalt()
         {
             var buff = new byte[16];
@@ -204,6 +258,8 @@ namespace PlantCare.Services
             korisnik.Status = false;
             Context.SaveChanges();
         }
+
+      
 
     }
 }

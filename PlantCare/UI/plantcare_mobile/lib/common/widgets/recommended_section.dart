@@ -6,44 +6,48 @@ import 'package:plantcare_mobile/providers/post_provider.dart';
 import 'package:plantcare_mobile/screens/kategorije/post_detail_screen.dart';
 
 class RecommendedSection extends StatefulWidget {
-  const RecommendedSection({super.key});
+  final List<Post> posts;
+
+  const RecommendedSection({super.key, required this.posts});
 
   @override
-  State<RecommendedSection> createState() => _RecommendedSectionState();
+  State<RecommendedSection> createState() => RecommendedSectionState();
 }
 
-class _RecommendedSectionState extends State<RecommendedSection> {
+class RecommendedSectionState extends State<RecommendedSection> {
+  static RecommendedSectionState? instance;
+  late List<Post> _posts;
   final PostProvider _postProvider = PostProvider();
-  List<Post> _recommended = [];
-  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadRecommended();
+    instance = this;
+    _posts = List.from(widget.posts);
   }
 
-  Future<void> _loadRecommended() async {
-    try {
-      final userId = AuthProvider.korisnik!.korisnikId!;
-      final result = await _postProvider.getRecommended(userId);
+  /// 🔁 Ova metoda omogućava vanjskim widgetima da osvježe samo preporučene
+  Future<void> refreshRecommended() async {
+    final user = AuthProvider.korisnik;
+    if (user == null) return;
 
-      setState(() {
-        _recommended = result;
-        _loading = false;
-      });
-    } catch (e) {
-      setState(() => _loading = false);
-    }
+    final noviPreporuceni = await _postProvider.getRecommended(
+      user.korisnikId!,
+    );
+    setState(() {
+      _posts = noviPreporuceni;
+    });
+  }
+
+  @override
+  void dispose() {
+    if (instance == this) instance = null;
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_recommended.isEmpty) {
+    if (_posts.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -61,21 +65,45 @@ class _RecommendedSectionState extends State<RecommendedSection> {
           height: 250,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: _recommended.length,
+            itemCount: _posts.length,
             itemBuilder: (context, index) {
-              final post = _recommended[index];
+              final post = _posts[index];
               return PostCard(
+                key: ValueKey(post.postId),
                 post: post,
-                onTap: () async {
-                  final result = await Navigator.push(
+                onTap: () {
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => PostDetailScreen(post: post),
                     ),
-                  );
+                  ).then((_) {
+                    refreshRecommended(); // ⚠️ osvježi uvijek
+                  });
+                },
 
-                  if (result == true) {
-                    _loadRecommended();
+                onFavoriteToggle: () async {
+                  // Ako je dodan u favorite — ukloni iz preporučenih
+                  setState(() {
+                    _posts.removeWhere((p) => p.postId == post.postId);
+                  });
+
+                  // Dodaj novi preporučeni ako postoji
+                  final user = AuthProvider.korisnik;
+                  if (user != null) {
+                    final noviPreporuceni = await _postProvider.getRecommended(
+                      user.korisnikId!,
+                    );
+
+                    final novi = noviPreporuceni
+                        .where((p) => !_posts.any((x) => x.postId == p.postId))
+                        .toList();
+
+                    if (novi.isNotEmpty) {
+                      setState(() {
+                        _posts.add(novi.first);
+                      });
+                    }
                   }
                 },
               );

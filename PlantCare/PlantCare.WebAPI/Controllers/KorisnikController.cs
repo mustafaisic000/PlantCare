@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
@@ -62,6 +63,25 @@ namespace PlantCare.WebAPI.Controllers
         {
             var created = _service.Insert(request);
             return Ok(created);
+        }
+
+        [HttpPost("reset-password-by-email")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPasswordByEmail([FromBody] string email)
+        {
+            var result = await _service.ResetPasswordByEmail(email);
+            if (!result)
+                return BadRequest("Korisnik nije pronađen.");
+            return Ok("Nova lozinka je poslana na vaš email.");
+        }
+
+        [HttpPatch("{id}/reset-password")]
+        public async Task<IActionResult> ResetPasswordByAdmin(int id)
+        {
+            var result = await _service.ResetPasswordByAdmin(id);
+            if (!result)
+                return NotFound("Korisnik nije pronađen.");
+            return Ok("Nova lozinka je poslana korisniku na email.");
         }
 
 

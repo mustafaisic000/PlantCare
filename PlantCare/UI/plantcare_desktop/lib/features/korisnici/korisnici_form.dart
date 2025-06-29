@@ -356,6 +356,75 @@ class _KorisnikFormState extends State<KorisnikForm> {
                 ),
               ],
             ),
+            if (widget.korisnik?.korisnikId != null) ...[
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.lock_reset),
+                label: const Text("Resetuj lozinku"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Reset lozinke"),
+                      content: const Text(
+                        "Da li ste sigurni da želite resetovati lozinku ovom korisniku?",
+                      ),
+                      actions: [
+                        TextButton(
+                          child: const Text("Odustani"),
+                          onPressed: () => Navigator.pop(context, false),
+                        ),
+                        TextButton(
+                          child: const Text("Resetuj"),
+                          onPressed: () => Navigator.pop(context, true),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    try {
+                      await provider.resetPassword(
+                        widget.korisnik!.korisnikId!,
+                      );
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Uspješno"),
+                          content: const Text(
+                            "Lozinka je resetovana i poslata na korisnikov email.",
+                          ),
+                          actions: [
+                            TextButton(
+                              child: const Text("OK"),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      );
+                    } catch (e) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Greška"),
+                          content: Text("Reset lozinke nije uspio: $e"),
+                          actions: [
+                            TextButton(
+                              child: const Text("OK"),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  }
+                },
+              ),
+            ],
           ],
         ),
       ),

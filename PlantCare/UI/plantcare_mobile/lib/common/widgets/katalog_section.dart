@@ -3,6 +3,7 @@ import 'package:plantcare_mobile/models/katalog_model.dart';
 import 'package:plantcare_mobile/common/widgets/post_card.dart';
 import 'package:plantcare_mobile/providers/post_provider.dart';
 import 'package:plantcare_mobile/screens/kategorije/post_detail_screen.dart';
+import 'package:plantcare_mobile/common/widgets/recommended_section.dart';
 
 class KatalogSection extends StatefulWidget {
   final Katalog katalog;
@@ -14,6 +15,8 @@ class KatalogSection extends StatefulWidget {
 }
 
 class _KatalogSectionState extends State<KatalogSection> {
+  final PostProvider _postProvider = PostProvider();
+
   @override
   Widget build(BuildContext context) {
     final katalog = widget.katalog;
@@ -44,17 +47,25 @@ class _KatalogSectionState extends State<KatalogSection> {
             itemCount: katalog.katalogPostovi.length,
             itemBuilder: (context, index) {
               final katalogPost = katalog.katalogPostovi[index];
+
               return PostCard(
                 katalogPost: katalogPost,
                 onTap: () async {
-                  final post = await PostProvider().getById(katalogPost.postId);
+                  final post = await _postProvider.getById(katalogPost.postId);
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => PostDetailScreen(post: post),
                     ),
                   );
-                  setState(() {}); // Sada će raditi
+                  setState(() {}); // osvježi katalog
+                  RecommendedSectionState.instance
+                      ?.refreshRecommended(); // ⚠️ osvježi preporučene
+                },
+                onFavoriteToggle: () {
+                  final recommendedState = context
+                      .findAncestorStateOfType<RecommendedSectionState>();
+                  recommendedState?.refreshRecommended();
                 },
               );
             },

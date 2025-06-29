@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:plantcare_mobile/models/post_model.dart';
 import 'package:plantcare_mobile/providers/auth_provider.dart';
@@ -32,7 +31,7 @@ class DodajPostScreenState extends State<DodajPostScreen> {
   bool premium = false;
   int? subkategorijaId;
   List<DropdownMenuItem<int>> subOptions = [];
-
+  final ImagePicker _imagePicker = ImagePicker();
   @override
   void initState() {
     super.initState();
@@ -74,18 +73,34 @@ class DodajPostScreenState extends State<DodajPostScreen> {
   }
 
   Future<void> _pickImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null) {
-      Uint8List? bytes = result.files.single.bytes;
-      if (bytes == null && result.files.single.path != null) {
-        bytes = await File(result.files.single.path!).readAsBytes();
+    try {
+      final XFile? file = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
+
+      if (file == null) {
+        print("⚠️ Nije odabrana nijedna slika.");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Nije odabrana nijedna slika.")),
+        );
+        return;
       }
-      if (bytes != null) {
+
+      final bytes = await file.readAsBytes();
+      if (bytes.isNotEmpty) {
+        print("✅ Slika učitana: ${bytes.lengthInBytes} bajtova");
         setState(() {
           imageData = bytes;
           showSlikaError = false;
         });
+      } else {
+        throw Exception("Slika je prazna.");
       }
+    } catch (e) {
+      print("❌ Greška u pickImage: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Greška pri dodavanju slike.")),
+      );
     }
   }
 

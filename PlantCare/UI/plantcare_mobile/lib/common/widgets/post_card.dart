@@ -1,33 +1,102 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:plantcare_mobile/models/post_model.dart';
 import 'package:plantcare_mobile/models/katalog_post_model.dart';
+import 'package:plantcare_mobile/models/post_model.dart';
 import 'package:plantcare_mobile/providers/auth_provider.dart';
+import 'package:plantcare_mobile/providers/omiljeni_post_provider.dart';
+import 'package:plantcare_mobile/common/widgets/recommended_section.dart';
 
-class PostCard extends StatelessWidget {
+class PostCard extends StatefulWidget {
   final Post? post;
   final KatalogPost? katalogPost;
   final VoidCallback onTap;
+  final VoidCallback? onFavoriteToggle;
 
-  const PostCard({super.key, this.post, this.katalogPost, required this.onTap})
-    : assert(
-        post != null || katalogPost != null,
-        'Either post or katalogPost must be provided',
+  const PostCard({
+    super.key,
+    this.post,
+    this.katalogPost,
+    required this.onTap,
+    this.onFavoriteToggle,
+  }) : assert(post != null || katalogPost != null);
+
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  bool isFavorite = false;
+  int? omiljeniId;
+
+  final omiljeniProvider = OmiljeniPostProvider();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavoriteStatus();
+  }
+
+  Future<void> _loadFavoriteStatus() async {
+    final user = AuthProvider.korisnik;
+    final postId = widget.post?.postId ?? widget.katalogPost!.postId;
+
+    if (user != null) {
+      final result = await omiljeniProvider.getByPostAndKorisnik(
+        postId,
+        user.korisnikId!,
       );
+      if (result.isNotEmpty) {
+        setState(() {
+          isFavorite = true;
+          omiljeniId = result.first.omiljeniPostId;
+        });
+      }
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    final user = AuthProvider.korisnik;
+    final postId = widget.post?.postId ?? widget.katalogPost!.postId;
+
+    if (user == null) return;
+
+    if (isFavorite) {
+      await omiljeniProvider.deleteById(omiljeniId!);
+
+      setState(() {
+        isFavorite = false;
+        omiljeniId = null;
+      });
+
+      widget.onFavoriteToggle?.call();
+      RecommendedSectionState.instance?.refreshRecommended();
+    } else {
+      final newFav = await omiljeniProvider.insert({
+        "postId": postId,
+        "korisnikId": user.korisnikId,
+      });
+
+      setState(() {
+        isFavorite = true;
+        omiljeniId = newFav.omiljeniPostId;
+      });
+
+      widget.onFavoriteToggle?.call();
+      RecommendedSectionState.instance?.refreshRecommended();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final bool isUser = AuthProvider.korisnik?.ulogaId == 3;
-    print('ULOGA: ${AuthProvider.korisnik?.ulogaId}');
-    final bool isPremium = post?.premium ?? katalogPost!.premium;
-    print('PREMIUM: $isPremium');
-    final String naslov = post?.naslov ?? katalogPost!.postNaslov;
-    final String? slika = post?.slika ?? katalogPost!.postSlika;
+    final bool isPremium = widget.post?.premium ?? widget.katalogPost!.premium;
+    final String naslov = widget.post?.naslov ?? widget.katalogPost!.postNaslov;
+    final String? slika = widget.post?.slika ?? widget.katalogPost!.postSlika;
 
     final bool locked = isUser && isPremium;
 
     return GestureDetector(
-      onTap: locked ? null : onTap,
+      onTap: locked ? null : widget.onTap,
       child: Container(
         width: 160,
         margin: const EdgeInsets.all(8),
@@ -63,15 +132,20 @@ class PostCard extends StatelessWidget {
                       left: 8,
                       child: Icon(Icons.lock, color: Colors.white),
                     ),
-                  const Positioned(
+                  Positioned(
                     top: 8,
                     right: 8,
-                    child: Icon(Icons.favorite_border, color: Colors.white),
+                    child: IconButton(
+                      icon: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite ? Colors.red : Colors.white,
+                      ),
+                      onPressed: _toggleFavorite,
+                    ),
                   ),
                 ],
               ),
             ),
-
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -94,7 +168,7 @@ class PostCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                onPressed: locked ? null : onTap,
+                onPressed: locked ? null : widget.onTap,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   side: const BorderSide(color: Colors.green),

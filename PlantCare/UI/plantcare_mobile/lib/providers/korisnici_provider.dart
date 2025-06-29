@@ -93,4 +93,17 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
       throw Exception("Greška prilikom dodavanja korisnika.");
     }
   }
+
+  Future<void> resetPasswordByEmail(String email) async {
+    final url = "$fullUrl/reset-password-by-email";
+    final uri = Uri.parse(url);
+    final headers = {"Content-Type": "application/json"};
+    final body = jsonEncode(email);
+
+    final response = await http!.post(uri, headers: headers, body: body);
+
+    if (!isValidResponse(response)) {
+      throw Exception("Reset failed: ${response.statusCode}");
+    }
+  }
 }

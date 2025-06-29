@@ -1,10 +1,9 @@
 import 'dart:convert';
-import 'dart:typed_data';
-import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:plantcare_mobile/providers/korisnici_provider.dart';
+import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -31,22 +30,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool showSlikaError = false;
   bool isLoading = false;
 
-  Future<void> pickImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+  String encodeBase64(Uint8List bytes) {
+    return base64Encode(bytes);
+  }
 
-    if (result != null) {
-      Uint8List? bytes = result.files.single.bytes;
-      if (bytes == null && result.files.single.path != null) {
-        final file = File(result.files.single.path!);
-        bytes = await file.readAsBytes();
+  final ImagePicker _imagePicker = ImagePicker();
+
+  Future<void> pickImage() async {
+    try {
+      final XFile? file = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
+
+      if (file == null) {
+        print("⚠️ Nije odabrana nijedna slika.");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Nije odabrana nijedna slika.")),
+        );
+        return;
       }
 
-      if (bytes != null) {
+      final bytes = await file.readAsBytes();
+
+      if (bytes.isNotEmpty) {
+        print("✅ Slika učitana: ${bytes.lengthInBytes} bajtova");
         setState(() {
           imageData = bytes;
           showSlikaError = false;
         });
+      } else {
+        throw Exception("Slika je prazna.");
       }
+    } catch (e) {
+      print("❌ Greška u pickImage: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Greška pri dodavanju slike.")));
     }
   }
 
@@ -54,7 +73,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     Widget child;
 
     if (imageData != null) {
-      child = Image.memory(imageData!, fit: BoxFit.cover);
+      child = Image.memory(
+        imageData!,
+        fit: BoxFit.cover,
+        width: 140,
+        height: 140,
+      );
     } else {
       child = Image.asset('assets/images/placeholder.png', fit: BoxFit.cover);
     }
@@ -118,6 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       );
     } catch (e) {
+      print("GREŠKA: $e");
       showDialog(
         context: context,
         builder: (_) => AlertDialog(

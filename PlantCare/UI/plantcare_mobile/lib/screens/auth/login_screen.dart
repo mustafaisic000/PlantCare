@@ -56,6 +56,71 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _showForgotPasswordDialog() {
+    final TextEditingController _emailController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Reset lozinke"),
+        content: TextField(
+          controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
+          decoration: const InputDecoration(
+            hintText: "Unesite vašu email adresu",
+            prefixIcon: Icon(Icons.email),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(borderSide: BorderSide.none),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Odustani"),
+          ),
+          TextButton(
+            onPressed: () async {
+              final email = _emailController.text.trim();
+              if (email.isEmpty || !email.contains('@')) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Unesite validan email.")),
+                );
+                return;
+              }
+
+              try {
+                await KorisnikProvider().resetPasswordByEmail(email);
+                Navigator.pop(context);
+                showDialog(
+                  context: context,
+                  builder: (_) => const AlertDialog(
+                    title: Text("Uspjeh"),
+                    content: Text(
+                      "Nova lozinka je poslana na vašu email adresu.",
+                    ),
+                  ),
+                );
+              } catch (e) {
+                Navigator.pop(context);
+                showDialog(
+                  context: context,
+                  builder: (_) => const AlertDialog(
+                    title: Text("Greška"),
+                    content: Text(
+                      "Email nije pronađen ili je došlo do greške.",
+                    ),
+                  ),
+                );
+              }
+            },
+            child: const Text("Pošalji"),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final primaryColor = const Color(0xFF50C878);
@@ -121,6 +186,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   border: OutlineInputBorder(borderSide: BorderSide.none),
                 ),
               ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: _showForgotPasswordDialog,
+                  child: const Text("Zaboravili ste lozinku?"),
+                ),
+              ),
+
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
