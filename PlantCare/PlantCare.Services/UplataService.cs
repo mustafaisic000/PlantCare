@@ -17,9 +17,11 @@ public class UplataService
         UplataUpdateRequest>,
       IUplataService
 {
-    public UplataService(PlantCareContext ctx, IMapper mapper)
+    private readonly INotifikacijaService _servis;
+    public UplataService(PlantCareContext ctx, IMapper mapper, INotifikacijaService servis)
         : base(ctx, mapper)
     {
+        _servis=servis;
     }
 
     protected override IQueryable<Database.Uplata> AddFilter(
@@ -35,4 +37,23 @@ public class UplataService
 
         return query;
     }
+
+    public  override Model.Uplata Insert(UplataInsertRequest request)
+    {
+        var userName =   Context.Korisnici.Find(request.KorisnikId);
+
+
+        var objToInsert = new NotifikacijaInsertRequest
+        {
+            KoPrima = "Desktop",
+            KorisnikId = request.KorisnikId,
+            Naslov = "Nova uplata",
+            Sadrzaj = $"{userName!.KorisnickoIme} je postao premium korisnik"
+        };
+
+         _servis.Insert(objToInsert);
+
+        return  base.Insert(request);
+    }
+
 }

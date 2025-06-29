@@ -18,9 +18,12 @@ public class ObavijestService
         ObavijestUpdateRequest>,
       IObavijestService
 {
-    public ObavijestService(PlantCareContext ctx, IMapper mapper)
+    private readonly INotifikacijaService _notificationservice;
+
+    public ObavijestService(PlantCareContext ctx, IMapper mapper, INotifikacijaService notificationservice)
         : base(ctx, mapper)
     {
+        _notificationservice=notificationservice;
     }
 
     protected override IQueryable<Database.Obavijest> AddFilter(
@@ -35,6 +38,26 @@ public class ObavijestService
             query = query.Where(x => x.Naslov.Contains(search.Naslov));
 
         return query;
+    }
+
+    public override Model.Obavijest Insert(ObavijestInsertRequest request)
+    {
+
+
+        var insertObj = new NotifikacijaInsertRequest
+        {
+            KorisnikId = request.KorisnikId,
+            Naslov = "Nova obavijest",
+            Sadrzaj = "Imate novu obavijest od administratora",
+            KoPrima= "Mobilna"
+            
+        };
+
+
+
+        _notificationservice.Insert(insertObj);
+
+        return base.Insert(request);
     }
 
     public void Delete(int id)

@@ -1,4 +1,5 @@
-﻿using MapsterMapper;
+﻿using Azure.Core;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PlantCare.Model;
@@ -22,10 +23,13 @@ namespace PlantCare.Services
           IKorisnikService
     {
         ILogger<KorisnikService> _logger;
-        public KorisnikService(PlantCareContext context, IMapper mapper, ILogger<KorisnikService> logger)
+
+        private readonly INotifikacijaService _notificationservice;
+        public KorisnikService(PlantCareContext context, IMapper mapper, ILogger<KorisnikService> logger, INotifikacijaService notificationservice)
             : base(context, mapper)
         {
             _logger = logger;
+            _notificationservice=notificationservice;
         }
 
         protected override IQueryable<Database.Korisnik> AddFilter(
@@ -87,11 +91,23 @@ namespace PlantCare.Services
             }
         }
 
-        public override Model.Korisnik Insert(KorisnikInsertRequest request)
-            => base.Insert(request);
 
-        public override Model.Korisnik Update(int id, KorisnikUpdateRequest request)
-            => base.Update(id, request);
+
+        public override void AfterInsert(Database.Korisnik entity)
+        {
+            
+
+            var insertObj = new NotifikacijaInsertRequest
+            {
+                KorisnikId = entity.KorisnikId,
+                Naslov = "Novi korisnik",
+                Sadrzaj = $"{entity!.KorisnickoIme} se pridružio platformim.",
+                KoPrima= "Desktop"
+
+            };
+            base.AfterInsert(entity);
+        }
+
 
         public Model.Korisnik Login(string username, string password)
         {
@@ -111,6 +127,9 @@ namespace PlantCare.Services
             return Mapper.Map<Model.Korisnik>(user);
           
         }
+
+        
+
 
         public Model.Korisnik UpdateMobile(int id, KorisnikMobileUpdateRequest req)
         {

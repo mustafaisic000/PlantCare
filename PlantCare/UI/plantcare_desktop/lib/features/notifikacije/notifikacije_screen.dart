@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plantcare_desktop/models/notifikacija_model.dart';
 import 'package:plantcare_desktop/providers/notifikacija_provider.dart';
 import 'package:plantcare_desktop/common/widgets/notification_card.dart';
+import 'package:signalr_core/signalr_core.dart';
 
 class NotifikacijeScreen extends StatefulWidget {
   const NotifikacijeScreen({super.key});
@@ -13,11 +14,13 @@ class NotifikacijeScreen extends StatefulWidget {
 class _NotifikacijeScreenState extends State<NotifikacijeScreen> {
   final NotifikacijaProvider _provider = NotifikacijaProvider();
   List<Notifikacija> _notifikacije = [];
+  late HubConnection _hubConnection;
 
   @override
   void initState() {
     super.initState();
     loadData();
+    _startSignalR();
   }
 
   Future<void> loadData() async {
@@ -25,6 +28,26 @@ class _NotifikacijeScreenState extends State<NotifikacijeScreen> {
     setState(() {
       _notifikacije = result.result;
     });
+  }
+
+  Future<void> _startSignalR() async {
+    _hubConnection = HubConnectionBuilder()
+        .withUrl('http://localhost:6089/signalrHub')
+        .build();
+
+    _hubConnection.on('NovaPoruka', (arguments) {
+      if (arguments != null && arguments.isNotEmpty) {
+        final poruka = arguments.first.toString();
+
+        if (poruka == "Desktop") {
+          setState(() async {
+            await loadData();
+          });
+        }
+      }
+    });
+
+    await _hubConnection.start();
   }
 
   Future<void> _deleteNotifikacija(int id) async {

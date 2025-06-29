@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:plantcare_desktop/common/widgets/sidebar_menu_item.dart';
 import 'package:plantcare_desktop/core/theme.dart';
+import 'package:signalr_core/signalr_core.dart';
 
-class Sidebar extends StatelessWidget {
+class Sidebar extends StatefulWidget {
   final String selected;
   final Function(String route) onItemSelected;
 
@@ -11,6 +12,48 @@ class Sidebar extends StatelessWidget {
     required this.onItemSelected,
     super.key,
   });
+
+  @override
+  State<Sidebar> createState() => _SidebarState();
+}
+
+class _SidebarState extends State<Sidebar> {
+  late HubConnection _hubConnection;
+  String? latestPoruka;
+  int unreadCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _startSignalR();
+  }
+
+  Future<void> _startSignalR() async {
+    _hubConnection = HubConnectionBuilder()
+        .withUrl('http://localhost:6089/signalrHub')
+        .build();
+
+    _hubConnection.on('NovaPoruka', (arguments) {
+      if (arguments != null && arguments.isNotEmpty) {
+        final poruka = arguments.first.toString();
+
+        if (poruka == "Desktop") {
+          setState(() {
+            unreadCount++;
+            latestPoruka = poruka;
+          });
+        }
+      }
+    });
+
+    await _hubConnection.start();
+  }
+
+  @override
+  void dispose() {
+    _hubConnection.stop();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,60 +75,64 @@ class Sidebar extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 32),
-
-          // Meniji koji odgovaraju tačno rutama u main.dart
           SidebarMenuItem(
             label: 'Postovi',
             icon: Icons.local_florist,
-            isActive: selected == 'post',
-            onTap: () => onItemSelected('post'),
+            isActive: widget.selected == 'post',
+            onTap: () => widget.onItemSelected('post'),
           ),
           SidebarMenuItem(
             label: 'Korisnici',
             icon: Icons.person,
-            isActive: selected == 'korisnici',
-            onTap: () => onItemSelected('korisnici'),
+            isActive: widget.selected == 'korisnici',
+            onTap: () => widget.onItemSelected('korisnici'),
           ),
           SidebarMenuItem(
             label: 'Kategorije',
             icon: Icons.category,
-            isActive: selected == 'kategorije',
-            onTap: () => onItemSelected('kategorije'),
+            isActive: widget.selected == 'kategorije',
+            onTap: () => widget.onItemSelected('kategorije'),
           ),
           SidebarMenuItem(
             label: 'Subkategorije',
             icon: Icons.subdirectory_arrow_right,
-            isActive: selected == 'subkategorije',
-            onTap: () => onItemSelected('subkategorije'),
+            isActive: widget.selected == 'subkategorije',
+            onTap: () => widget.onItemSelected('subkategorije'),
           ),
           SidebarMenuItem(
             label: 'Katalog',
             icon: Icons.menu_book,
-            isActive: selected == 'katalog',
-            onTap: () => onItemSelected('katalog'),
+            isActive: widget.selected == 'katalog',
+            onTap: () => widget.onItemSelected('katalog'),
           ),
           SidebarMenuItem(
             label: 'Obavijesti',
             icon: Icons.announcement,
-            isActive: selected == 'obavijesti',
-            onTap: () => onItemSelected('obavijesti'),
+            isActive: widget.selected == 'obavijesti',
+            onTap: () => widget.onItemSelected('obavijesti'),
           ),
           SidebarMenuItem(
-            label: 'Notifikacije',
+            label: unreadCount > 0
+                ? 'Notifikacije ($unreadCount)'
+                : 'Notifikacije',
             icon: Icons.notifications,
-            isActive: selected == 'notifikacije',
-            onTap: () => onItemSelected('notifikacije'),
+            isActive: widget.selected == 'notifikacije',
+            onTap: () {
+              setState(() {
+                unreadCount = 0;
+              });
+              widget.onItemSelected('notifikacije');
+            },
           ),
           SidebarMenuItem(
             label: 'Izvještaji',
             icon: Icons.insert_chart,
-            isActive: selected == 'izvjestaji',
-            onTap: () => onItemSelected('izvjestaji'),
+            isActive: widget.selected == 'izvjestaji',
+            onTap: () => widget.onItemSelected('izvjestaji'),
           ),
 
           const Spacer(),
 
-          // Logout dugme
           Center(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 16),
@@ -116,10 +163,9 @@ class Sidebar extends StatelessWidget {
                   );
 
                   if (confirmed == true) {
-                    onItemSelected('logout');
+                    widget.onItemSelected('logout');
                   }
                 },
-
                 icon: const Icon(Icons.logout),
                 label: const Text("Log out"),
               ),

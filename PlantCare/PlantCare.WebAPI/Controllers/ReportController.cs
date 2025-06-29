@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
@@ -8,6 +9,7 @@ namespace PlantCare.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize(Roles = "Administrator")] 
     public class ReportController : BaseCRUDController<
         Report,
         ReportSearchObject,

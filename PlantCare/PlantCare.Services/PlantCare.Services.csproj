@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="EasyNetQ" Version="7.8.0" />
@@ -16,12 +16,17 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.ML" Version="4.0.2" />
-    <PackageReference Include="Microsoft.ML.Recommender" Version="0.22.2" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.5" />
+	  <PackageReference Include="Microsoft.ML.Recommender" Version="0.22.2" />
+	  <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.5" />
+   
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PlantCare.Model\PlantCare.Model.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\PlantCare.Model\PlantCare.Model.csproj" />
+	</ItemGroup>
 
 </Project>

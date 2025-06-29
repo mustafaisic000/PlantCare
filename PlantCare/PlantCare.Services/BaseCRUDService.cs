@@ -21,6 +21,7 @@ namespace PlantCare.Services
 
             Context.Add(entity);
             Context.SaveChanges();
+            AfterInsert(entity);
 
             return Mapper.Map<TModel>(entity);
         }
@@ -28,6 +29,11 @@ namespace PlantCare.Services
         protected virtual void BeforeInsert(TInsert request, TDbEntity entity) //before insert gdje cu override password da se generise hash i salt
         {
            
+        }
+
+        public virtual void AfterInsert(TDbEntity entity) //before insert gdje cu override password da se generise hash i salt
+        {
+
         }
 
         public virtual TModel Update(int id, TUpdate request)

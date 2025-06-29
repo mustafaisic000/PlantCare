@@ -11,4 +11,6 @@ public class ObavijestInsertRequest
     public string Sadrzaj { get; set; } = null!;
     public bool Aktivan { get; set; }
     public int KorisnikId { get; set; }
+
+    public string KoPrima{ get; set; }
 }

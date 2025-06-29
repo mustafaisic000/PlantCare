@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
@@ -22,13 +23,28 @@ namespace PlantCare.WebAPI.Controllers
             _kategorijaService = service;
         }
 
+        [Authorize(Roles = "Administrator")]
+        [HttpPost]
+        public override ActionResult<Kategorija> Insert([FromBody] KategorijaInsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPut("{id}")]
+        public override ActionResult<Kategorija> Update(int id, [FromBody] KategorijaUpdateRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             try
             {
                 _kategorijaService.Delete(id);
-                return NoContent(); 
+                return NoContent();
             }
             catch (Exception ex)
             {

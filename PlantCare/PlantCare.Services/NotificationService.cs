@@ -17,9 +17,12 @@ public class NotifikacijaService
         NotifikacijaUpdateRequest>,
       INotifikacijaService
 {
-    public NotifikacijaService(PlantCareContext ctx, IMapper mapper)
+
+    private readonly INotifikacijskiServis _notifikacijskiServisSignalR;
+    public NotifikacijaService(PlantCareContext ctx, IMapper mapper, INotifikacijskiServis notifikacijskiServisSignalR)
         : base(ctx, mapper)
     {
+        _notifikacijskiServisSignalR=notifikacijskiServisSignalR;
     }
 
     protected override IQueryable<Database.Notifikacija> AddFilter(
@@ -41,6 +44,15 @@ public class NotifikacijaService
 
         return query;
     }
+
+
+
+    public override Model.Notifikacija Insert(NotifikacijaInsertRequest request)
+    {
+        _notifikacijskiServisSignalR.PosaljiPoruku(request.KoPrima);
+        return base.Insert(request);
+    }
+
     public void Delete(int id)
     {
         var entity = Context.Set<Database.Notifikacija>().Find(id);

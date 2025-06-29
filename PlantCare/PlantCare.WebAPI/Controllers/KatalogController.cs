@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
@@ -22,13 +23,28 @@ namespace PlantCare.WebAPI.Controllers
             _katalogService = service;
         }
 
+        [Authorize(Roles = "Administrator")]
+        [HttpPost]
+        public override ActionResult<Katalog> Insert([FromBody] KatalogInsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPut("{id}")]
+        public override ActionResult<Katalog> Update(int id, [FromBody] KatalogUpdateRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             try
             {
                 _katalogService.Delete(id);
-                return NoContent(); 
+                return NoContent();
             }
             catch (Exception ex)
             {

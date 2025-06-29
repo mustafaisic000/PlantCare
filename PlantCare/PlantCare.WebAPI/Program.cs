@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using PlantCare.WebAPI.Filters;
 using Microsoft.AspNetCore.Authentication;
+using PlantCare.Services.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,12 @@ builder.Services.AddTransient<IKatalogPostService, KatalogPostService>();
 builder.Services.AddTransient<IKatalogService, KatalogService>();
 
 builder.Services.AddTransient<IEmailService, EmailService>();
+
+
+builder.Services.AddSignalR();
+
+
+builder.Services.AddScoped<INotifikacijskiServis, NotifikacijskiServis>();
 // Optional helper to access HttpContext in services
 builder.Services.AddHttpContextAccessor();
 
@@ -93,6 +100,10 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+app.MapHub<NotifikacijaHub>("/signalrHub");
+
+
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<PlantCareContext>();
