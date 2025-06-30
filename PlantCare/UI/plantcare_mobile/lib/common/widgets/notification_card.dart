@@ -93,27 +93,10 @@ class _NotificationCardState extends State<NotificationCard> {
         child: const Icon(Icons.delete, color: Colors.red),
       ),
       confirmDismiss: (_) async {
-        return await showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text("Potvrda"),
-            content: const Text("Da li želite obrisati ovu notifikaciju?"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text("Odustani"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text(
-                  "Obriši",
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-            ],
-          ),
-        );
+        widget.onDelete?.call();
+        return true;
       },
+
       onDismissed: (_) {
         widget.onDelete?.call();
       },

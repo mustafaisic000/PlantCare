@@ -101,7 +101,11 @@ class HomeScreenState extends State<HomeScreen> {
                         ExpandableSection(
                           title: "Obavijesti",
                           children: _obavijesti
-                              .map((o) => ObavijestCard(obavijest: o))
+                              .where((o) => o.aktivan == true)
+                              .map(
+                                (o) =>
+                                    Center(child: ObavijestCard(obavijest: o)),
+                              )
                               .toList(),
                         ),
                         const SizedBox(height: 24),

@@ -32,7 +32,12 @@ class HomeHeader extends StatelessWidget {
     );
 
     if (confirmed == true) {
-      AuthProvider.logout(context);
+      AuthProvider.korisnik = null;
+      AuthProvider.username = '';
+      AuthProvider.password = '';
+      NotificationListenerMobile.instance.resetUnreadCount();
+
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
     }
   }
 
@@ -42,76 +47,85 @@ class HomeHeader extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          // 🍔 Filter meni
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.menu),
-            onSelected: onFilterSelected,
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: "Sve", child: Text("Sve")),
-              PopupMenuItem(value: "Premium", child: Text("Premium")),
-              PopupMenuItem(value: "Standard", child: Text("Standard")),
-            ],
-          ),
-
-          // 👋 Dobrodošlica
-          Expanded(
+          Center(
             child: Text(
               "Dobro došli $ime!",
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),
 
-          // 🔔 Notifikacije sa crvenim brojačem
-          Stack(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                icon: const Icon(Icons.notifications_none),
-                onPressed: () {
-                  NotificationListenerMobile.instance.resetUnreadCount();
-                  onNotificationsTap();
-                },
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.menu),
+                onSelected: onFilterSelected,
+                itemBuilder: (_) => const [
+                  PopupMenuItem(value: "Sve", child: Text("Sve")),
+                  PopupMenuItem(value: "Premium", child: Text("Premium")),
+                  PopupMenuItem(value: "Standard", child: Text("Standard")),
+                ],
               ),
-              Positioned(
-                right: 4,
-                top: 4,
-                child: AnimatedBuilder(
-                  animation: NotificationListenerMobile.instance,
-                  builder: (_, __) {
-                    final count =
-                        NotificationListenerMobile.instance.unreadCount;
-                    if (count == 0) return const SizedBox.shrink();
-                    return Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
+
+              Row(
+                children: [
+                  Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications_none),
+                        onPressed: () {
+                          NotificationListenerMobile.instance
+                              .resetUnreadCount();
+                          onNotificationsTap();
+                        },
                       ),
-                      constraints: const BoxConstraints(
-                        minWidth: 20,
-                        minHeight: 20,
-                      ),
-                      child: Text(
-                        '$count',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                      Positioned(
+                        right: 4,
+                        top: 4,
+                        child: AnimatedBuilder(
+                          animation: NotificationListenerMobile.instance,
+                          builder: (_, __) {
+                            final count =
+                                NotificationListenerMobile.instance.unreadCount;
+                            if (count == 0) return const SizedBox.shrink();
+                            return Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 20,
+                                minHeight: 20,
+                              ),
+                              child: Text(
+                                '$count',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          },
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                    );
-                  },
-                ),
+                    ],
+                  ),
+
+                  IconButton(
+                    icon: const Icon(Icons.logout),
+                    onPressed: () => _confirmLogout(context),
+                  ),
+                ],
               ),
             ],
-          ),
-
-          // 🚪 Logout dugme
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => _confirmLogout(context),
           ),
         ],
       ),
