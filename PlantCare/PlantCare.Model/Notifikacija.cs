@@ -16,4 +16,5 @@ public class Notifikacija
     public int? PostId { get; set; }
     public string? PostNaslov { get; set; }
     public bool Procitano { get; set; }
+    public string KoPrima { get; set; } = null!;
 }

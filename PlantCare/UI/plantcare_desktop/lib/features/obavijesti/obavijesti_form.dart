@@ -44,6 +44,7 @@ class _ObavijestFormState extends State<ObavijestForm> {
       final korisnikId =
           AuthProvider.korisnik?.korisnikId ?? 1; // fallback na admina
       data['korisnikId'] = korisnikId;
+      data['koPrima'] = 'Mobilna';
       await _provider.insert(data);
     } else {
       // Update

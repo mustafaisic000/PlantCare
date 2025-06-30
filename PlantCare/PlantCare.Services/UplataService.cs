@@ -48,7 +48,7 @@ public class UplataService
             KoPrima = "Desktop",
             KorisnikId = request.KorisnikId,
             Naslov = "Nova uplata",
-            Sadrzaj = $"{userName!.KorisnickoIme} je postao premium korisnik"
+            Sadrzaj = $"{userName!.KorisnickoIme} je postao/la premium korisnik"
         };
 
          _servis.Insert(objToInsert);

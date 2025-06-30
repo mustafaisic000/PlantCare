@@ -42,6 +42,10 @@ public class NotifikacijaService
         if (!string.IsNullOrWhiteSpace(search.Naslov))
             query = query.Where(x => x.Naslov.Contains(search.Naslov));
 
+        if (!string.IsNullOrWhiteSpace(search.KoPrima))
+            query = query.Where(n => n.KoPrima == search.KoPrima);
+
+        query = query.OrderByDescending(x => x.Datum);
         return query;
     }
 

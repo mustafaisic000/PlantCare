@@ -192,7 +192,7 @@ namespace PlantCare.Services
             {
                 KorisnikId = entity.KorisnikId,
                 Naslov = "Novi korisnik",
-                Sadrzaj = $"{entity.KorisnickoIme} se pridružio platformi.",
+                Sadrzaj = $"{entity.KorisnickoIme} se pridružio/la platformi.",
                 KoPrima = "Desktop"
             };
             _notificationservice.Insert(insertObj);

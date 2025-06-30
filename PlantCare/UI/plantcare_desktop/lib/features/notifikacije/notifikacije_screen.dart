@@ -24,7 +24,7 @@ class _NotifikacijeScreenState extends State<NotifikacijeScreen> {
   }
 
   Future<void> loadData() async {
-    final result = await _provider.get();
+    final result = await _provider.get(filter: {'koPrima': 'Desktop'});
     setState(() {
       _notifikacije = result.result;
     });

@@ -467,47 +467,32 @@ public partial class PlantCareContext: DbContext
     new Notifikacija
     {
         NotifikacijaId = 1,
-        Naslov = "Novi lajk",
-        Sadrzaj = "Vaš post je dobio novi lajk.",
+        Naslov = "Novi korisnik",
+        Sadrzaj = "saras se pridružio/la platformi",
         Datum = new DateTime(2024, 3, 1, 12, 30, 0),
-        KorisnikId = 3,
-        Procitano = false
+        KorisnikId = 5,
+        Procitano = false,
+        KoPrima = "Desktop"
     },
     new Notifikacija
     {
         NotifikacijaId = 2,
         Naslov = "Novi komentar",
-        Sadrzaj = "Vaš post je komentarisao drugi korisnik.",
+        Sadrzaj = "majam je postao/la premium korisni",
         Datum = new DateTime(2024, 4, 11, 16, 0, 0),
-        KorisnikId = 4,
-        Procitano = false
+        KorisnikId = 2,
+        Procitano = false,
+        KoPrima = "Desktop"
     },
     new Notifikacija
     {
         NotifikacijaId = 3,
-        Naslov = "Novi komentar",
-        Sadrzaj = "Dobili ste novi komentar.",
+        Naslov = "Nova obavijest",
+        Sadrzaj = "Imate novu obavijest od administratora",
         Datum = new DateTime(2024, 6, 16, 11, 0, 0),
         KorisnikId = 2,
-        Procitano = false
-    },
-    new Notifikacija
-    {
-        NotifikacijaId = 4,
-        Naslov = "Novi komentar",
-        Sadrzaj = "Neko je komentarisao vaš post.",
-        Datum = new DateTime(2024, 7, 2, 15, 0, 0),
-        KorisnikId = 1,
-        Procitano = false
-    },
-    new Notifikacija
-    {
-        NotifikacijaId = 5,
-        Naslov = "Novi komentar",
-        Sadrzaj = "Vaš post je upravo komentiran.",
-        Datum = new DateTime(2024, 5, 6, 9, 0, 0),
-        KorisnikId = 4,
-        Procitano = false
+        Procitano = false,
+        KoPrima = "Mobilna"
     }
 );
 

@@ -17,5 +17,9 @@ public partial class Notifikacija
     [Required]
     public int KorisnikId { get; set; }      
     public virtual Korisnik Korisnik { get; set; } = null!;
-    public bool Procitano { get; set; } = false; 
+    public bool Procitano { get; set; } = false;
+
+    [Required]
+    [MaxLength(50)]
+    public string KoPrima { get; set; } = null!;
 }

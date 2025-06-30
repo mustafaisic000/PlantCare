@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:plantcare_mobile/models/notifikacija_model.dart';
 import 'package:plantcare_mobile/providers/notifikacija_provider.dart';
 import 'package:plantcare_mobile/common/widgets/notification_card.dart';
+import 'package:signalr_core/signalr_core.dart';
+import 'package:plantcare_mobile/common/services/notification_listener_mobile.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -13,12 +15,21 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final NotifikacijaProvider _provider = NotifikacijaProvider();
   List<Notifikacija> _notifications = [];
+  late HubConnection _hubConnection;
   bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotifications();
+    _startSignalR();
+    NotificationListenerMobile.instance.resetUnreadCount();
+  }
 
   Future<void> _loadNotifications() async {
     setState(() => _isLoading = true);
     try {
-      final result = await _provider.get();
+      final result = await _provider.get(filter: {'koPrima': 'Mobilna'});
       setState(() => _notifications = result.result);
     } catch (e) {
       debugPrint("Greška pri učitavanju notifikacija: $e");
@@ -27,26 +38,68 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
+  Future<void> _startSignalR() async {
+    _hubConnection = HubConnectionBuilder()
+        .withUrl(
+          'http://10.0.2.2:6089/signalrHub',
+        ) // koristi IP ako si na pravom uređaju
+        .withAutomaticReconnect()
+        .build();
+
+    _hubConnection.on('NovaPoruka', (arguments) async {
+      final poruka = arguments?.first.toString();
+      if (poruka == "Mobilna") {
+        await _loadNotifications();
+      }
+    });
+
+    await _hubConnection.start();
+  }
+
   Future<void> _deleteNotification(int id) async {
-    try {
-      await _provider.delete(id);
-      await _loadNotifications();
-    } catch (e) {
-      debugPrint("Greška pri brisanju: $e");
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Potvrda'),
+        content: const Text(
+          'Da li ste sigurni da želite obrisati notifikaciju?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Odustani'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Obriši'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _provider.delete(id);
+        if (mounted) await _loadNotifications();
+      } catch (e) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Greška: ${e.toString()}")));
+      }
     }
   }
 
   @override
-  void initState() {
-    super.initState();
-    _loadNotifications();
+  void dispose() {
+    _hubConnection.stop();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(color: Colors.black),
+        leading: const BackButton(color: Colors.black),
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text(
@@ -69,8 +122,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   final notif = _notifications[index];
                   return NotificationCard(
                     notifikacija: notif,
-                    onRefresh: _loadNotifications,
                     onDelete: () => _deleteNotification(notif.notifikacijaId),
+                    onRefresh: _loadNotifications,
                   );
                 },
               ),

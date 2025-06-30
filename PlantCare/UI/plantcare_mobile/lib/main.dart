@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:plantcare_mobile/core/theme.dart';
+import 'package:plantcare_mobile/common/services/notification_listener_mobile.dart';
 import 'package:plantcare_mobile/screens/auth/start_screen.dart';
 import 'package:plantcare_mobile/screens/home/notifications_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationListenerMobile.instance.init();
   runApp(const PlantCareApp());
 }
 
