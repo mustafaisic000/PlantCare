@@ -29,12 +29,33 @@ public class KatalogPostService
     {
         query = base.AddFilter(search, query);
 
-        if (search.KatalogId.HasValue)
-            query = query.Where(x => x.KatalogId == search.KatalogId.Value);
+        query = query.Include(x => x.Post);
 
-        if (search.PostId.HasValue)
-            query = query.Where(x => x.PostId == search.PostId.Value);
-
+        if (!string.IsNullOrWhiteSpace(search.PostNaslov))
+            query = query.Where(x => x.Post.Naslov.Contains(search.PostNaslov));
         return query;
     }
+
+    public override Model.KatalogPost GetById(int id)
+    {
+        var entity = Context.KatalogPostovi
+            .Include(kp => kp.Post)
+            .FirstOrDefault(kp => kp.KatalogPostId == id);
+
+        if (entity == null)
+            return null!;
+
+        return Mapper.Map<Model.KatalogPost>(entity);
+    }
+
+    public async Task DeleteByKatalogIdAsync(int katalogId)
+    {
+        var entities = await Context.KatalogPostovi
+            .Where(x => x.KatalogId == katalogId)
+            .ToListAsync();
+
+        Context.KatalogPostovi.RemoveRange(entities);
+        await Context.SaveChangesAsync();
+    }
+
 }

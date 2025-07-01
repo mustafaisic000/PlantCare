@@ -7,33 +7,40 @@ using PlantCare.Services;
 namespace PlantCare.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class LajkController : ControllerBase
+    [Route("[controller]")]
+    public class LajkController : BaseCRUDController<
+        Lajk,
+        LajkSearchObject,
+        LajkInsertRequest,
+        LajkUpdateRequest>
     {
-        private readonly ILajkService _service;
-        public LajkController(ILajkService service) => _service = service;
+        private readonly ILajkService _lajkService;
 
-        [HttpGet]
-        public ActionResult<PagedResult<Lajk>> Get([FromQuery] LajkSearchObject search)
-            => Ok(_service.GetPaged(search));
-
-        [HttpGet("{id}")]
-        public ActionResult<Lajk> GetById(int id)
+        public LajkController(ILajkService service)
+            : base(service)
         {
-            var entity = _service.GetById(id);
-            if (entity == null) return NotFound();
-            return Ok(entity);
+            _lajkService = service;
         }
 
-        [HttpPost]
-        public ActionResult<Lajk> Create(LajkInsertRequest request)
+
+        [HttpDelete("{lajkId}/korisnik/{korisnikId}")]
+        public IActionResult Delete(int lajkId, int korisnikId)
         {
-            var created = _service.Insert(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.LajkId }, created);
+            try
+            {
+                _lajkService.Delete(lajkId, korisnikId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
-        [HttpPut("{id}")]
-        public ActionResult<Lajk> Update(int id, LajkUpdateRequest request)
-            => Ok(_service.Update(id, request));
+        [HttpGet("count/post/{postId}")]
+        public ActionResult<int> GetLajkCountByPost(int postId)
+        {
+            return _lajkService.GetLajkCountByPost(postId);
+        }
     }
 }

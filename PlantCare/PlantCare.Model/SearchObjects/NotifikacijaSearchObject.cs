@@ -9,7 +9,7 @@ namespace PlantCare.Model.SearchObjects;
 public class NotifikacijaSearchObject : BaseSearchObject
 {
     public int? KorisnikId { get; set; }    
-    public int? PostId { get; set; }        
     public bool? Procitano { get; set; }     
-    public string? Naslov { get; set; }     
+    public string? Naslov { get; set; }
+    public string? KoPrima { get; set; }
 }

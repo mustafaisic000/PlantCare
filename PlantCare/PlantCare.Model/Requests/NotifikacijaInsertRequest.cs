@@ -11,4 +11,6 @@ public class NotifikacijaInsertRequest
     public string? Sadrzaj { get; set; }
     public int? KorisnikId { get; set; }
     public int? PostId { get; set; }
+
+    public string KoPrima { get; set; }
 }

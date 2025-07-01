@@ -11,7 +11,11 @@ namespace PlantCare.Services;
 
 public interface IKorisnikService: ICRUDService<Korisnik,KorisnikSearchObject,KorisnikInsertRequest,KorisnikUpdateRequest>
 {
-    Model.Korisnik Login(string username, string password);//kroz cisti get uzmi 
-    Model.Korisnik UpdateMobile(int id, KorisnikMobileUpdateRequest request);
-    public Task<bool> ResetPasswordByEmail(string korisnickoIme, string email); //vratiti true ili false
+    Model.Korisnik Login(string username, string password);
+    Task<Korisnik> UpdateMobile(int id, KorisnikMobileUpdateRequest request);
+    Task<bool> ResetPasswordByEmail(string email);
+    Task<bool> ResetPasswordByAdmin(int korisnikId);
+    Task ValidateUsernameEmail(string korisnickoIme, string email, int? ignoreId = null);
+    void SoftDelete(int id);
+    Task<Model.Korisnik> PromoteToPremiumAsync(int korisnikId);
 }

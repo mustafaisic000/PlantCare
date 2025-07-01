@@ -7,33 +7,48 @@ using PlantCare.Services;
 namespace PlantCare.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class NotifikacijaController : ControllerBase
+    [Route("[controller]")]
+    public class NotifikacijaController : BaseCRUDController<
+        Notifikacija,
+        NotifikacijaSearchObject,
+        NotifikacijaInsertRequest,
+        NotifikacijaUpdateRequest>
     {
-        private readonly INotifikacijaService _service;
-        public NotifikacijaController(INotifikacijaService service) => _service = service;
+        private readonly INotifikacijaService _notifikacijaService;
 
-        [HttpGet]
-        public ActionResult<PagedResult<Notifikacija>> Get([FromQuery] NotifikacijaSearchObject search)
-            => Ok(_service.GetPaged(search));
-
-        [HttpGet("{id}")]
-        public ActionResult<Notifikacija> GetById(int id)
+        public NotifikacijaController(INotifikacijaService service)
+            : base(service)
         {
-            var entity = _service.GetById(id);
-            if (entity == null) return NotFound();
-            return Ok(entity);
+            _notifikacijaService = service;
         }
 
-        [HttpPost]
-        public ActionResult<Notifikacija> Create(NotifikacijaInsertRequest request)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            var created = _service.Insert(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.NotifikacijaId }, created);
+            try
+            {
+                _notifikacijaService.Delete(id);
+                return NoContent(); // 204
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
 
-        [HttpPut("{id}")]
-        public ActionResult<Notifikacija> Update(int id, NotifikacijaUpdateRequest request)
-            => Ok(_service.Update(id, request));
+        [HttpPatch("{id}/mark-as-read")]
+        public IActionResult MarkAsRead(int id)
+        {
+            try
+            {
+                _notifikacijaService.MarkAsRead(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
     }
 }

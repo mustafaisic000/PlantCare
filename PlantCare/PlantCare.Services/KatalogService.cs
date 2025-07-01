@@ -28,18 +28,45 @@ public class KatalogService
     {
         query = base.AddFilter(search, query);
 
+        query = query
+       .Include(x => x.Korisnik)
+       .Include(x => x.KatalogPostovi)
+           .ThenInclude(kp => kp.Post);
+
         if (!string.IsNullOrWhiteSpace(search.Naslov))
             query = query.Where(x => x.Naslov.Contains(search.Naslov));
 
-        if (search.KorisnikId.HasValue)
-            query = query.Where(x => x.KorisnikId == search.KorisnikId.Value);
-
-        if (search.DatumOd.HasValue)
-            query = query.Where(x => x.DatumOd >= search.DatumOd.Value);
-
-        if (search.DatumDo.HasValue)
-            query = query.Where(x => x.DatumDo <= search.DatumDo.Value);
-
         return query;
     }
+
+    public override Model.Katalog GetById(int id)
+    {
+        var entity = Context.Set<Database.Katalog>()
+            .Include(k => k.Korisnik)
+            .Include(k => k.KatalogPostovi)
+                .ThenInclude(kp => kp.Post)
+            .FirstOrDefault(k => k.KatalogId == id);
+
+        return Mapper.Map<Model.Katalog>(entity);
+    }
+
+    public void Delete(int id)
+    {
+        var katalog = Context.Set<Database.Katalog>()
+            .Include(k => k.KatalogPostovi)
+            .FirstOrDefault(k => k.KatalogId == id);
+
+        if (katalog == null)
+            throw new Exception("Katalog not found");
+
+        // First remove all related KatalogPost entries
+        Context.RemoveRange(katalog.KatalogPostovi);
+
+        // Then remove the katalog itself
+        Context.Remove(katalog);
+
+        Context.SaveChanges();
+    }
+
+
 }

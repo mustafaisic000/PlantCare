@@ -11,13 +11,10 @@ public class Notifikacija
     public string Naslov { get; set; } = null!;
     public string Sadrzaj { get; set; } = null!;
     public DateTime Datum { get; set; }
-
     public int KorisnikId { get; set; }
-    public string KorisnikIme { get; set; } = null!;
-    public string KorisnikPrezime { get; set; } = null!;
-
+    public string? KorisnickoIme { get; set; }
     public int? PostId { get; set; }
     public string? PostNaslov { get; set; }
-
     public bool Procitano { get; set; }
+    public string KoPrima { get; set; } = null!;
 }

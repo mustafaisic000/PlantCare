@@ -28,6 +28,12 @@ public class KomentarService
     {
         query = base.AddFilter(search, query);
 
+
+        query = query
+             .Include(x => x.Korisnik)
+             .Include(x => x.Post);
+
+
         if (search.PostId.HasValue)
             query = query.Where(x => x.PostId == search.PostId.Value);
 
@@ -42,4 +48,26 @@ public class KomentarService
 
         return query;
     }
+
+    public void Delete(int komentarId, int korisnikId)
+    {
+        var entity = Context.Komentari
+            .Include(x => x.Post)
+            .FirstOrDefault(x => x.KomentarId == komentarId);
+
+        if (entity == null)
+            throw new Exception("Komentar nije pronađen");
+
+        bool imaPravo = entity.KorisnikId == korisnikId ||
+                        entity.Post.KorisnikId == korisnikId;
+
+        if (!imaPravo)
+            throw new Exception("Nemate pravo da obrišete ovaj komentar.");
+
+        Context.Remove(entity);
+        Context.SaveChanges();
+    }
+
+
+
 }

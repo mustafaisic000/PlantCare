@@ -11,4 +11,5 @@ public interface IReportService
         ReportInsertRequest,
         ReportUpdateRequest>
 {
+    void Delete(int id);
 }

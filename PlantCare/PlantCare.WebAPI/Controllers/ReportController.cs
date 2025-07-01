@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
@@ -7,33 +8,34 @@ using PlantCare.Services;
 namespace PlantCare.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class ReportController : ControllerBase
+    [Route("[controller]")]
+    [Authorize(Roles = "Administrator")] 
+    public class ReportController : BaseCRUDController<
+        Report,
+        ReportSearchObject,
+        ReportInsertRequest,
+        ReportUpdateRequest>
     {
-        private readonly IReportService _service;
-        public ReportController(IReportService service) => _service = service;
+        private readonly IReportService _reportService;
 
-        [HttpGet]
-        public ActionResult<PagedResult<Report>> Get([FromQuery] ReportSearchObject search)
-            => Ok(_service.GetPaged(search));
-
-        [HttpGet("{id}")]
-        public ActionResult<Report> GetById(int id)
+        public ReportController(IReportService service)
+            : base(service)
         {
-            var entity = _service.GetById(id);
-            if (entity == null) return NotFound();
-            return Ok(entity);
+            _reportService = service;
         }
 
-        [HttpPost]
-        public ActionResult<Report> Create(ReportInsertRequest request)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            var created = _service.Insert(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.ReportId }, created);
+            try
+            {
+                _reportService.Delete(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
-
-        [HttpPut("{id}")]
-        public ActionResult<Report> Update(int id, ReportUpdateRequest request)
-            => Ok(_service.Update(id, request));
     }
 }

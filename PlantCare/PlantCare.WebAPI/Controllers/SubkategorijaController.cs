@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
@@ -7,33 +8,48 @@ using PlantCare.Services;
 namespace PlantCare.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class SubkategorijaController : ControllerBase
+    [Route("[controller]")]
+    public class SubkategorijeController : BaseCRUDController<
+        Subkategorija,
+        SubkategorijaSearchObject,
+        SubkategorijaInsertRequest,
+        SubkategorijaUpdateRequest>
     {
-        private readonly ISubkategorijaService _service;
-        public SubkategorijaController(ISubkategorijaService service) => _service = service;
+        private readonly ISubkategorijaService _subkategorijaService;
 
-        [HttpGet]
-        public ActionResult<PagedResult<Subkategorija>> Get([FromQuery] SubkategorijaSearchObject search)
-            => Ok(_service.GetPaged(search));
-
-        [HttpGet("{id}")]
-        public ActionResult<Subkategorija> GetById(int id)
+        public SubkategorijeController(ISubkategorijaService service)
+            : base(service)
         {
-            var entity = _service.GetById(id);
-            if (entity == null) return NotFound();
-            return Ok(entity);
+            _subkategorijaService = service;
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
-        public ActionResult<Subkategorija> Create(SubkategorijaInsertRequest request)
+        public override ActionResult<Subkategorija> Insert([FromBody] SubkategorijaInsertRequest request)
         {
-            var created = _service.Insert(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.SubkategorijaId }, created);
+            return base.Insert(request);
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPut("{id}")]
-        public ActionResult<Subkategorija> Update(int id, SubkategorijaUpdateRequest request)
-            => Ok(_service.Update(id, request));
+        public override ActionResult<Subkategorija> Update(int id, [FromBody] SubkategorijaUpdateRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                _subkategorijaService.Delete(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

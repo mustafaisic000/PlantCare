@@ -11,12 +11,9 @@ public partial class Katalog
 
     [Required, MaxLength(100)]
     public string Naslov { get; set; } = default!;
-
+    [Required, MaxLength(250)]
     public string Opis { get; set; } = default!;
-
-    public DateTime DatumOd { get; set; }
-    public DateTime DatumDo { get; set; }
-
+    public bool Aktivan { get; set; }
     [Required]
     public int KorisnikId { get; set; }
     public virtual Korisnik Korisnik { get; set; } = default!;

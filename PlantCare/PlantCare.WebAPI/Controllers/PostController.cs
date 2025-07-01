@@ -7,33 +7,42 @@ using PlantCare.Services;
 namespace PlantCare.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class PostController : ControllerBase
+    [Route("[controller]")]
+    public class PostController : BaseCRUDController<
+        Post,
+        PostSearchObject,
+        PostInsertRequest,
+        PostUpdateRequest>
     {
-        private readonly IPostService _service;
-        public PostController(IPostService service) => _service = service;
+        private readonly IPostService _postService;
 
-        [HttpGet]
-        public ActionResult<PagedResult<Post>> Get([FromQuery] PostSearchObject search)
-            => Ok(_service.GetPaged(search));
-
-        [HttpGet("{id}")]
-        public ActionResult<Post> GetById(int id)
+        public PostController(IPostService service)
+            : base(service)
         {
-            var entity = _service.GetById(id);
-            if (entity == null) return NotFound();
-            return Ok(entity);
+            _postService = service;
         }
 
-        [HttpPost]
-        public ActionResult<Post> Create(PostInsertRequest request)
+        [HttpPatch("{id}/soft-delete")]
+        public IActionResult SoftDelete(int id)
         {
-            var created = _service.Insert(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.PostId }, created);
+            try
+            {
+                _postService.SoftDelete(id);
+                return Ok(new { message = "Post je deaktiviran (soft deleted)." });
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
 
-        [HttpPut("{id}")]
-        public ActionResult<Post> Update(int id, PostUpdateRequest request)
-            => Ok(_service.Update(id, request));
+        [HttpGet("recommend/{korisnikId}")]
+        public ActionResult<List<Post>> Recommend(int korisnikId, [FromQuery] bool? premium = null)
+        {
+            var result = _postService.Recommend(korisnikId, premium);
+            return Ok(result);
+        }
+
+
     }
 }

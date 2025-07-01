@@ -17,9 +17,11 @@ public class UplataService
         UplataUpdateRequest>,
       IUplataService
 {
-    public UplataService(PlantCareContext ctx, IMapper mapper)
+    private readonly INotifikacijaService _servis;
+    public UplataService(PlantCareContext ctx, IMapper mapper, INotifikacijaService servis)
         : base(ctx, mapper)
     {
+        _servis=servis;
     }
 
     protected override IQueryable<Database.Uplata> AddFilter(
@@ -28,12 +30,42 @@ public class UplataService
     {
         query = base.AddFilter(search, query);
 
+        query = query.Include(x => x.Korisnik);
+
         if (search.KorisnikId.HasValue)
             query = query.Where(x => x.KorisnikId == search.KorisnikId.Value);
 
-        if (!string.IsNullOrWhiteSpace(search.TipPretplate))
-            query = query.Where(x => x.TipPretplate.Contains(search.TipPretplate));
-
         return query;
     }
+
+    public  override Model.Uplata Insert(UplataInsertRequest request)
+    {
+        var korisnik = Context.Korisnici.Find(request.KorisnikId);
+        var userName =   Context.Korisnici.Find(request.KorisnikId);
+
+
+        var objToInsert = new NotifikacijaInsertRequest
+        {
+            KoPrima = "Desktop",
+            KorisnikId = request.KorisnikId,
+            Naslov = "Nova uplata",
+            Sadrzaj = $"{userName!.KorisnickoIme} je postao/la premium korisnik"
+        };
+
+         _servis.Insert(objToInsert);
+
+        // Mapiraj entitet
+        var entity = Mapper.Map<Database.Uplata>(request);
+        entity.Datum = DateTime.Now; // Dodaj datum
+        entity.KorisnikId = korisnik.KorisnikId;  // Dodaj korisnicko ime
+
+        Context.Uplate.Add(entity);
+        Context.SaveChanges();
+
+        var response = Mapper.Map<Model.Uplata>(entity);
+        response.KorisnickoIme = korisnik.KorisnickoIme; // dodano ručno
+
+        return response;
+    }
+
 }

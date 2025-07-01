@@ -29,6 +29,10 @@ public class OmiljeniPostService
     {
         query = base.AddFilter(search, query);
 
+        query = query
+             .Include(x => x.Korisnik)
+             .Include(x => x.Post);
+
         if (search.KorisnikId.HasValue)
             query = query.Where(x => x.KorisnikId == search.KorisnikId.Value);
 
@@ -37,4 +41,15 @@ public class OmiljeniPostService
 
         return query;
     }
+
+    public void Delete(int id)
+    {
+        var entity = Context.Set<Database.OmiljeniPost>().Find(id);
+        if (entity == null)
+            throw new Exception("Omiljeni post nije pronađen");
+
+        Context.Remove(entity);
+        Context.SaveChanges();
+    }
+
 }

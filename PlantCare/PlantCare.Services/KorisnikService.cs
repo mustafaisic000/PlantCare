@@ -1,11 +1,14 @@
-﻿using MapsterMapper;
+﻿using Azure.Core;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
 using PlantCare.Model.SearchObjects;
 using PlantCare.Services.Database;
 using System;
 using System.Linq;
+using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,32 +23,34 @@ namespace PlantCare.Services
                           KorisnikUpdateRequest>,
           IKorisnikService
     {
-        public KorisnikService(PlantCareContext context, IMapper mapper)
+        ILogger<KorisnikService> _logger;
+        private readonly IEmailService _emailService;
+        private readonly INotifikacijaService _notificationservice;
+        public KorisnikService(PlantCareContext context, IMapper mapper, ILogger<KorisnikService> logger, INotifikacijaService notificationservice, IEmailService emailService)
             : base(context, mapper)
         {
+            _logger = logger;
+            _emailService = emailService;
+            _notificationservice =notificationservice;
         }
 
-        // ── Filtering ───────────────────────────────────────────────────────
         protected override IQueryable<Database.Korisnik> AddFilter(
             KorisnikSearchObject search,
             IQueryable<Database.Korisnik> query)
         {
             query = base.AddFilter(search, query);
 
-            if (search.IncludeUloga)
-                query = query.Include(x => x.Uloga);
+            if (!string.IsNullOrWhiteSpace(search.ImeGTE))
+                query = query.Where(x => x.Ime.Contains(search.ImeGTE));
 
-            if (!string.IsNullOrWhiteSpace(search.Ime))
-                query = query.Where(x => x.Ime.Contains(search.Ime));
-
-            if (!string.IsNullOrWhiteSpace(search.Prezime))
-                query = query.Where(x => x.Prezime.Contains(search.Prezime));
+            if (!string.IsNullOrWhiteSpace(search.PrezimeGTE))
+                query = query.Where(x => x.Prezime.Contains(search.PrezimeGTE));
 
             if (!string.IsNullOrWhiteSpace(search.Email))
                 query = query.Where(x => x.Email == search.Email);
 
-            if (!string.IsNullOrWhiteSpace(search.KorisnickoIme))
-                query = query.Where(x => x.KorisnickoIme.Contains(search.KorisnickoIme));
+            if (!string.IsNullOrWhiteSpace(search.KorisnickoImeGTE))
+                query = query.Where(x => x.KorisnickoIme.Contains(search.KorisnickoImeGTE));
 
             if (search.UlogaId.HasValue)
                 query = query.Where(x => x.UlogaId == search.UlogaId);
@@ -53,14 +58,25 @@ namespace PlantCare.Services
             if (search.Status.HasValue)
                 query = query.Where(x => x.Status == search.Status.Value);
 
+            if (search.IncludeUloga == true)
+            {
+                query = query.Include(x => x.Uloga);
+            }
+
             return query;
         }
 
-        // ── Hooks ────────────────────────────────────────────────────────────
         protected override void BeforeInsert(
             KorisnikInsertRequest request,
             Database.Korisnik entity)
         {
+            if (Context.Korisnici.Any(x => x.KorisnickoIme == request.KorisnickoIme))
+                throw new UserException("Korisničko ime je već zauzeto.");
+
+            if (!string.IsNullOrWhiteSpace(request.Email) && Context.Korisnici.Any(x => x.Email == request.Email))
+                throw new UserException("Email adresa je već zauzeta.");
+
+            _logger.LogInformation($"Dodavanje korisnika : {entity.KorisnickoIme}");
             if (request.Lozinka != request.LozinkaPotvrda)
                 throw new InvalidOperationException("Lozinka i potvrda lozinke se ne poklapaju.");
 
@@ -73,6 +89,17 @@ namespace PlantCare.Services
             KorisnikUpdateRequest request,
             Database.Korisnik entity)
         {
+            if (Context.Korisnici.Any(x =>
+            x.KorisnikId != entity.KorisnikId &&
+            x.KorisnickoIme == request.KorisnickoIme))
+                throw new UserException("Korisničko ime je već zauzeto.");
+
+            if (!string.IsNullOrWhiteSpace(request.Email) &&
+                Context.Korisnici.Any(x =>
+                    x.KorisnikId != entity.KorisnikId &&
+                    x.Email == request.Email))
+                throw new UserException("Email adresa je već zauzeta.");
+
             if (!string.IsNullOrWhiteSpace(request.Lozinka))
             {
                 if (request.Lozinka != request.LozinkaPotvrda)
@@ -82,16 +109,6 @@ namespace PlantCare.Services
                 entity.LozinkaHash = GenerateHash(entity.LozinkaSalt, request.Lozinka);
             }
         }
-
-        // ── Basic CRUD overrides ────────────────────────────────────────────
-        public override Model.Korisnik Insert(KorisnikInsertRequest request)
-            => base.Insert(request);
-
-        public override Model.Korisnik Update(int id, KorisnikUpdateRequest request)
-            => base.Update(id, request);
-
-        // ── Custom operations ────────────────────────────────────────────────
-
         public Model.Korisnik Login(string username, string password)
         {
             var user = Context.Korisnici
@@ -102,46 +119,187 @@ namespace PlantCare.Services
                 return null;
 
             var hash = GenerateHash(user.LozinkaSalt, password);
+            _logger.LogInformation("Expected Hash: " + user.LozinkaHash);
+            _logger.LogInformation("Generated Hash: " + GenerateHash(user.LozinkaSalt, password));
             if (hash != user.LozinkaHash)
                 return null;
-
+          
             return Mapper.Map<Model.Korisnik>(user);
+          
         }
 
-        public Model.Korisnik UpdateMobile(int id, KorisnikMobileUpdateRequest req)
+        public async Task ValidateUsernameEmail(string korisnickoIme, string email, int? ignoreId = null)
         {
-            var user = Context.Korisnici.Find(id);
+            var errors = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(korisnickoIme))
+            {
+                var exists = await Context.Korisnici
+                    .AnyAsync(x => x.KorisnickoIme == korisnickoIme && x.KorisnikId != ignoreId);
+
+                if (exists)
+                    errors.Add("Korisničko ime je već zauzeto.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                var exists = await Context.Korisnici
+                    .AnyAsync(x => x.Email == email && x.KorisnikId != ignoreId);
+
+                if (exists)
+                    errors.Add("Email adresa je već zauzeta.");
+            }
+
+            if (errors.Any())
+                throw new UserException(string.Join(" | ", errors));
+        }
+
+
+
+
+        public async Task<Model.Korisnik> UpdateMobile(int id, KorisnikMobileUpdateRequest req)
+        {
+            var user = await Context.Korisnici.FindAsync(id);
             if (user == null)
                 throw new KeyNotFoundException("Korisnik nije pronađen.");
+
+            // Provjera korisničkog imena ako se mijenja
+            if (!string.IsNullOrWhiteSpace(req.KorisnickoIme) && req.KorisnickoIme != user.KorisnickoIme)
+            {
+                if (Context.Korisnici.Any(x => x.KorisnickoIme == req.KorisnickoIme && x.KorisnikId != id))
+                    throw new UserException("Korisničko ime je već zauzeto.");
+                user.KorisnickoIme = req.KorisnickoIme;
+            }
+
+
+            if (!string.IsNullOrWhiteSpace(req.Email) && req.Email != user.Email)
+            {
+                if (Context.Korisnici.Any(x => x.Email == req.Email && x.KorisnikId != id))
+                    throw new UserException("Email adresa je već zauzeta.");
+                user.Email = req.Email;
+            }
 
             user.Ime = req.Ime;
             user.Prezime = req.Prezime;
-            user.Email = req.Email;
             user.Telefon = req.Telefon;
 
-            Context.SaveChanges();
+            if (!string.IsNullOrWhiteSpace(req.DatumRodjenja))
+            {
+                if (DateTime.TryParse(req.DatumRodjenja, out var parsedDate))
+                    user.DatumRodjenja = parsedDate;
+                else
+                    throw new UserException("Neispravan format datuma rođenja.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(req.Lozinka))
+            {
+                if (req.Lozinka != req.LozinkaPotvrda)
+                    throw new InvalidOperationException("Lozinka i potvrda lozinke se ne poklapaju.");
+
+                user.LozinkaSalt = GenerateSalt();
+                user.LozinkaHash = GenerateHash(user.LozinkaSalt, req.Lozinka);
+            }
+
+            if (req.Slika != null && req.Slika.Length > 0)
+                user.Slika = req.Slika;
+
+            await Context.SaveChangesAsync();
+
             return Mapper.Map<Model.Korisnik>(user);
         }
 
-        public async Task<bool> ResetPasswordByEmail(string korisnickoIme, string email)
+
+
+        public async Task<bool> ResetPasswordByEmail(string email)
         {
-            var user = await Context.Korisnici
-                .FirstOrDefaultAsync(x => x.KorisnickoIme == korisnickoIme && x.Email == email);
+            var user = await Context.Korisnici.FirstOrDefaultAsync(x => x.Email == email && x.Status);
 
             if (user == null)
-                throw new KeyNotFoundException("Korisnik nije pronađen.");
+                return false;
 
             var newPwd = GenerateRandomPassword(8);
             user.LozinkaSalt = GenerateSalt();
             user.LozinkaHash = GenerateHash(user.LozinkaSalt, newPwd);
-
             await Context.SaveChangesAsync();
 
-            // TODO: publish newPwd via RabbitMQ / email
+            var emailObj = new Notifier
+            {
+                Email = user.Email!,
+                Datum = DateTime.Now,
+                Naslov = "Reset lozinke - Zeleni kutak",
+                Tekst = $"Poštovani {user.Ime} {user.Prezime},\n\n" +
+                        $"Vaša nova lozinka je: {newPwd}\n\n" +
+                        "Preporučujemo da je odmah promijenite nakon prijave.\n\n" +
+                        "Srdačan pozdrav,\nZeleni kutak tim"
+            };
 
+            _emailService.SendingObject(emailObj);
             return true;
         }
-//helper
+
+        public async Task<bool> ResetPasswordByAdmin(int id)
+        {
+            var user = await Context.Korisnici.FindAsync(id);
+            if (user == null || !user.Status)
+                return false;
+
+            var newPwd = GenerateRandomPassword(8);
+            user.LozinkaSalt = GenerateSalt();
+            user.LozinkaHash = GenerateHash(user.LozinkaSalt, newPwd);
+            await Context.SaveChangesAsync();
+
+            var emailObj = new Notifier
+            {
+                Email = user.Email!,
+                Datum = DateTime.Now,
+                Naslov = "Reset lozinke (admin) - Zeleni kutak",
+                Tekst = $"Poštovani {user.Ime} {user.Prezime},\n\n" +
+                        $"Administrator vam je resetovao lozinku. Nova lozinka je: {newPwd}\n\n" +
+                        "Preporučujemo da je odmah promijenite nakon prijave.\n\n" +
+                        "Srdačan pozdrav,\nZeleni kutak tim"
+            };
+
+            _emailService.SendingObject(emailObj);
+            return true;
+        }
+
+        public override Model.Korisnik Insert(KorisnikInsertRequest request)
+        {
+            // Prvo koristi baznu metodu koja poziva BeforeInsert i mapira entitet
+            var entity = base.Insert(request);
+
+            // Napravi notifikaciju
+            var insertObj = new NotifikacijaInsertRequest
+            {
+                KorisnikId = entity.KorisnikId,
+                Naslov = "Novi korisnik",
+                Sadrzaj = $"{entity.KorisnickoIme} se pridružio/la platformi.",
+                KoPrima = "Desktop"
+            };
+            _notificationservice.Insert(insertObj);
+
+            // Pošalji email
+            var emailObj = new Notifier
+            {
+                Email = entity.Email!,
+                Datum = DateTime.Now,
+                Naslov = "Dobrodošli na Zeleni kutak!",
+                Tekst = $"Poštovani {entity.Ime} {entity.Prezime},\n\n" +
+                        "Uspješno ste kreirali nalog na aplikaciji Zeleni kutak.\n" +
+                        "Hvala što ste se registrovali!\n\n" +
+                        "Srdačan pozdrav,\nZeleni kutak tim"
+            };
+            _emailService.SendingObject(emailObj);
+
+            return entity;
+        }
+
+
+
+
+
+
+        //helper
         private static string GenerateSalt()
         {
             var buff = new byte[16];
@@ -149,17 +307,18 @@ namespace PlantCare.Services
             return Convert.ToBase64String(buff);
         }
 
-        private static string GenerateHash(string salt, string pwd)
+        public static string GenerateHash(string salt, string password)
         {
-            var src = Convert.FromBase64String(salt);
-            var pb = Encoding.UTF8.GetBytes(pwd);
-            var dst = new byte[src.Length + pb.Length];
+            byte[] src = Convert.FromBase64String(salt);
+            byte[] bytes = Encoding.Unicode.GetBytes(password);
+            byte[] dst = new byte[src.Length + bytes.Length];
 
             Buffer.BlockCopy(src, 0, dst, 0, src.Length);
-            Buffer.BlockCopy(pb, 0, dst, src.Length, pb.Length);
+            Buffer.BlockCopy(bytes, 0, dst, src.Length, bytes.Length);
 
-            using var sha = SHA256.Create();
-            return Convert.ToBase64String(sha.ComputeHash(dst));
+            using HashAlgorithm algorithm = HashAlgorithm.Create("SHA1");
+            byte[] inArray = algorithm.ComputeHash(dst);
+            return Convert.ToBase64String(inArray);
         }
 
         private static string GenerateRandomPassword(int len)
@@ -170,5 +329,39 @@ namespace PlantCare.Services
                 .Select(_ => chars[RandomNumberGenerator.GetInt32(chars.Length)])
                 .ToArray());
         }
+
+        public void SoftDelete(int id)
+        {
+            var korisnik = Context.Korisnici.Find(id);
+            if (korisnik == null)
+                throw new Exception("Korisnik nije pronađen.");
+
+            korisnik.Status = false;
+            Context.SaveChanges();
+        }
+
+        public async Task<Model.Korisnik> PromoteToPremiumAsync(int korisnikId)
+        {
+            var user = await Context.Korisnici.Include(x => x.Uloga).FirstOrDefaultAsync(x => x.KorisnikId == korisnikId);
+            if (user == null)
+                throw new KeyNotFoundException("Korisnik nije pronađen.");
+
+            user.UlogaId = 2; // Premium
+            await Context.SaveChangesAsync();
+
+            return Mapper.Map<Model.Korisnik>(user);
+        }
+        public override Model.Korisnik GetById(int id)
+        {
+            var entity = Context.Korisnici
+                .Include(x => x.Uloga)
+                .FirstOrDefault(x => x.KorisnikId == id);
+
+            return entity != null ? Mapper.Map<Model.Korisnik>(entity) : null;
+        }
+
+
+
+
     }
 }

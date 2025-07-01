@@ -8,11 +8,11 @@ namespace PlantCare.Model.SearchObjects;
 
 public class KorisnikSearchObject : BaseSearchObject
 {
-    public string? Ime { get; set; }
-    public string? Prezime { get; set; }
+    public string? ImeGTE { get; set; }
+    public string? PrezimeGTE { get; set; }
     public string? Email { get; set; }
-    public string? KorisnickoIme { get; set; }
+    public string? KorisnickoImeGTE { get; set; }
     public int? UlogaId { get; set; }
     public bool? Status { get; set; }
-    public bool IncludeUloga { get; set; }
+    public bool? IncludeUloga { get; set; }
 }

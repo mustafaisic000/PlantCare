@@ -18,9 +18,12 @@ public class SubkategorijaService
         SubkategorijaUpdateRequest>,
       ISubkategorijaService
 {
-    public SubkategorijaService(PlantCareContext ctx, IMapper mapper)
+
+    private readonly IEmailService _emailService;
+    public SubkategorijaService(PlantCareContext ctx, IMapper mapper, IEmailService emailService)
         : base(ctx, mapper)
     {
+        _emailService=emailService;
     }
 
     protected override IQueryable<Database.Subkategorija> AddFilter(
@@ -28,6 +31,8 @@ public class SubkategorijaService
         IQueryable<Database.Subkategorija> query)
     {
         query = base.AddFilter(search, query);
+
+        query = query.Include(x => x.Kategorija);
 
         if (!string.IsNullOrWhiteSpace(search.Naziv))
             query = query.Where(x => x.Naziv.StartsWith(search.Naziv));
@@ -37,4 +42,21 @@ public class SubkategorijaService
 
         return query;
     }
+
+    public void Delete(int id)
+    {
+        var subkategorija = Context.Subkategorije.Find(id);
+        if (subkategorija == null)
+            throw new Exception("Subkategorija nije pronađena.");
+
+        // Provjera da li postoji neki post sa ovom subkategorijom
+        var hasPosts = Context.Postovi.Any(p => p.SubkategorijaId == id);
+        if (hasPosts)
+            throw new Exception("Subkategorija se ne može obrisati jer sadrži postove.");
+
+        Context.Subkategorije.Remove(subkategorija);
+        Context.SaveChanges();
+    }
+
+
 }

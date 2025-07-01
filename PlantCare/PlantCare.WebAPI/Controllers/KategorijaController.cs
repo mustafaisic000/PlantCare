@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
@@ -7,33 +8,48 @@ using PlantCare.Services;
 namespace PlantCare.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class KategorijaController : ControllerBase
+    [Route("[controller]")]
+    public class KategorijaController : BaseCRUDController<
+        Kategorija,
+        KategorijaSearchObject,
+        KategorijaInsertRequest,
+        KategorijaUpdateRequest>
     {
-        private readonly IKategorijaService _service;
-        public KategorijaController(IKategorijaService service) => _service = service;
+        private readonly IKategorijaService _kategorijaService;
 
-        [HttpGet]
-        public ActionResult<PagedResult<Kategorija>> Get([FromQuery] KategorijaSearchObject search)
-            => Ok(_service.GetPaged(search));
-
-        [HttpGet("{id}")]
-        public ActionResult<Kategorija> GetById(int id)
+        public KategorijaController(IKategorijaService service)
+             : base(service)
         {
-            var entity = _service.GetById(id);
-            if (entity == null) return NotFound();
-            return Ok(entity);
+            _kategorijaService = service;
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
-        public ActionResult<Kategorija> Create(KategorijaInsertRequest request)
+        public override ActionResult<Kategorija> Insert([FromBody] KategorijaInsertRequest request)
         {
-            var created = _service.Insert(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.KategorijaId }, created);
+            return base.Insert(request);
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPut("{id}")]
-        public ActionResult<Kategorija> Update(int id, KategorijaUpdateRequest request)
-            => Ok(_service.Update(id, request));
+        public override ActionResult<Kategorija> Update(int id, [FromBody] KategorijaUpdateRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                _kategorijaService.Delete(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

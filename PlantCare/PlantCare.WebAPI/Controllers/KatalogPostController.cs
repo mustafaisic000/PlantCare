@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
@@ -7,33 +8,39 @@ using PlantCare.Services;
 namespace PlantCare.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class KatalogPostController : ControllerBase
+    [Route("[controller]")]
+    public class KatalogPostController : BaseCRUDController<
+        KatalogPost,
+        KatalogPostSearchObject,
+        KatalogPostInsertRequest,
+        KatalogPostUpdateRequest>
     {
-        private readonly IKatalogPostService _service;
-        public KatalogPostController(IKatalogPostService service) => _service = service;
-
-        [HttpGet]
-        public ActionResult<PagedResult<KatalogPost>> Get([FromQuery] KatalogPostSearchObject search)
-            => Ok(_service.GetPaged(search));
-
-        [HttpGet("{id}")]
-        public ActionResult<KatalogPost> GetById(int id)
+        public KatalogPostController(IKatalogPostService service)
+            : base(service)
         {
-            var entity = _service.GetById(id);
-            if (entity == null) return NotFound();
-            return Ok(entity);
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
-        public ActionResult<KatalogPost> Create(KatalogPostInsertRequest request)
+        public override ActionResult<KatalogPost> Insert([FromBody] KatalogPostInsertRequest request)
         {
-            var created = _service.Insert(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.KatalogPostId }, created);
+            return base.Insert(request);
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPut("{id}")]
-        public ActionResult<KatalogPost> Update(int id, KatalogPostUpdateRequest request)
-            => Ok(_service.Update(id, request));
+        public override ActionResult<KatalogPost> Update(int id, [FromBody] KatalogPostUpdateRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpDelete("ByKatalog/{katalogId}")]
+        public async Task<IActionResult> DeleteByKatalogId(int katalogId)
+        {
+            var service = (IKatalogPostService)_service;
+            await service.DeleteByKatalogIdAsync(katalogId);
+            return NoContent();
+        }
     }
 }

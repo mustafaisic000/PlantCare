@@ -8,13 +8,12 @@ public class Obavijest
     public int ObavijestId { get; set; }      
 
     [Required, MaxLength(100)]
-    public string Naslov { get; set; }       
+    public string Naslov { get; set; }
 
+    [Required, MaxLength(250)]
+    public string Sadrzaj { get; set; }
     [Required]
-    public string Sadrzaj { get; set; }      
-
-    public DateTime Datum { get; set; } = DateTime.Now;  
-
+    public bool Aktivan { get; set; }
     [Required]
     public int KorisnikId { get; set; }
     public virtual Korisnik Korisnik { get; set; }

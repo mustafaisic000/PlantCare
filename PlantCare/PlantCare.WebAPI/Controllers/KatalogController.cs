@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlantCare.Model;
 using PlantCare.Model.Requests;
@@ -7,33 +8,48 @@ using PlantCare.Services;
 namespace PlantCare.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class KatalogController : ControllerBase
+    [Route("[controller]")]
+    public class KatalogController : BaseCRUDController<
+        Katalog,
+        KatalogSearchObject,
+        KatalogInsertRequest,
+        KatalogUpdateRequest>
     {
-        private readonly IKatalogService _service;
-        public KatalogController(IKatalogService service) => _service = service;
+        private readonly IKatalogService _katalogService;
 
-        [HttpGet]
-        public ActionResult<PagedResult<Katalog>> Get([FromQuery] KatalogSearchObject search)
-            => Ok(_service.GetPaged(search));
-
-        [HttpGet("{id}")]
-        public ActionResult<Katalog> GetById(int id)
+        public KatalogController(IKatalogService service)
+            : base(service)
         {
-            var entity = _service.GetById(id);
-            if (entity == null) return NotFound();
-            return Ok(entity);
+            _katalogService = service;
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
-        public ActionResult<Katalog> Create(KatalogInsertRequest request)
+        public override ActionResult<Katalog> Insert([FromBody] KatalogInsertRequest request)
         {
-            var created = _service.Insert(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.KatalogId }, created);
+            return base.Insert(request);
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPut("{id}")]
-        public ActionResult<Katalog> Update(int id, KatalogUpdateRequest request)
-            => Ok(_service.Update(id, request));
+        public override ActionResult<Katalog> Update(int id, [FromBody] KatalogUpdateRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                _katalogService.Delete(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
     }
 }

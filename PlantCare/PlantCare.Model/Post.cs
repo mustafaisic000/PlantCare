@@ -13,8 +13,9 @@ public class Post
     public byte[]? Slika { get; set; }
     public DateTime DatumKreiranja { get; set; }
     public int KorisnikId { get; set; }
-    public string KorisnikIme { get; set; } = null!;
+    public string KorisnickoIme { get; set; } = null!;
     public bool Premium { get; set; }
+    public bool Status { get; set; } = true; 
     public int SubkategorijaId { get; set; }
     public string SubkategorijaNaziv { get; set; } = null!;
 }

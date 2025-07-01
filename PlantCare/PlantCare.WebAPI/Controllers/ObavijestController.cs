@@ -4,36 +4,37 @@ using PlantCare.Model.Requests;
 using PlantCare.Model.SearchObjects;
 using PlantCare.Services;
 
+
 namespace PlantCare.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class ObavijestController : ControllerBase
+    [Route("[controller]")]
+    public class ObavijestController : BaseCRUDController<
+        Obavijest,
+        ObavijestSearchObject,
+        ObavijestInsertRequest,
+        ObavijestUpdateRequest>
     {
-        private readonly IObavijestService _service;
-        public ObavijestController(IObavijestService service) => _service = service;
+        private readonly IObavijestService _obavijestService;
 
-        [HttpGet]
-        public ActionResult<PagedResult<Obavijest>> Get([FromQuery] ObavijestSearchObject search)
-            => Ok(_service.GetPaged(search));
-
-        [HttpGet("{id}")]
-        public ActionResult<Obavijest> GetById(int id)
+        public ObavijestController(IObavijestService service)
+            : base(service)
         {
-            var entity = _service.GetById(id);
-            if (entity == null) return NotFound();
-            return Ok(entity);
+            _obavijestService = service;
         }
 
-        [HttpPost]
-        public ActionResult<Obavijest> Create(ObavijestInsertRequest request)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            var created = _service.Insert(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.ObavijestId }, created);
+            try
+            {
+                _obavijestService.Delete(id);
+                return NoContent(); 
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
-
-        [HttpPut("{id}")]
-        public ActionResult<Obavijest> Update(int id, ObavijestUpdateRequest request)
-            => Ok(_service.Update(id, request));
     }
 }

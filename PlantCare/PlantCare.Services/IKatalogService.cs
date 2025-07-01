@@ -11,4 +11,5 @@ public interface IKatalogService
         KatalogInsertRequest,
         KatalogUpdateRequest>
 {
+    void Delete(int id);
 }

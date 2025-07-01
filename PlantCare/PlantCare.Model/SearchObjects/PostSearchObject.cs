@@ -12,5 +12,8 @@ public class PostSearchObject : BaseSearchObject
     public string? Naslov { get; set; }         
     public int? KorisnikId { get; set; }      
     public bool? Premium { get; set; }        
-    public int? SubkategorijaId { get; set; }   
+    public int? SubkategorijaId { get; set; }
+    public List<int>? SubkategorijaIdList { get; set; }
+    public int? KategorijaId { get; set; }
+    public bool? Status { get; set; }
 }

@@ -9,7 +9,7 @@ public class OmiljeniPost
 {
     public int OmiljeniPostId { get; set; }
     public int KorisnikId { get; set; }
-    public string KorisnikIme { get; set; } = null!;
+    public string KorisnickoIme { get; set; } = null!;
     public int PostId { get; set; }
     public string PostNaslov { get; set; } = null!;
 }

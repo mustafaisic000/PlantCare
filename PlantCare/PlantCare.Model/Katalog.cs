@@ -11,11 +11,10 @@ public class Katalog
     public int KatalogId { get; set; }
     public string Naslov { get; set; } = null!;
     public string? Opis { get; set; }
-    public DateTime DatumOd { get; set; }
-    public DateTime DatumDo { get; set; }
+    public bool Aktivan { get; set; }
+    public string KorisnickoIme { get; set; } = null!;
 
-    public int KorisnikId { get; set; }
-    public Korisnik Korisnik { get; set; } = null!;
-
-    public virtual ICollection<KatalogPost> KatalogPostovi { get; set; } = new List<KatalogPost>();
+    public ICollection<KatalogPost> KatalogPostovi { get; set; } = new List<KatalogPost>();
 }
+
+

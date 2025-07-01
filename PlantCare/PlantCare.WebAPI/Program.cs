@@ -1,15 +1,20 @@
 ﻿using PlantCare.WebAPI;
-// using PlantCare.WebAPI.Filters;   // Uncomment if you add filters
 using PlantCare.Services;
 using PlantCare.Services.Database;
 using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using PlantCare.WebAPI.Filters;
+using Microsoft.AspNetCore.Authentication;
+using PlantCare.Services.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── 1) Register your application services as transient ────────────────────────
+builder.Logging.ClearProviders();        // (opcionalno, ako želiš samo konzolu)
+builder.Logging.AddConsole();            // ✅ Ovo omogućava logove u Dockeru
+
+// ── 1) Register your application services as transient
 builder.Services.AddTransient<IKorisnikService, KorisnikService>();
 builder.Services.AddTransient<IUlogaService, UlogaService>();
 builder.Services.AddTransient<IKategorijaService, KategorijaService>();
@@ -25,33 +30,60 @@ builder.Services.AddTransient<IKomentarService, KomentarService>();
 builder.Services.AddTransient<IKatalogPostService, KatalogPostService>();
 builder.Services.AddTransient<IKatalogService, KatalogService>();
 
+builder.Services.AddTransient<IEmailService, EmailService>();
+
+
+builder.Services.AddSignalR();
+
+
+builder.Services.AddScoped<INotifikacijskiServis, NotifikacijskiServis>();
 // Optional helper to access HttpContext in services
 builder.Services.AddHttpContextAccessor();
 
 // ── 2) Add controllers (and optional filters) ─────────────────────────────────
-builder.Services.AddControllers(/*opts => opts.Filters.Add<ExceptionFilter>()*/);
+builder.Services.AddControllers(opts => opts.Filters.Add<ExceptionFilter>());
 
 // ── 3) Swagger / OpenAPI setup ────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "PlantCare API", Version = "v1" });
-    // … any security definitions …
+    c.AddSecurityDefinition("basicAuth", new Microsoft.OpenApi.Models.OpenApiSecurityScheme()
+    {
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "basic"
+    });
+
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference{Type = ReferenceType.SecurityScheme, Id = "basicAuth"}
+            },
+            new string[]{}
+    } });
+
 });
+
 
 // ── 4) Configure EF Core DbContext ────────────────────────────────────────────
 builder.Services.AddDbContext<PlantCareContext>(opts =>
-    opts.UseSqlServer(builder.Configuration.GetConnectionString("PlantCareConnection")));
+    opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ── 5) Manual Mapster setup ───────────────────────────────────────────────────
 // 5a) configure and scan for mappings
 var mapsterConfig = TypeAdapterConfig.GlobalSettings;
-mapsterConfig.Scan(typeof(Program).Assembly);
 
-// 5b) register the config and the mapper
+// Register your centralized mapping rules
+PlantCare.WebAPI.Mapping.MapsterConfiguration.RegisterMappings();
+
+// Register Mapster with DI
 builder.Services
-    .AddSingleton<TypeAdapterConfig>(mapsterConfig)
+    .AddSingleton(mapsterConfig)
     .AddScoped<IMapper, ServiceMapper>();
+
+builder.Services.AddAuthentication("BasicAuthentication")
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
 // ── 6) Build & run ────────────────────────────────────────────────────────────
 var app = builder.Build();
@@ -64,8 +96,17 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "PlantCare API v1");
     });
 }
-
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+app.MapHub<NotifikacijaHub>("/signalrHub");
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<PlantCareContext>();
+    dbContext.Database.Migrate(); // Apply any pending migrations
+}
 app.Run();

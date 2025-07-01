@@ -9,13 +9,13 @@ public partial class Post
     [Key]
     public int PostId { get; set; }          
 
-    [Required, MaxLength(200)]
-    public string Naslov { get; set; }        
+    [Required, MaxLength(100)]
+    public string Naslov { get; set; }
 
-    [Required]
+    [Required, MaxLength(250)]
     public string Sadrzaj { get; set; }      
 
-    public byte[]? Slika { get; set; }    
+    public byte[] Slika { get; set; }    
 
     public DateTime DatumKreiranja { get; set; } = DateTime.Now; 
 
@@ -23,6 +23,8 @@ public partial class Post
     public int KorisnikId { get; set; }
     public virtual Korisnik Korisnik { get; set; } = null!;
     public bool Premium { get; set; }
+
+    public bool Status { get; set; } = true; 
 
     [Required]
     public int SubkategorijaId { get; set; }

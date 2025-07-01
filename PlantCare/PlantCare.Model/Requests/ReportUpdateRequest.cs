@@ -6,5 +6,5 @@ public class ReportUpdateRequest
     public int PostId { get; set; }
     public int BrojLajkova { get; set; }
     public int BrojOmiljenih { get; set; }
-    // leave Datum on the server side (it stays at insertion value)
+    public int BrojKomentara { get; set; }
 }

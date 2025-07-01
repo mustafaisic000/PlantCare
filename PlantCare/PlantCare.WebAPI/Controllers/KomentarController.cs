@@ -7,33 +7,35 @@ using PlantCare.Services;
 namespace PlantCare.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class KomentarController : ControllerBase
+    [Route("[controller]")]
+    public class KomentarController : BaseCRUDController<
+        Komentar,
+        KomentarSearchObject,
+        KomentarInsertRequest,
+        KomentarUpdateRequest>
     {
-        private readonly IKomentarService _service;
-        public KomentarController(IKomentarService service) => _service = service;
+        private readonly IKomentarService _komentarService;
 
-        [HttpGet]
-        public ActionResult<PagedResult<Komentar>> Get([FromQuery] KomentarSearchObject search)
-            => Ok(_service.GetPaged(search));
-
-        [HttpGet("{id}")]
-        public ActionResult<Komentar> GetById(int id)
+        public KomentarController(IKomentarService service)
+            : base(service)
         {
-            var entity = _service.GetById(id);
-            if (entity == null) return NotFound();
-            return Ok(entity);
+            _komentarService = service;
         }
 
-        [HttpPost]
-        public ActionResult<Komentar> Create(KomentarInsertRequest request)
+        [HttpDelete("{komentarId}/korisnik/{korisnikId}")]
+        public IActionResult Delete(int komentarId, int korisnikId)
         {
-            var created = _service.Insert(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.KomentarId }, created);
+            try
+            {
+                _komentarService.Delete(komentarId, korisnikId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
-        [HttpPut("{id}")]
-        public ActionResult<Komentar> Update(int id, KomentarUpdateRequest request)
-            => Ok(_service.Update(id, request));
+
     }
 }

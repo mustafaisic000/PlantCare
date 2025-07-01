@@ -11,4 +11,5 @@ public interface IOmiljeniPostService
         OmiljeniPostInsertRequest,
         OmiljeniPostUpdateRequest>
 {
+    void Delete(int id);
 }

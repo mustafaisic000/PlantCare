@@ -8,9 +8,8 @@ namespace PlantCare.Model;
 public class KatalogPost
 {
     public int KatalogPostId { get; set; }
-    public int KatalogId { get; set; }
     public int PostId { get; set; }
-
-    public virtual Katalog Katalog { get; set; } = null!;
-    public virtual Post Post { get; set; } = null!;
+    public string PostNaslov { get; set; } = null!;
+    public byte[]? PostSlika { get; set; }
+    public bool Premium { get; set; }
 }

@@ -11,4 +11,6 @@ public interface ILajkService
       LajkInsertRequest,
       LajkUpdateRequest>
 {
+    void Delete(int lajkId, int korisnikId);
+    int GetLajkCountByPost(int postId);
 }

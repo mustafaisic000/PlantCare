@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema koja se koristi pri pokretanju aplikacije (splash ekran) -->
+    <style name="LaunchTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+
+    <!-- Tema koja se koristi kad se aplikacija inicijalizuje -->
+    <style name="NormalTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+
+    <!-- Glavna tema aplikacije ako ti zatreba referenca -->
+    <style name="Theme.PlantCare" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#50C878</item>
+        <item name="colorPrimaryVariant">#43a16b</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="android:windowBackground">@android:color/white</item>
+    </style>
+</resources>

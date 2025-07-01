@@ -9,8 +9,7 @@ public class Lajk
 {
     public int LajkId { get; set; }
     public int KorisnikId { get; set; }
-    public string KorisnikIme { get; set; } = null!;
-    public string KorisnikPrezime { get; set; } = null!;
+    public string KorisnickoIme { get; set; } = null!;
     public int PostId { get; set; }
     public string PostNaslov { get; set; } = null!;
     public DateTime Datum { get; set; }
