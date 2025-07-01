@@ -63,7 +63,7 @@ public class UplataService
         Context.SaveChanges();
 
         var response = Mapper.Map<Model.Uplata>(entity);
-        response.KorisnickoIme = korisnik.KorisnickoIme; // dodano ručno
+        response.KorisnickoIme = korisnik.KorisnickoIme; 
 
         return response;
     }
