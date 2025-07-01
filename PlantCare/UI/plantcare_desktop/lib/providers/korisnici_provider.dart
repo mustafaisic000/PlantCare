@@ -92,4 +92,31 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
       throw Exception("Greška prilikom dodavanja korisnika.");
     }
   }
+
+  Future<Map<String, dynamic>> validateUsernameEmail({
+    required String korisnickoIme,
+    required String email,
+    int? ignoreId,
+  }) async {
+    final uri = Uri.parse("$fullUrl/validate-username-email");
+    final headers = createHeaders();
+    final body = jsonEncode({
+      "korisnickoIme": korisnickoIme,
+      "email": email,
+      "ignoreId": ignoreId,
+    });
+
+    final response = await http!.post(uri, headers: headers, body: body);
+
+    if (response.statusCode == 400) {
+      final data = jsonDecode(response.body);
+      return {"valid": false, "errors": data["errors"]["userError"]};
+    }
+
+    if (isValidResponse(response)) {
+      return {"valid": true};
+    }
+
+    throw Exception("Validacija nije uspjela");
+  }
 }

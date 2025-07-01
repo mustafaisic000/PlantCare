@@ -6,11 +6,8 @@ import 'package:plantcare_mobile/common/widgets/katalog_section.dart';
 import 'package:plantcare_mobile/common/widgets/recommended_section.dart';
 import 'package:plantcare_mobile/models/obavijesti_model.dart';
 import 'package:plantcare_mobile/models/katalog_model.dart';
-import 'package:plantcare_mobile/models/post_model.dart';
-import 'package:plantcare_mobile/providers/auth_provider.dart';
 import 'package:plantcare_mobile/providers/obavijest_provider.dart';
 import 'package:plantcare_mobile/providers/katalog_provider.dart';
-import 'package:plantcare_mobile/providers/post_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,14 +17,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  final recommendedKey = GlobalKey<RecommendedSectionState>();
   final ObavijestProvider _obavijestProvider = ObavijestProvider();
   final KatalogProvider _katalogProvider = KatalogProvider();
-  final PostProvider _postProvider = PostProvider();
 
   List<Obavijest> _obavijesti = [];
   List<Katalog> _katalozi = [];
-  List<Post> _preporuceni = [];
   bool _isLoading = true;
   bool _isFirstLoad = true;
 
@@ -35,10 +29,6 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     loadData();
-  }
-
-  void refreshHome() {
-    loadData(); // ili specifičnu metodu koja samo ažurira preporučene
   }
 
   @override
@@ -57,17 +47,9 @@ class HomeScreenState extends State<HomeScreen> {
       final obavijestiResult = await _obavijestProvider.get();
       final katalogResult = await _katalogProvider.get();
 
-      final user = AuthProvider.korisnik;
-      List<Post> preporuceni = [];
-
-      if (user != null) {
-        preporuceni = await _postProvider.getRecommended(user.korisnikId!);
-      }
-
       setState(() {
         _obavijesti = obavijestiResult.result;
         _katalozi = katalogResult.result.where((k) => k.aktivan).toList();
-        _preporuceni = preporuceni;
         _isLoading = false;
       });
     } catch (e) {
@@ -87,7 +69,9 @@ class HomeScreenState extends State<HomeScreen> {
           SafeArea(
             child: HomeHeader(
               onNotificationsTap: openNotifications,
-              onFilterSelected: (_) {},
+              onFilterSelected: (_) {
+                setState(() {}); // zbog kataloga
+              },
             ),
           ),
           Expanded(
@@ -122,10 +106,8 @@ class HomeScreenState extends State<HomeScreen> {
                                 .toList(),
                           ),
                         const SizedBox(height: 24),
-                        RecommendedSection(
-                          key: recommendedKey,
-                          posts: _preporuceni,
-                        ),
+                        const RecommendedSection(),
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),

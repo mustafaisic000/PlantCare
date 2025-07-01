@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:plantcare_mobile/common/widgets/stripe_payment_widget.dart';
 import 'package:plantcare_mobile/models/katalog_post_model.dart';
 import 'package:plantcare_mobile/models/post_model.dart';
 import 'package:plantcare_mobile/providers/auth_provider.dart';
@@ -11,6 +12,7 @@ class PostCard extends StatefulWidget {
   final KatalogPost? katalogPost;
   final VoidCallback onTap;
   final VoidCallback? onFavoriteToggle;
+  final VoidCallback? onSuccess;
 
   const PostCard({
     super.key,
@@ -18,6 +20,7 @@ class PostCard extends StatefulWidget {
     this.katalogPost,
     required this.onTap,
     this.onFavoriteToggle,
+    this.onSuccess,
   }) : assert(post != null || katalogPost != null);
 
   @override
@@ -168,7 +171,22 @@ class _PostCardState extends State<PostCard> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                onPressed: locked ? null : widget.onTap,
+                onPressed: locked
+                    ? () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => StripePaymentWidget(
+                            onSuccess: () {
+                              widget.onSuccess?.call();
+                              setState(() {});
+                              RecommendedSectionState.instance
+                                  ?.refreshRecommended();
+                            },
+                          ),
+                        );
+                      }
+                    : widget.onTap,
+
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   side: const BorderSide(color: Colors.green),

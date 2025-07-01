@@ -40,6 +40,7 @@ public class UplataService
 
     public  override Model.Uplata Insert(UplataInsertRequest request)
     {
+        var korisnik = Context.Korisnici.Find(request.KorisnikId);
         var userName =   Context.Korisnici.Find(request.KorisnikId);
 
 
@@ -53,7 +54,18 @@ public class UplataService
 
          _servis.Insert(objToInsert);
 
-        return  base.Insert(request);
+        // Mapiraj entitet
+        var entity = Mapper.Map<Database.Uplata>(request);
+        entity.Datum = DateTime.Now; // Dodaj datum
+        entity.KorisnikId = korisnik.KorisnikId;  // Dodaj korisnicko ime
+
+        Context.Uplate.Add(entity);
+        Context.SaveChanges();
+
+        var response = Mapper.Map<Model.Uplata>(entity);
+        response.KorisnickoIme = korisnik.KorisnickoIme; // dodano ručno
+
+        return response;
     }
 
 }

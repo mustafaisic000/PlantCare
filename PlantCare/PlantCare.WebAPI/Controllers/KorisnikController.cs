@@ -84,6 +84,62 @@ namespace PlantCare.WebAPI.Controllers
             return Ok("Nova lozinka je poslana korisniku na email.");
         }
 
+        [HttpPatch("{id}/update-mobile")]
+        public async Task<IActionResult> UpdateMobile(int id, [FromBody] KorisnikMobileUpdateRequest request)
+        {
+            try
+            {
+                var updated = await _service.UpdateMobile(id, request);
+                return Ok(updated);
+            }
+            catch (UserException ex)
+            {
+                return BadRequest(new { errors = new { userError = new[] { ex.Message } } });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Server side error", details = ex.Message });
+            }
+        }
+
+        [HttpPost("validate-username-email")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ValidateUsernameEmail([FromBody] UsernameEmailCheckRequest request)
+        {
+            try
+            {
+                await _service.ValidateUsernameEmail(request.KorisnickoIme, request.Email, request.IgnoreId);
+                return Ok();
+            }
+            catch (UserException ex)
+            {
+                var poruke = ex.Message.Split(" | ").ToList();
+
+                return BadRequest(new
+                {
+                    errors = new
+                    {
+                        userError = poruke
+                    }
+                });
+            }
+        }
+
+        [HttpPatch("{id}/promote-to-premium")]
+        public async Task<IActionResult> PromoteToPremium(int id)
+        {
+            try
+            {
+                var updated = await _service.PromoteToPremiumAsync(id);
+                return Ok(updated);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+
 
 
 

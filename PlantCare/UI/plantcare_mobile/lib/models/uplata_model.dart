@@ -1,24 +1,16 @@
 class Uplata {
-  final int uplataId;
-  final double iznos;
-  final DateTime datum;
-  final String tipPretplate;
-  final String korisnickoIme;
+  final int? uplataId;
+  final double? iznos;
+  final DateTime? datum;
+  final String? korisnickoIme;
 
-  Uplata({
-    required this.uplataId,
-    required this.iznos,
-    required this.datum,
-    required this.tipPretplate,
-    required this.korisnickoIme,
-  });
+  Uplata({this.uplataId, this.iznos, this.datum, this.korisnickoIme});
 
   factory Uplata.fromJson(Map<String, dynamic> json) {
     return Uplata(
       uplataId: json['uplataId'],
-      iznos: json['iznos']?.toDouble() ?? 0,
-      datum: DateTime.parse(json['datum']),
-      tipPretplate: json['tipPretplate'],
+      iznos: (json['iznos'] as num?)?.toDouble(),
+      datum: json['datum'] != null ? DateTime.tryParse(json['datum']) : null,
       korisnickoIme: json['korisnickoIme'],
     );
   }
@@ -27,8 +19,7 @@ class Uplata {
     return {
       'uplataId': uplataId,
       'iznos': iznos,
-      'datum': datum.toIso8601String(),
-      'tipPretplate': tipPretplate,
+      'datum': datum?.toIso8601String(),
       'korisnickoIme': korisnickoIme,
     };
   }

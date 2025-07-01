@@ -24,7 +24,6 @@ class Post {
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
-    print('POST JSON: $json');
     return Post(
       postId: json['postId'],
       naslov: json['naslov'],

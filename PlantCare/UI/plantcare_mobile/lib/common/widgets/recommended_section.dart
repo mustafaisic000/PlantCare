@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:plantcare_mobile/common/widgets/post_card.dart';
 import 'package:plantcare_mobile/models/post_model.dart';
 import 'package:plantcare_mobile/providers/auth_provider.dart';
+import 'package:plantcare_mobile/providers/filter_provider.dart';
 import 'package:plantcare_mobile/providers/post_provider.dart';
 import 'package:plantcare_mobile/screens/kategorije/post_detail_screen.dart';
+import 'package:provider/provider.dart';
 
 class RecommendedSection extends StatefulWidget {
-  final List<Post> posts;
-
-  const RecommendedSection({super.key, required this.posts});
+  const RecommendedSection({super.key});
 
   @override
   State<RecommendedSection> createState() => RecommendedSectionState();
@@ -16,37 +16,72 @@ class RecommendedSection extends StatefulWidget {
 
 class RecommendedSectionState extends State<RecommendedSection> {
   static RecommendedSectionState? instance;
-  late List<Post> _posts;
   final PostProvider _postProvider = PostProvider();
+  List<Post> _posts = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     instance = this;
-    _posts = List.from(widget.posts);
+    loadRecommended();
   }
 
-  /// 🔁 Ova metoda omogućava vanjskim widgetima da osvježe samo preporučene
-  Future<void> refreshRecommended() async {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.read<FilterProvider>().addListener(_onFilterChanged);
+  }
+
+  void _onFilterChanged() {
+    refreshRecommended(); // reaguje kad se filter promijeni
+  }
+
+  Future<void> loadRecommended() async {
+    await refreshRecommended();
+  }
+
+  Future<void> refreshRecommended({bool refill = false}) async {
     final user = AuthProvider.korisnik;
     if (user == null) return;
 
+    final filter = context.read<FilterProvider>();
     final noviPreporuceni = await _postProvider.getRecommended(
       user.korisnikId!,
+      premium: filter.premium,
     );
-    setState(() {
-      _posts = noviPreporuceni;
-    });
+
+    if (refill) {
+      final novi = noviPreporuceni
+          .where((p) => !_posts.any((x) => x.postId == p.postId))
+          .toList();
+
+      if (novi.isNotEmpty) {
+        setState(() {
+          _posts.add(novi.first);
+        });
+      }
+    } else {
+      setState(() {
+        _posts = noviPreporuceni;
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   void dispose() {
+    context.read<FilterProvider>().removeListener(_onFilterChanged);
     if (instance == this) instance = null;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     if (_posts.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -71,40 +106,20 @@ class RecommendedSectionState extends State<RecommendedSection> {
               return PostCard(
                 key: ValueKey(post.postId),
                 post: post,
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => PostDetailScreen(post: post),
                     ),
-                  ).then((_) {
-                    refreshRecommended(); // ⚠️ osvježi uvijek
-                  });
+                  );
+                  refreshRecommended();
                 },
-
                 onFavoriteToggle: () async {
-                  // Ako je dodan u favorite — ukloni iz preporučenih
                   setState(() {
                     _posts.removeWhere((p) => p.postId == post.postId);
                   });
-
-                  // Dodaj novi preporučeni ako postoji
-                  final user = AuthProvider.korisnik;
-                  if (user != null) {
-                    final noviPreporuceni = await _postProvider.getRecommended(
-                      user.korisnikId!,
-                    );
-
-                    final novi = noviPreporuceni
-                        .where((p) => !_posts.any((x) => x.postId == p.postId))
-                        .toList();
-
-                    if (novi.isNotEmpty) {
-                      setState(() {
-                        _posts.add(novi.first);
-                      });
-                    }
-                  }
+                  await refreshRecommended(refill: true);
                 },
               );
             },

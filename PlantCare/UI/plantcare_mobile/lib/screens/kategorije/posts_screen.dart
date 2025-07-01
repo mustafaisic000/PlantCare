@@ -9,8 +9,9 @@ import 'package:plantcare_mobile/screens/kategorije/post_detail_screen.dart';
 
 class PostsScreen extends StatefulWidget {
   final Kategorija kategorija;
+  final bool? premiumFilter;
 
-  const PostsScreen({super.key, required this.kategorija});
+  const PostsScreen({super.key, required this.kategorija, this.premiumFilter});
 
   @override
   State<PostsScreen> createState() => _PostsScreenState();
@@ -36,6 +37,10 @@ class _PostsScreenState extends State<PostsScreen> {
   void initState() {
     super.initState();
     _fetchSubkategorije();
+    _fetchPosts(reset: true);
+  }
+
+  void refresh() {
     _fetchPosts(reset: true);
   }
 
@@ -65,6 +70,10 @@ class _PostsScreenState extends State<PostsScreen> {
       'status': true,
       'KategorijaId': widget.kategorija.kategorijaId,
     };
+
+    if (widget.premiumFilter != null) {
+      filters['Premium'] = widget.premiumFilter!;
+    }
 
     if (_selectedSubIds.isNotEmpty) {
       filters['subkategorijaIdList'] = _selectedSubIds;
@@ -187,6 +196,7 @@ class _PostsScreenState extends State<PostsScreen> {
                         }
                         return PostCard(
                           post: _posts[index],
+                          onSuccess: refresh,
                           onTap: () async {
                             final result = await Navigator.push(
                               context,
@@ -197,7 +207,7 @@ class _PostsScreenState extends State<PostsScreen> {
                             );
 
                             if (result == true) {
-                              _fetchPosts(reset: true); // post je obrisan
+                              _fetchPosts(reset: true);
                             } else if (result is Post) {
                               final index = _posts.indexWhere(
                                 (p) => p.postId == result.postId,

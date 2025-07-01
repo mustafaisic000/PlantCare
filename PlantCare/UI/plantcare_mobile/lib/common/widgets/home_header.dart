@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:plantcare_mobile/common/services/notification_listener_mobile.dart';
 import 'package:plantcare_mobile/providers/auth_provider.dart';
+import 'package:plantcare_mobile/providers/filter_provider.dart';
+import 'package:provider/provider.dart';
 
 class HomeHeader extends StatelessWidget {
   final VoidCallback onNotificationsTap;
@@ -59,18 +61,57 @@ class HomeHeader extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.menu),
-                onSelected: onFilterSelected,
-                itemBuilder: (_) => const [
-                  PopupMenuItem(value: "Sve", child: Text("Sve")),
-                  PopupMenuItem(value: "Premium", child: Text("Premium")),
-                  PopupMenuItem(value: "Standard", child: Text("Standard")),
-                ],
+              Consumer<FilterProvider>(
+                builder: (context, filterProvider, _) {
+                  final selected = filterProvider.selected;
+
+                  return PopupMenuButton<String>(
+                    icon: const Icon(Icons.menu),
+                    onSelected: (value) {
+                      filterProvider.setFilter(value);
+                      onFilterSelected(value);
+                    },
+                    itemBuilder: (_) => [
+                      PopupMenuItem(
+                        value: "Sve",
+                        child: Row(
+                          children: [
+                            if (selected == "Sve")
+                              const Icon(Icons.check, size: 16),
+                            if (selected == "Sve") const SizedBox(width: 8),
+                            const Text("Sve"),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: "Premium",
+                        child: Row(
+                          children: [
+                            if (selected == "Premium")
+                              const Icon(Icons.check, size: 16),
+                            if (selected == "Premium") const SizedBox(width: 8),
+                            const Text("Premium"),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: "Standard",
+                        child: Row(
+                          children: [
+                            if (selected == "Standard")
+                              const Icon(Icons.check, size: 16),
+                            if (selected == "Standard")
+                              const SizedBox(width: 8),
+                            const Text("Standard"),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
 
               Row(
@@ -118,7 +159,6 @@ class HomeHeader extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   IconButton(
                     icon: const Icon(Icons.logout),
                     onPressed: () => _confirmLogout(context),

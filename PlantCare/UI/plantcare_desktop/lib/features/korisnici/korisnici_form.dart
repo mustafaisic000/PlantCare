@@ -42,6 +42,8 @@ class _KorisnikFormState extends State<KorisnikForm> {
   String? originalSlika;
   bool showSlikaError = false;
   List<DropdownMenuItem<int>> ulogeItems = [];
+  String? korisnickoImeError;
+  String? emailError;
 
   @override
   void initState() {
@@ -133,15 +135,12 @@ class _KorisnikFormState extends State<KorisnikForm> {
         imageData != null ||
         (originalSlika != null && originalSlika!.isNotEmpty);
 
-    // Validiraj formu
     final bool isFormValid = _formKey.currentState!.validate();
 
-    // Prikaži ili sakrij grešku za sliku
     setState(() {
       showSlikaError = !hasValidImage;
     });
 
-    // Ako forma ili slika nisu validni, prekini
     if (!isFormValid || !hasValidImage) return;
 
     final korisnikMap = {
@@ -157,21 +156,68 @@ class _KorisnikFormState extends State<KorisnikForm> {
           : originalSlika ?? '',
     };
 
-    final lozinka = lozinkaController.text;
-    if (lozinka.isNotEmpty) {
+    if (widget.korisnik == null) {
+      final lozinka = lozinkaController.text;
       korisnikMap['lozinka'] = lozinka;
       korisnikMap['lozinkaPotvrda'] = lozinka;
     }
 
-    if (widget.korisnik == null) {
-      await provider.insert(korisnikMap);
-    } else {
-      await provider.update(widget.korisnik!.korisnikId!, korisnikMap);
-    }
+    try {
+      korisnickoImeError = null;
+      emailError = null;
 
-    if (!mounted) return;
-    Navigator.pop(context);
-    widget.onClose?.call();
+      // 🔒 Backend validacija korisničkog imena i emaila
+      final result = await provider.validateUsernameEmail(
+        korisnickoIme: korisnickoImeController.text,
+        email: emailController.text,
+        ignoreId: widget.korisnik?.korisnikId,
+      );
+
+      if (result["valid"] == false) {
+        List errors = result["errors"];
+
+        setState(() {
+          korisnickoImeError = null;
+          emailError = null;
+
+          for (var e in errors) {
+            if (e.toLowerCase().contains("korisničko ime")) {
+              korisnickoImeError = e;
+            } else if (e.toLowerCase().contains("email")) {
+              emailError = e;
+            }
+          }
+        });
+
+        _formKey.currentState?.validate();
+        return;
+      }
+
+      // ✅ Insert ili update
+      if (widget.korisnik == null) {
+        await provider.insert(korisnikMap);
+      } else {
+        await provider.update(widget.korisnik!.korisnikId!, korisnikMap);
+      }
+
+      if (!mounted) return;
+      Navigator.pop(context);
+      widget.onClose?.call();
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Greška"),
+          content: Text("Greška pri spremanju: $e"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Zatvori"),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -261,8 +307,16 @@ class _KorisnikFormState extends State<KorisnikForm> {
                     children: [
                       _buildInput(imeController, "Ime"),
                       _buildInput(prezimeController, "Prezime"),
-                      _buildInput(korisnickoImeController, "Korisničko ime"),
-                      _buildInput(emailController, "Email"),
+                      _buildInput(
+                        korisnickoImeController,
+                        "Korisničko ime",
+                        errorText: korisnickoImeError,
+                      ),
+                      _buildInput(
+                        emailController,
+                        "Email",
+                        errorText: emailError,
+                      ),
                       _buildInput(telefonController, "Telefon"),
                       SizedBox(
                         width: 250,
@@ -328,14 +382,12 @@ class _KorisnikFormState extends State<KorisnikForm> {
                           },
                         ),
                       ),
-                      _buildInput(
-                        lozinkaController,
-                        "Šifra",
-                        obscureText: true,
-                        hintText: widget.korisnik != null
-                            ? "Promijeni šifru"
-                            : null,
-                      ),
+                      if (widget.korisnik == null)
+                        _buildInput(
+                          lozinkaController,
+                          "Šifra",
+                          obscureText: true,
+                        ),
                     ],
                   ),
                 ),
@@ -436,6 +488,7 @@ class _KorisnikFormState extends State<KorisnikForm> {
     String label, {
     String? hintText,
     bool obscureText = false,
+    String? errorText,
   }) {
     return SizedBox(
       width: 250,
@@ -443,7 +496,11 @@ class _KorisnikFormState extends State<KorisnikForm> {
         controller: controller,
         readOnly: widget.readOnly,
         obscureText: obscureText,
-        decoration: InputDecoration(labelText: label, hintText: hintText),
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hintText,
+          errorText: errorText,
+        ),
         validator: (value) {
           if (widget.readOnly) return null;
 

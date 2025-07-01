@@ -11,6 +11,7 @@ public class Uplata
     public int UplataId { get; set; }
     public decimal Iznos { get; set; }
     public DateTime Datum { get; set; }
-    public string KorisnickoIme { get; set; } = null!;
+    public int KorisnikId { get; set; }
+    public string KorisnickoIme { get; set; }=null!;
 }
 

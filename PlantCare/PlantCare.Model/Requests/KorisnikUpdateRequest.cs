@@ -8,6 +8,7 @@ namespace PlantCare.Model.Requests;
 
 public class KorisnikUpdateRequest
 {
+    public string? KorisnickoIme { get; set; }
     public string? Ime { get; set; }
     public string? Prezime { get; set; }
     public string? Lozinka { get; set; }

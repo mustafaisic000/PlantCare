@@ -29,6 +29,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Uint8List? imageData;
   bool showSlikaError = false;
   bool isLoading = false;
+  String? korisnickoImeError;
+  String? emailError;
 
   String encodeBase64(Uint8List bytes) {
     return base64Encode(bytes);
@@ -107,6 +109,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     setState(() => isLoading = true);
 
+    // 1. ✅ Provjera korisničkog imena i emaila
+    final result = await _provider.validateUsernameEmail(
+      korisnickoIme: korisnickoImeController.text,
+      email: emailController.text,
+      ignoreId: null,
+    );
+
+    if (result["valid"] == false) {
+      List errors = result["errors"];
+
+      setState(() {
+        korisnickoImeError = null;
+        emailError = null;
+
+        for (var e in errors) {
+          if (e.toLowerCase().contains("korisničko ime")) {
+            korisnickoImeError = e;
+          } else if (e.toLowerCase().contains("email")) {
+            emailError = e;
+          }
+        }
+      });
+
+      _formKey.currentState?.validate();
+      setState(() => isLoading = false);
+      return;
+    }
+
+    // 2. 📦 Kreiranje requesta
     final Map<String, dynamic> request = {
       "ime": imeController.text,
       "prezime": prezimeController.text,
@@ -142,7 +173,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       );
     } catch (e) {
-      print("GREŠKA: $e");
+      print("❌ Greška prilikom registracije: $e");
+
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -167,13 +199,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     bool obscure = false,
     int? maxLength,
     bool isEmail = false,
+    String? errorText,
   }) {
     return TextFormField(
       controller: controller,
       obscureText: obscure,
       maxLength: maxLength,
       keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.text,
-      decoration: InputDecoration(labelText: label, counterText: ''),
+      decoration: InputDecoration(
+        labelText: label,
+        counterText: '',
+        errorText: errorText,
+      ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return "$label je obavezno";
@@ -230,6 +267,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   korisnickoImeController,
                   "Korisničko ime",
                   maxLength: 20,
+                  errorText: korisnickoImeError,
                 ),
                 const SizedBox(height: 12),
                 _buildField(
@@ -244,6 +282,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   "Email",
                   isEmail: true,
                   maxLength: 100,
+                  errorText: emailError,
                 ),
                 const SizedBox(height: 12),
                 _buildField(telefonController, "Broj telefona", maxLength: 20),

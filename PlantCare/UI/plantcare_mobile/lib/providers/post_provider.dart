@@ -74,11 +74,17 @@ class PostProvider extends BaseProvider<Post> {
     }
   }
 
-  Future<List<Post>> getRecommended(int korisnikId) async {
+  Future<List<Post>> getRecommended(int korisnikId, {bool? premium}) async {
     final uri = Uri.parse("$fullUrl/recommend/$korisnikId");
     final headers = createHeaders();
 
-    final response = await http!.get(uri, headers: headers);
+    // Dodaj premium kao query parametar ako je specificiran
+    final uriWithQuery = premium != null
+        ? uri.replace(queryParameters: {"premium": premium.toString()})
+        : uri;
+
+    final response = await http!.get(uriWithQuery, headers: headers);
+
     if (isValidResponse(response)) {
       final data = jsonDecode(response.body);
       return (data as List).map((e) => Post.fromJson(e)).toList();

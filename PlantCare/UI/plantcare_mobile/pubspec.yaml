@@ -48,6 +48,7 @@ dependencies:
   dropdown_search: ^5.0.6
   signalr_core: ^1.1.1
   image_picker: ^1.0.4
+  flutter_stripe: ^11.5.0
 
 dependency_overrides:
   web: ^1.1.0
@@ -82,6 +83,7 @@ flutter:
   assets:
     - assets/images/
     - assets/fonts/
+    - lib/.env
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

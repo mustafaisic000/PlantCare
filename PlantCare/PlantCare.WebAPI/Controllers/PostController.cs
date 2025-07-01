@@ -37,11 +37,12 @@ namespace PlantCare.WebAPI.Controllers
         }
 
         [HttpGet("recommend/{korisnikId}")]
-        public ActionResult<List<Post>> Recommend(int korisnikId)
+        public ActionResult<List<Post>> Recommend(int korisnikId, [FromQuery] bool? premium = null)
         {
-            var result = _postService.Recommend(korisnikId);
+            var result = _postService.Recommend(korisnikId, premium);
             return Ok(result);
         }
+
 
     }
 }

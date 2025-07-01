@@ -21,7 +21,7 @@ class DodajPostScreenState extends State<DodajPostScreen> {
   final _formKey = GlobalKey<FormState>();
   final _naslovController = TextEditingController();
   final _sadrzajController = TextEditingController();
-
+  bool get isObicanKorisnik => AuthProvider.korisnik?.ulogaId == 3;
   final SubkategorijaProvider _subProvider = SubkategorijaProvider();
   final PostProvider _postProvider = PostProvider();
 
@@ -162,7 +162,7 @@ class DodajPostScreenState extends State<DodajPostScreen> {
     final postMap = {
       'naslov': _naslovController.text.trim(),
       'sadrzaj': _sadrzajController.text.trim(),
-      'premium': premium,
+      'premium': isObicanKorisnik ? false : premium,
       'subkategorijaId': subkategorijaId,
       'korisnikId': AuthProvider.korisnik!.korisnikId,
       'slika': imageData != null ? base64Encode(imageData!) : originalSlika,
@@ -209,7 +209,10 @@ class DodajPostScreenState extends State<DodajPostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Dodaj")),
+      appBar: AppBar(
+        title: const Text("Dodaj"),
+        automaticallyImplyLeading: false,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -267,16 +270,36 @@ class DodajPostScreenState extends State<DodajPostScreen> {
                 child: Text("${_sadrzajController.text.length} / 250"),
               ),
               const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Premium postavka?"),
-                  Switch(
-                    value: premium,
-                    onChanged: (val) => setState(() => premium = val),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Premium postavka?"),
+                      IgnorePointer(
+                        ignoring: isObicanKorisnik,
+                        child: Switch(
+                          value: isObicanKorisnik ? false : premium,
+                          onChanged: (val) => setState(() => premium = val),
+                        ),
+                      ),
+                    ],
                   ),
+                  if (isObicanKorisnik)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        "Samo premium korisnici mogu postaviti premium objavu.",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
                 ],
               ),
+
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _save,

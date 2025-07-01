@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:plantcare_mobile/providers/auth_provider.dart';
-import 'package:plantcare_mobile/providers/util.dart'; // imageFromString
+import 'package:plantcare_mobile/providers/util.dart';
+import 'package:plantcare_mobile/screens/profil/profil_lajk_screen.dart';
+import 'package:plantcare_mobile/screens/profil/profil_omiljeni_post_screen.dart';
+import 'package:plantcare_mobile/screens/profil/profil_post_screen.dart';
+import 'package:plantcare_mobile/screens/profil/profile_details_screen.dart';
+import 'package:plantcare_mobile/screens/profil/profile_edit_screen.dart';
 
 class ProfilScreen extends StatefulWidget {
   const ProfilScreen({super.key});
@@ -56,9 +61,19 @@ class ProfilScreenState extends State<ProfilScreen> {
               ),
               const SizedBox(height: 8),
               ElevatedButton(
-                onPressed: () {
-                  // Idi na Edit profil
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProfileEditScreen(),
+                    ),
+                  );
+
+                  if (result == true) {
+                    setState(() {}); // Trigger rebuild
+                  }
                 },
+
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF50C878),
                   foregroundColor: Colors.white,
@@ -81,8 +96,38 @@ class ProfilScreenState extends State<ProfilScreen> {
   Widget _buildOption(String title) {
     return InkWell(
       onTap: () {
-        // Navigacija kasnije
+        switch (title) {
+          case "Postovi":
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfilPostScreen()),
+            );
+            break;
+          case "Likes":
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ProfilLajkoviPostScreen(),
+              ),
+            );
+            break;
+          case "Omiljeni":
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ProfilOmiljeniPostScreen(),
+              ),
+            );
+            break;
+          case "Informacije":
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileDetailScreen()),
+            );
+            break;
+        }
       },
+
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14),
         child: Row(

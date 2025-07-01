@@ -26,6 +26,28 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final korisnik = await KorisnikProvider().authenticate();
 
+      // ⛔ Provjera statusa
+      if (korisnik.status == false) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text("Račun blokiran"),
+            content: const Text(
+              "Vaš korisnički račun je blokiran. "
+              "Molimo kontaktirajte podršku.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("U redu"),
+              ),
+            ],
+          ),
+        );
+        return; // NE dozvoljavaj dalje logovanje
+      }
+
+      // ✅ Dozvoljeno logovanje
       AuthProvider.login(
         _usernameController.text,
         _passwordController.text,

@@ -4,6 +4,8 @@ import 'package:plantcare_mobile/common/widgets/post_card.dart';
 import 'package:plantcare_mobile/providers/post_provider.dart';
 import 'package:plantcare_mobile/screens/kategorije/post_detail_screen.dart';
 import 'package:plantcare_mobile/common/widgets/recommended_section.dart';
+import 'package:plantcare_mobile/providers/filter_provider.dart';
+import 'package:provider/provider.dart';
 
 class KatalogSection extends StatefulWidget {
   final Katalog katalog;
@@ -20,6 +22,13 @@ class _KatalogSectionState extends State<KatalogSection> {
   @override
   Widget build(BuildContext context) {
     final katalog = widget.katalog;
+    final premiumFilter = context.watch<FilterProvider>().premium;
+
+    // 🔍 Filtriraj postove po premium filteru (true / false / null)
+    final filtrirani = katalog.katalogPostovi.where((kp) {
+      if (premiumFilter == null) return true;
+      return kp.premium == premiumFilter;
+    }).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,35 +51,36 @@ class _KatalogSectionState extends State<KatalogSection> {
         const SizedBox(height: 8),
         SizedBox(
           height: 250,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: katalog.katalogPostovi.length,
-            itemBuilder: (context, index) {
-              final katalogPost = katalog.katalogPostovi[index];
+          child: filtrirani.isEmpty
+              ? const Center(child: Text("Nema postova."))
+              : ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: filtrirani.length,
+                  itemBuilder: (context, index) {
+                    final katalogPost = filtrirani[index];
 
-              return PostCard(
-                katalogPost: katalogPost,
-                onTap: () async {
-                  final post = await _postProvider.getById(katalogPost.postId);
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PostDetailScreen(post: post),
-                    ),
-                  );
-                  setState(() {}); // osvježi katalog
-                  RecommendedSectionState.instance
-                      ?.refreshRecommended(); // ⚠️ osvježi preporučene
-                },
-                onFavoriteToggle: () {
-                  final recommendedState = context
-                      .findAncestorStateOfType<RecommendedSectionState>();
-                  recommendedState?.refreshRecommended();
-                },
-              );
-            },
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-          ),
+                    return PostCard(
+                      katalogPost: katalogPost,
+                      onTap: () async {
+                        final post = await _postProvider.getById(
+                          katalogPost.postId,
+                        );
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PostDetailScreen(post: post),
+                          ),
+                        );
+                        setState(() {});
+                        RecommendedSectionState.instance?.refreshRecommended();
+                      },
+                      onFavoriteToggle: () {
+                        RecommendedSectionState.instance?.refreshRecommended();
+                      },
+                    );
+                  },
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                ),
         ),
       ],
     );

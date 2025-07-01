@@ -54,17 +54,22 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
   }
 
   Future<Korisnik> updateMobile(int id, Map<String, dynamic> request) async {
-    var url = "$fullUrl/$id/UpdateMobile";
+    var url = "$fullUrl/$id/update-mobile";
     var uri = Uri.parse(url);
     var headers = getHeaders();
     var jsonRequest = jsonEncode(request);
 
-    var response = await http!.put(uri, headers: headers, body: jsonRequest);
+    var response = await http!.patch(
+      uri,
+      headers: headers,
+      body: jsonRequest,
+    ); // ← ispravljeno
+
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body);
       return fromJson(data);
     } else {
-      throw Exception("Failed to update mobile: ${response.statusCode}");
+      throw Exception(response.body);
     }
   }
 
@@ -78,7 +83,7 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
     if (isValidResponse(response)) {
       return fromJson(jsonDecode(response.body));
     } else {
-      throw Exception("Greška prilikom ažuriranja korisnika.");
+      throw Exception(response.body);
     }
   }
 
@@ -104,6 +109,60 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
 
     if (!isValidResponse(response)) {
       throw Exception("Reset failed: ${response.statusCode}");
+    }
+  }
+
+  Future<Map<String, dynamic>> validateUsernameEmail({
+    required String korisnickoIme,
+    required String email,
+    int? ignoreId,
+  }) async {
+    final uri = Uri.parse("$fullUrl/validate-username-email");
+    final headers = createHeaders();
+    final body = jsonEncode({
+      "korisnickoIme": korisnickoIme,
+      "email": email,
+      "ignoreId": ignoreId,
+    });
+
+    final response = await http!.post(uri, headers: headers, body: body);
+
+    if (response.statusCode == 400) {
+      final data = jsonDecode(response.body);
+      return {"valid": false, "errors": data["errors"]["userError"]};
+    }
+
+    if (isValidResponse(response)) {
+      return {"valid": true};
+    }
+
+    throw Exception("Validacija nije uspjela");
+  }
+
+  Future<Korisnik> promoteToPremium(int korisnikId) async {
+    final uri = Uri.parse("$fullUrl/$korisnikId/promote-to-premium");
+    final headers = getHeaders();
+
+    final response = await http!.patch(uri, headers: headers);
+
+    if (isValidResponse(response)) {
+      final data = jsonDecode(response.body);
+      return fromJson(data);
+    } else {
+      throw Exception("Greška prilikom promocije korisnika.");
+    }
+  }
+
+  Future<Korisnik> getById(int id) async {
+    final uri = Uri.parse("$fullUrl/$id");
+    final headers = getHeaders();
+
+    final response = await http!.get(uri, headers: headers);
+
+    if (isValidResponse(response)) {
+      return fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception("Greška prilikom dohvaćanja korisnika.");
     }
   }
 }

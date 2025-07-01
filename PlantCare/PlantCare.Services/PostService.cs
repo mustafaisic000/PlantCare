@@ -94,9 +94,15 @@ public class PostService
         return entity.Adapt<Model.Post>();
     }
 
-    public List<Model.Post> Recommend(int korisnikId)
+    public List<Model.Post> Recommend(int korisnikId, bool? premium = null)
     {
         var posts = _postRecommender.Recommend(korisnikId);
+
+        if (premium.HasValue)
+        {
+            posts = posts.Where(p => p.Premium == premium.Value).ToList();
+        }
+
         return posts.Select(p => new Model.Post
         {
             PostId = p.PostId,
@@ -112,6 +118,7 @@ public class PostService
             SubkategorijaNaziv = p.Subkategorija?.Naziv ?? ""
         }).ToList();
     }
+
 
 
 

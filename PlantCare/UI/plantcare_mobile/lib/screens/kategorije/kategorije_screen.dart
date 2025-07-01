@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:plantcare_mobile/common/widgets/home_header.dart';
 import 'package:plantcare_mobile/models/kategorija_model.dart';
+import 'package:plantcare_mobile/providers/filter_provider.dart';
 import 'package:plantcare_mobile/providers/kategorija_provider.dart';
-import 'package:plantcare_mobile/screens/kategorije/posts_screen.dart'; // <-- Add this import
+import 'package:plantcare_mobile/screens/kategorije/posts_screen.dart';
+import 'package:provider/provider.dart'; // <-- Add this import
 
 class KategorijeScreen extends StatefulWidget {
   const KategorijeScreen({super.key});
@@ -54,7 +56,11 @@ class KategorijeScreenState extends State<KategorijeScreen> {
           SafeArea(
             child: HomeHeader(
               onNotificationsTap: _openNotifications,
-              onFilterSelected: (_) {},
+              onFilterSelected: (_) {
+                setState(
+                  () {},
+                ); // ← ovo će osvježiti ekran i preuzeti novi filter
+              },
             ),
           ),
           Padding(
@@ -95,14 +101,21 @@ class KategorijeScreenState extends State<KategorijeScreen> {
                       final kategorija = _filtered[index];
                       return InkWell(
                         onTap: () {
+                          final selectedPremium = context
+                              .read<FilterProvider>()
+                              .premium;
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  PostsScreen(kategorija: kategorija),
+                              builder: (_) => PostsScreen(
+                                kategorija: kategorija,
+                                premiumFilter: selectedPremium, // ⬅️ dodaj ovo
+                              ),
                             ),
                           );
                         },
+
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
