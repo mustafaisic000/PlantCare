@@ -54,10 +54,9 @@ public class UplataService
 
          _servis.Insert(objToInsert);
 
-        // Mapiraj entitet
         var entity = Mapper.Map<Database.Uplata>(request);
-        entity.Datum = DateTime.Now; // Dodaj datum
-        entity.KorisnikId = korisnik.KorisnikId;  // Dodaj korisnicko ime
+        entity.Datum = DateTime.Now; 
+        entity.KorisnikId = korisnik.KorisnikId;  
 
         Context.Uplate.Add(entity);
         Context.SaveChanges();

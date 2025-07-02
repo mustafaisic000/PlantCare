@@ -4,7 +4,6 @@ import 'package:plantcare_mobile/common/services/notification_listener_mobile.da
 import 'package:plantcare_mobile/screens/auth/login_screen.dart';
 import 'package:plantcare_mobile/screens/auth/register_screen.dart';
 import 'package:plantcare_mobile/screens/auth/start_screen.dart';
-import 'package:plantcare_mobile/screens/auth/stripe_payment_screen.dart';
 import 'package:plantcare_mobile/screens/home/notifications_screen.dart';
 import 'package:plantcare_mobile/screens/main_screen.dart';
 import 'package:provider/provider.dart';
@@ -42,7 +41,6 @@ class PlantCareApp extends StatelessWidget {
         '/register': (context) => const RegisterScreen(),
         '/main': (context) => const MainScreen(),
         '/notifications': (context) => const NotificationsScreen(),
-        '/stripe-payment': (context) => const StripePaymentScreen(),
       },
     );
   }
