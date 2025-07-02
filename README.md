@@ -45,37 +45,30 @@ Za testiranje registracije korisnika potreban je validan email kako bi korisnik 
 
 ## 🚀 Pokretanje aplikacije
 
-### 1️⃣ Kloniranje repozitorija
-
 ```bash
+# 1️⃣ Kloniranje repozitorija
 git clone https://github.com/mustafaisic000/PlantCare.git
 
-### 2️⃣ Pokretanje API-ja i baze podataka (Docker)
-U glavnom PlantCare direktoriju pokreni:
-```bash
+# 2️⃣ Pokretanje API-ja i baze podataka (Docker)
+cd PlantCare
 docker-compose up --build
 
-### 3️⃣ Pokretanje desktop aplikacije (Admin)
-Otvori folder PlantCare/ui/plantcare_desktop u Visual Studio Code
-Instaliraj sve zavisnosti:
-```bash
+# Ovo će pokrenuti:
+# - ASP.NET Core backend (backend/)
+# - PostgreSQL bazu
+# - pgAdmin za vizuelni prikaz baze
+# 📌 Provjeri da li su portovi u .env datoteci pravilno podešeni
+
+# 3️⃣ Pokretanje desktop aplikacije (Admin)
+cd ui/plantcare_desktop
 flutter pub get
-Pokreni aplikaciju:
-```bash
 flutter run -d windows
-📌 Ako koristiš macOS ili Linux, koristi odgovarajući -d parametar (macos, linux).
+# 📌 Ako koristiš macOS ili Linux, koristi -d macos ili -d linux
 
-### 4️⃣ Pokretanje mobilne aplikacije (Korisnici)
-Otvori folder PlantCare/ui/plantcare_mobile u Visual Studio Code
-
-Instaliraj zavisnosti:
-```bash
+# 4️⃣ Pokretanje mobilne aplikacije (Korisnici)
+cd ../plantcare_mobile
 flutter pub get
-
-Pokreni Android/iOS emulator
-Pokreni aplikaciju:
-```bash
+# Pokreni Android/iOS emulator
 flutter run
-Ili bez debuggiranja:
-```bash
-CTRL + F5
+# Ili bez debuggiranja:
+# CTRL + F5
