@@ -19,8 +19,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         '/login': (context) => const LoginScreen(),
-        '/home': (context) =>
-            const WorkspaceScreen(), // ✅ Centralni ekran za sve sekcije
+        '/home': (context) => const WorkspaceScreen(),
       },
     );
   }

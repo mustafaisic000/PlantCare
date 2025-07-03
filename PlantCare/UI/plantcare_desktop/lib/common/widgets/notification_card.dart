@@ -35,9 +35,7 @@ class _NotificationCardState extends State<NotificationCard> {
         await provider.markAsRead(widget.notifikacija.notifikacijaId);
         setState(() => isRead = true);
         widget.onRefresh?.call();
-      } catch (_) {
-        // silent fail
-      }
+      } catch (_) {}
     }
   }
 

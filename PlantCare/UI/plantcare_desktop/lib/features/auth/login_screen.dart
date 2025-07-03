@@ -28,7 +28,6 @@ class _LoginScreenState extends State<LoginScreen> {
       final korisnik = await korisnikProvider.authenticate();
       if (!mounted) return;
       if (korisnik.ulogaId != 1) {
-        // Korisnik nije admin → prekini
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
@@ -47,7 +46,6 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      // Uloguj ako je admin
       AuthProvider.login(
         usernameController.text,
         passwordController.text,

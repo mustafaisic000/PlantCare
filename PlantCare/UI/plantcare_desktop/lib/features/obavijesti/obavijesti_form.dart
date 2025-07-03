@@ -40,14 +40,11 @@ class _ObavijestFormState extends State<ObavijestForm> {
     };
 
     if (widget.existing == null) {
-      // Insert
-      final korisnikId =
-          AuthProvider.korisnik?.korisnikId ?? 1; // fallback na admina
+      final korisnikId = AuthProvider.korisnik?.korisnikId ?? 1;
       data['korisnikId'] = korisnikId;
       data['koPrima'] = 'Mobilna';
       await _provider.insert(data);
     } else {
-      // Update
       await _provider.update(widget.existing!.obavijestId, data);
     }
 
@@ -69,7 +66,7 @@ class _ObavijestFormState extends State<ObavijestForm> {
             children: [
               TextFormField(
                 controller: naslovController,
-                maxLength: 100, // ← Ovdje ograničenje
+                maxLength: 100,
                 decoration: const InputDecoration(labelText: 'Naslov'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {

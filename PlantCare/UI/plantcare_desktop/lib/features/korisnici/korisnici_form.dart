@@ -166,7 +166,6 @@ class _KorisnikFormState extends State<KorisnikForm> {
       korisnickoImeError = null;
       emailError = null;
 
-      // 🔒 Backend validacija korisničkog imena i emaila
       final result = await provider.validateUsernameEmail(
         korisnickoIme: korisnickoImeController.text,
         email: emailController.text,
@@ -193,7 +192,6 @@ class _KorisnikFormState extends State<KorisnikForm> {
         return;
       }
 
-      // ✅ Insert ili update
       if (widget.korisnik == null) {
         await provider.insert(korisnikMap);
       } else {

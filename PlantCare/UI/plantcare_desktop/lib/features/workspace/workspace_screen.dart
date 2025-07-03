@@ -18,7 +18,7 @@ class WorkspaceScreen extends StatefulWidget {
 }
 
 class _WorkspaceScreenState extends State<WorkspaceScreen> {
-  String selectedSection = 'post'; // default prikaz
+  String selectedSection = 'post';
 
   Widget getSectionContent() {
     switch (selectedSection) {

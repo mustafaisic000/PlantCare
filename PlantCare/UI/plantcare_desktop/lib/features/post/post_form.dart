@@ -269,7 +269,7 @@ class _PostFormState extends State<PostForm> {
                             decoration: const InputDecoration(
                               labelText: "Sadržaj",
                               border: OutlineInputBorder(),
-                              counterText: "", // ukloni defaultni counter
+                              counterText: "",
                             ),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty)

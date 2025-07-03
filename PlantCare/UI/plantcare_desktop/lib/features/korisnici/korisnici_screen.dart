@@ -96,7 +96,7 @@ class _KorisniciScreenState extends State<KorisniciScreen> {
             width: 900,
             child: KorisnikForm(
               onClose: () async {
-                await loadData(); // odmah nakon dodavanja, učitaj podatke ponovo
+                await loadData();
               },
             ),
           ),
@@ -219,7 +219,7 @@ class _KorisniciScreenState extends State<KorisniciScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Korisnik je deaktiviran.")),
                   );
-                  await loadData(); // reload tabele
+                  await loadData();
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text("Greška: ${e.toString()}")),
