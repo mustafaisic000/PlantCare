@@ -40,9 +40,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _startSignalR() async {
     _hubConnection = HubConnectionBuilder()
-        .withUrl(
-          'http://10.0.2.2:6089/signalrHub',
-        ) // koristi IP ako si na pravom uređaju
+        .withUrl('http://10.0.2.2:6089/signalrHub')
         .withAutomaticReconnect()
         .build();
 

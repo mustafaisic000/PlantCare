@@ -137,7 +137,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  // ovdje možeš prebaciti korisnika na premium ekran ako želiš
                 },
                 child: const Text('Saznaj više'),
               ),
@@ -151,8 +150,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
     return WillPopScope(
       onWillPop: () async {
-        Navigator.pop(context, _post); // vrati ažurirani post kad klikne nazad
-        return false; // spriječi default zatvaranje jer smo ga već zatvorili
+        Navigator.pop(context, _post);
+        return false;
       },
       child: Scaffold(
         appBar: AppBar(
@@ -170,9 +169,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             children: [
               SizedBox(
                 width: double.infinity,
-                height:
-                    MediaQuery.of(context).size.height *
-                    0.45, // ~45% visine ekrana
+                height: MediaQuery.of(context).size.height * 0.45,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.memory(
@@ -348,7 +345,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             horizontal: 12,
                             vertical: 14,
                           ),
-                          counterText: '', // onemogućimo default prikaz
+                          counterText: '',
                         ),
                         buildCounter:
                             (

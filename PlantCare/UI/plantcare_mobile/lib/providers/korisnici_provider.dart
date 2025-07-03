@@ -59,11 +59,7 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
     var headers = getHeaders();
     var jsonRequest = jsonEncode(request);
 
-    var response = await http!.patch(
-      uri,
-      headers: headers,
-      body: jsonRequest,
-    ); // ← ispravljeno
+    var response = await http!.patch(uri, headers: headers, body: jsonRequest);
 
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body);

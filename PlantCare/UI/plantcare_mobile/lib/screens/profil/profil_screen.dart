@@ -21,9 +21,7 @@ class ProfilScreenState extends State<ProfilScreen> {
     loadProfil();
   }
 
-  Future<void> loadProfil() async {
-    // Kasnije dohvat korisnika ako treba
-  }
+  Future<void> loadProfil() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +68,7 @@ class ProfilScreenState extends State<ProfilScreen> {
                   );
 
                   if (result == true) {
-                    setState(() {}); // Trigger rebuild
+                    setState(() {});
                   }
                 },
 

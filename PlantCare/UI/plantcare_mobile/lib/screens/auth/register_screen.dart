@@ -109,7 +109,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     setState(() => isLoading = true);
 
-    // 1. ✅ Provjera korisničkog imena i emaila
     final result = await _provider.validateUsernameEmail(
       korisnickoIme: korisnickoImeController.text,
       email: emailController.text,
@@ -137,7 +136,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    // 2. 📦 Kreiranje requesta
     final Map<String, dynamic> request = {
       "ime": imeController.text,
       "prezime": prezimeController.text,
@@ -165,7 +163,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                Navigator.pop(context); // back to login
+                Navigator.pop(context);
               },
               child: const Text("OK"),
             ),

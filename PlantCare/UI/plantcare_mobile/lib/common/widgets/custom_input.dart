@@ -37,7 +37,7 @@ class _CustomInputState extends State<CustomInput> {
       controller: widget.controller,
       obscureText: widget.obscureText ? _isObscured : false,
       keyboardType: widget.keyboardType,
-      maxLength: widget.maxLength, // npr. 70 karaktera
+      maxLength: widget.maxLength,
       decoration: InputDecoration(
         labelText: widget.label,
         border: const OutlineInputBorder(),

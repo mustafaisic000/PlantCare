@@ -26,7 +26,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final korisnik = await KorisnikProvider().authenticate();
 
-      // ⛔ Provjera statusa
       if (korisnik.status == false) {
         showDialog(
           context: context,
@@ -44,10 +43,9 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         );
-        return; // NE dozvoljavaj dalje logovanje
+        return;
       }
 
-      // ✅ Dozvoljeno logovanje
       AuthProvider.login(
         _usernameController.text,
         _passwordController.text,

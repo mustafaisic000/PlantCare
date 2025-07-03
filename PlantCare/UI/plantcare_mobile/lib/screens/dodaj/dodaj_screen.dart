@@ -188,7 +188,7 @@ class DodajPostScreenState extends State<DodajPostScreen> {
       premium = false;
       subkategorijaId = null;
       showSlikaError = false;
-      _autoValidateMode = AutovalidateMode.disabled; // 👈 Ovdje resetuješ
+      _autoValidateMode = AutovalidateMode.disabled;
     });
 
     showDialog(

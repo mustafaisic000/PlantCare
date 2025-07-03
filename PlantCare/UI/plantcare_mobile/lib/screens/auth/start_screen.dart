@@ -7,7 +7,7 @@ class StartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = const Color(0xFF50C878); // Zeleni Kutak zelena
+    final primaryColor = const Color(0xFF50C878);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F3EF),
@@ -26,13 +26,13 @@ class StartScreen extends StatelessWidget {
                     fit: BoxFit.contain,
                   ),
                 ),
-                const SizedBox(height: 16), // ⬅️ Manji razmak
+                const SizedBox(height: 16),
                 Text(
                   "Dobro došli u ZeleniKutak!",
                   style: GoogleFonts.poppins(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: primaryColor, // ⬅️ ZELENA BOJA
+                    color: primaryColor,
                   ),
                   textAlign: TextAlign.center,
                 ),

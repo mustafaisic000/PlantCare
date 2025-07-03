@@ -39,24 +39,20 @@ class _StripePaymentWidgetState extends State<StripePaymentWidget> {
 
       final korisnikId = AuthProvider.korisnik?.korisnikId;
       if (korisnikId != null) {
-        // ✅ Promjena uloge
         final updatedKorisnik = await _korisnikProvider.promoteToPremium(
           korisnikId,
         );
 
-        // ✅ Ubaci uplatu
         await _uplataProvider.insert({
           'korisnikId': korisnikId,
           'iznos': 10.0,
           'datumUplate': DateTime.now().toIso8601String(),
         });
 
-        // ✅ Ažuriraj lokalnog korisnika
         AuthProvider.korisnik = updatedKorisnik;
 
         if (!mounted) return;
 
-        // ✅ Prikaz poruke o uspjehu i callback
         await showDialog(
           context: context,
           builder: (_) => AlertDialog(
@@ -67,7 +63,7 @@ class _StripePaymentWidgetState extends State<StripePaymentWidget> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Zatvori AlertDialog
+                  Navigator.of(context).pop();
                 },
                 child: const Text("U redu"),
               ),
@@ -75,8 +71,8 @@ class _StripePaymentWidgetState extends State<StripePaymentWidget> {
           ),
         );
 
-        widget.onSuccess(); // Osvježi sadržaj
-        Navigator.of(context).pop(); // Zatvori StripePaymentWidget modal
+        widget.onSuccess();
+        Navigator.of(context).pop();
       }
     } on StripeException catch (e) {
       if (!mounted) return;

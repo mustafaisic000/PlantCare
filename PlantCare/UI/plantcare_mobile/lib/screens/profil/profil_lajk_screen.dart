@@ -117,7 +117,7 @@ class _ProfilLajkoviPostScreenState extends State<ProfilLajkoviPostScreen> {
                               builder: (_) => PostDetailScreen(post: post),
                             ),
                           );
-                          _fetchLikedPosts(); // refresh
+                          _fetchLikedPosts();
                         },
                         onFavoriteToggle: _fetchLikedPosts,
                       );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FilterProvider extends ChangeNotifier {
-  String _selected = "Sve"; // default
+  String _selected = "Sve";
   bool? _premium;
 
   String get selected => _selected;

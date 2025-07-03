@@ -7,7 +7,7 @@ class Katalog {
   bool aktivan;
   String korisnickoIme;
 
-  List<KatalogPost> katalogPostovi; // <- OVO DODAJ
+  List<KatalogPost> katalogPostovi;
 
   Katalog({
     required this.katalogId,

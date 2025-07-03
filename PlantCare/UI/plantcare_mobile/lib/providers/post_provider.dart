@@ -27,7 +27,7 @@ class PostProvider extends BaseProvider<Post> {
     var url = fullUrl!;
 
     if (filter != null) {
-      print("FILTER MAP: $filter"); // <-- DODAJ OVDJE
+      print("FILTER MAP: $filter");
       var queryString = getQueryString(filter);
       print("POST FILTERS URL: $url?$queryString");
       url = "$url?$queryString";
@@ -78,7 +78,6 @@ class PostProvider extends BaseProvider<Post> {
     final uri = Uri.parse("$fullUrl/recommend/$korisnikId");
     final headers = createHeaders();
 
-    // Dodaj premium kao query parametar ako je specificiran
     final uriWithQuery = premium != null
         ? uri.replace(queryParameters: {"premium": premium.toString()})
         : uri;

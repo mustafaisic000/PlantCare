@@ -34,7 +34,7 @@ class RecommendedSectionState extends State<RecommendedSection> {
   }
 
   void _onFilterChanged() {
-    refreshRecommended(); // reaguje kad se filter promijeni
+    refreshRecommended();
   }
 
   Future<void> loadRecommended() async {
