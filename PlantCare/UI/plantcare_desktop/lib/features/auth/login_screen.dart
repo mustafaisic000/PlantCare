@@ -119,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const Text(
-                          'Dobrodošli nazad!',
+                          'Dobrodošli nazad u Zeleni Kutak!',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 24,

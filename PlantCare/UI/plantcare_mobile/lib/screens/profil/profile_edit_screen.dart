@@ -151,11 +151,30 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
       final oldUsername = korisnik.korisnickoIme;
       final newUsername = updated.korisnickoIme;
+      final isUsernameChanged = oldUsername != newUsername;
+      final isPasswordChanged = lozinkaController.text.isNotEmpty;
 
       AuthProvider.korisnik = updated;
 
-      if (oldUsername != newUsername) {
+      if (isUsernameChanged || isPasswordChanged) {
         if (!mounted) return;
+
+        await showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text("Sigurnosna provjera"),
+            content: const Text(
+              "Promijenili ste korisničko ime ili lozinku. Radi sigurnosti, potrebno je da se ponovo prijavite.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text("U redu"),
+              ),
+            ],
+          ),
+        );
+
         AuthProvider.logout(context);
         if (!mounted) return;
         Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);

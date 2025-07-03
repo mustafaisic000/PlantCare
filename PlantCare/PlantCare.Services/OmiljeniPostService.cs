@@ -1,5 +1,4 @@
-﻿// PlantCare.Services/OmiljeniPostService.cs
-using MapsterMapper;
+﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using PlantCare.Model;
 using PlantCare.Model.Requests;

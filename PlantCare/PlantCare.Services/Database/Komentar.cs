@@ -12,7 +12,6 @@ public class Komentar
 
     public DateTime DatumKreiranja { get; set; } = DateTime.Now;  
 
-    // Strani ključevi
     [Required]
     public int KorisnikId { get; set; }     
     public virtual Korisnik Korisnik { get; set; }

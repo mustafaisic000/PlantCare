@@ -186,24 +186,28 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 32),
               TextField(
                 controller: _usernameController,
+                maxLength: 50,
                 decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.person),
                   hintText: "Korisničko ime",
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(borderSide: BorderSide.none),
+                  counterText: '', // uklanja onaj "0/20" indikator ispod
                 ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _passwordController,
                 obscureText: true,
+                maxLength: 50,
                 decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.lock),
                   hintText: "Šifra",
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(borderSide: BorderSide.none),
+                  counterText: '',
                 ),
               ),
               Align(

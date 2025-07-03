@@ -59,10 +59,8 @@ public class KatalogService
         if (katalog == null)
             throw new Exception("Katalog not found");
 
-        // First remove all related KatalogPost entries
         Context.RemoveRange(katalog.KatalogPostovi);
 
-        // Then remove the katalog itself
         Context.Remove(katalog);
 
         Context.SaveChanges();

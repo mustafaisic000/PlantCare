@@ -48,7 +48,6 @@ namespace PlantCare.Services
 
         protected virtual IQueryable<TDbEntity> AddFilter(TSearch search, IQueryable<TDbEntity> query)
         {
-            // default: no filtering
             return query;
         }
 

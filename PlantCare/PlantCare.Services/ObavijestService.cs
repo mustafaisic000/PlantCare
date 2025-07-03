@@ -1,5 +1,4 @@
-﻿// PlantCare.Services/ObavijestService.cs
-using MapsterMapper;
+﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using PlantCare.Model;
 using PlantCare.Model.Requests;

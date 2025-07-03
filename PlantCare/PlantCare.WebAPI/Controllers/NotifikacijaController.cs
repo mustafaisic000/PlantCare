@@ -28,7 +28,7 @@ namespace PlantCare.WebAPI.Controllers
             try
             {
                 _notifikacijaService.Delete(id);
-                return NoContent(); // 204
+                return NoContent(); 
             }
             catch (Exception ex)
             {

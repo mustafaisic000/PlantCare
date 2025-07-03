@@ -9,6 +9,5 @@ namespace PlantCare.Model.SearchObjects;
 public class UplataSearchObject : BaseSearchObject
 {
     public int? KorisnikId { get; set; }     
-    public string? TipPretplate { get; set; }   // npr. "mjesečna", "godišnja"
 
 }

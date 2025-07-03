@@ -58,7 +58,7 @@ class _StripePaymentWidgetState extends State<StripePaymentWidget> {
           builder: (_) => AlertDialog(
             title: const Text("Uspješno ste nadograđeni!"),
             content: const Text(
-              "Sada ste premium korisnik i imate pristup svim premium objavama.",
+              "Sada ste premium korisnik i imate pristup svim premium objavama. Također, možete kreirati premium objave.",
             ),
             actions: [
               TextButton(
