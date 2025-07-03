@@ -513,10 +513,17 @@ class _KorisnikFormState extends State<KorisnikForm> {
           switch (label) {
             case "Ime":
             case "Prezime":
-            case "Email":
             case "Korisničko ime":
               if (length > 100) {
                 return "Max 100 karaktera";
+              }
+              break;
+            case "Email":
+              if (length > 100) {
+                return "Max 100 karaktera";
+              }
+              if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$').hasMatch(value.trim())) {
+                return "Unesite ispravan email";
               }
               break;
             case "Telefon":
@@ -529,6 +536,7 @@ class _KorisnikFormState extends State<KorisnikForm> {
               if (length > 20) return "Max 20 karaktera";
               break;
           }
+
           return null;
         },
       ),

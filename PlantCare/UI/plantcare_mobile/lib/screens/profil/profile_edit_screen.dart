@@ -203,6 +203,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
         if (label == "Email") {
           if (emailError != null) return emailError;
+          if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$').hasMatch(value!.trim())) {
+            return "Unesite ispravan email";
+          }
         }
 
         if (label == "Šifra" && value!.isNotEmpty && value.length < 6) {
