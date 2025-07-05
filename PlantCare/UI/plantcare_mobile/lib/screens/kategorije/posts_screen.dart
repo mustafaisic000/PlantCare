@@ -204,17 +204,9 @@ class _PostsScreenState extends State<PostsScreen> {
                               ),
                             );
 
-                            if (result == true) {
+                            // Kad god se vrati rezultat, resetujemo i ponovo učitavamo listu
+                            if (result != null) {
                               _fetchPosts(reset: true);
-                            } else if (result is Post) {
-                              final index = _posts.indexWhere(
-                                (p) => p.postId == result.postId,
-                              );
-                              if (index != -1) {
-                                setState(() {
-                                  _posts[index] = result;
-                                });
-                              }
                             }
                           },
                         );

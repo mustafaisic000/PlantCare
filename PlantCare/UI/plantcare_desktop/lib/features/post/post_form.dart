@@ -264,7 +264,7 @@ class _PostFormState extends State<PostForm> {
                           TextFormField(
                             controller: sadrzajController,
                             maxLines: 4,
-                            maxLength: 250,
+                            maxLength: 350,
                             readOnly: widget.readOnly,
                             decoration: const InputDecoration(
                               labelText: "Sadržaj",
@@ -274,8 +274,8 @@ class _PostFormState extends State<PostForm> {
                             validator: (value) {
                               if (value == null || value.trim().isEmpty)
                                 return "Unesite sadržaj";
-                              if (value.length > 250)
-                                return "Maksimalno 250 karaktera";
+                              if (value.length > 350)
+                                return "Maksimalno 350 karaktera";
                               return null;
                             },
                           ),
@@ -284,7 +284,7 @@ class _PostFormState extends State<PostForm> {
                             child: Padding(
                               padding: const EdgeInsets.only(top: 4),
                               child: Text(
-                                "${sadrzajController.text.length} / 250",
+                                "${sadrzajController.text.length} / 350",
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey,

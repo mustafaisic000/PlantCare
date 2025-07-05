@@ -12,7 +12,7 @@ public partial class Post
     [Required, MaxLength(100)]
     public string Naslov { get; set; }
 
-    [Required, MaxLength(250)]
+    [Required, MaxLength(350)]
     public string Sadrzaj { get; set; }      
 
     public byte[] Slika { get; set; }    

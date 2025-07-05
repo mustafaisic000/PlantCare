@@ -236,6 +236,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           return "Šifre se ne poklapaju";
         }
 
+        if (label == "Telefon") {
+          final pattern = r'^\d{3}-\d{3}-\d{3,4}$';
+          final regExp = RegExp(pattern);
+
+          if (!regExp.hasMatch(value!.trim())) {
+            return "Unesite validan broj telefona (npr. 060-123-456)";
+          }
+        }
+
         return null;
       },
     );

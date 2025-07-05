@@ -265,14 +265,23 @@ namespace PlantCare.Services
         {
             var entity = base.Insert(request);
 
-            var insertObj = new NotifikacijaInsertRequest
+            var admini = Context.Korisnici
+     .Where(x => x.UlogaId == 1 && x.Status == true)
+     .ToList();
+
+            foreach (var admin in admini)
             {
-                KorisnikId = entity.KorisnikId,
-                Naslov = "Novi korisnik",
-                Sadrzaj = $"{entity.KorisnickoIme} se pridružio/la platformi.",
-                KoPrima = "Desktop"
-            };
-            _notificationservice.Insert(insertObj);
+                var insertObj = new NotifikacijaInsertRequest
+                {
+                    KorisnikId = admin.KorisnikId, // 👈 ADMIN je primalac
+                    Naslov = "Novi korisnik",
+                    Sadrzaj = $"{entity.KorisnickoIme} se pridružio/la platformi.",
+                    KoPrima = "Desktop"
+                };
+
+                _notificationservice.Insert(insertObj);
+            }
+
 
             var emailObj = new Notifier
             {

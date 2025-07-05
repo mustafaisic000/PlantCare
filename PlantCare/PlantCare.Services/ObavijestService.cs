@@ -45,15 +45,23 @@ public class ObavijestService
 
         if (request.Aktivan)
         {
-            var insertObj = new NotifikacijaInsertRequest
-            {
-                KorisnikId = request.KorisnikId,
-                Naslov = "Nova obavijest",
-                Sadrzaj = "Imate novu obavijest od administratora",
-                KoPrima = "Mobilna"
-            };
+            var korisnici = Context.Korisnici
+    .Where(x => x.Status == true)
+    .ToList();
 
-            _notificationservice.Insert(insertObj);
+            // Kreiraj po jednu notifikaciju za svakog
+            foreach (var korisnik in korisnici)
+            {
+                var insertObj = new NotifikacijaInsertRequest
+                {
+                    KorisnikId = korisnik.KorisnikId,
+                    Naslov = "Nova obavijest",
+                    Sadrzaj = "Imate novu obavijest od administratora",
+                    KoPrima = "Mobilna"
+                };
+
+                _notificationservice.Insert(insertObj);
+            }
         }
 
         return entity;
@@ -64,21 +72,30 @@ public class ObavijestService
         var oldEntity = Context.Obavijesti.AsNoTracking().FirstOrDefault(x => x.ObavijestId == id);
         var updated = base.Update(id, request);
 
+        // Ako je obavijest upravo postala aktivna
         if (oldEntity != null && !oldEntity.Aktivan && request.Aktivan)
         {
-            var insertObj = new NotifikacijaInsertRequest
-            {
-                KorisnikId = oldEntity.KorisnikId,
-                Naslov = "Obavijest je aktivirana",
-                Sadrzaj = "Administrator je aktivirao obavijest",
-                KoPrima = "Mobilna"
-            };
+            var korisnici = Context.Korisnici
+                .Where(x => x.Status == true)
+                .ToList();
 
-            _notificationservice.Insert(insertObj);
+            foreach (var korisnik in korisnici)
+            {
+                var insertObj = new NotifikacijaInsertRequest
+                {
+                    KorisnikId = korisnik.KorisnikId,
+                    Naslov = "Obavijest je aktivirana",
+                    Sadrzaj = "Administrator je aktivirao novu obavijest",
+                    KoPrima = "Mobilna"
+                };
+
+                _notificationservice.Insert(insertObj);
+            }
         }
 
         return updated;
     }
+
 
 
 

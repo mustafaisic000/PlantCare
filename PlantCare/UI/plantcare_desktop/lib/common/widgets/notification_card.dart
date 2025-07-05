@@ -54,9 +54,7 @@ class _NotificationCardState extends State<NotificationCard> {
           children: [
             Text(widget.notifikacija.sadrzaj),
             const SizedBox(height: 16),
-            if (widget.notifikacija.korisnickoIme != null)
-              Text("Korisnik: ${widget.notifikacija.korisnickoIme!}"),
-            const SizedBox(height: 10),
+            // Uklonjeno korisnickoIme
             Text("Vrijeme: ${formatDateAndHours(widget.notifikacija.datum)}"),
           ],
         ),
@@ -105,17 +103,7 @@ class _NotificationCardState extends State<NotificationCard> {
                   const SizedBox(height: 8),
                   Text(widget.notifikacija.sadrzaj),
                   const SizedBox(height: 12),
-                  if (widget.notifikacija.korisnickoIme != null)
-                    Row(
-                      children: [
-                        const Icon(Icons.person_outline, size: 16),
-                        const SizedBox(width: 6),
-                        Text(
-                          "Korisnik: ${widget.notifikacija.korisnickoIme!}",
-                          style: const TextStyle(color: Colors.black54),
-                        ),
-                      ],
-                    ),
+                  // Uklonjena linija za korisnickoIme
                 ],
               ),
             ),

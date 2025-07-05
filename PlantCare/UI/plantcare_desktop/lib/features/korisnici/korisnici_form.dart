@@ -526,7 +526,15 @@ class _KorisnikFormState extends State<KorisnikForm> {
               break;
             case "Telefon":
               if (length > 20) return "Max 20 karaktera";
+
+              final pattern = r'^\d{3}-\d{3}-\d{3,4}$';
+              final regExp = RegExp(pattern);
+
+              if (!regExp.hasMatch(value.trim())) {
+                return "Validan format: 060-123-456";
+              }
               break;
+
             case "Šifra":
               if (widget.korisnik == null && length < 6) {
                 return "Minimalno 6 karaktera";

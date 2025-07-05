@@ -6,6 +6,7 @@ import 'package:plantcare_mobile/screens/profil/profil_omiljeni_post_screen.dart
 import 'package:plantcare_mobile/screens/profil/profil_post_screen.dart';
 import 'package:plantcare_mobile/screens/profil/profile_details_screen.dart';
 import 'package:plantcare_mobile/screens/profil/profile_edit_screen.dart';
+import 'package:plantcare_mobile/common/services/notification_listener_mobile.dart';
 
 class ProfilScreen extends StatefulWidget {
   const ProfilScreen({super.key});
@@ -32,15 +33,15 @@ class ProfilScreenState extends State<ProfilScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Center(
                 child: Text(
                   "Profil",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Center(
                 child: ClipOval(
                   child: SizedBox(
@@ -53,37 +54,82 @@ class ProfilScreenState extends State<ProfilScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              Text(
-                '${korisnik?.ime ?? ''} ${korisnik?.prezime ?? ''}',
-                style: const TextStyle(fontSize: 18),
+              Center(
+                child: Text(
+                  '${korisnik?.ime ?? ''} ${korisnik?.prezime ?? ''}',
+                  style: const TextStyle(fontSize: 18),
+                ),
               ),
               const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ProfileEditScreen(),
-                    ),
-                  );
+              Center(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ProfileEditScreen(),
+                      ),
+                    );
 
-                  if (result == true) {
-                    setState(() {});
-                  }
-                },
+                    if (!mounted) return;
 
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF50C878),
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(100, 36),
+                    if (result == true) {
+                      setState(() {});
+                    }
+                  },
+
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF50C878),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(120, 36),
+                  ),
+                  child: const Text("Uredi profil"),
                 ),
-                child: const Text("Edit"),
               ),
               const SizedBox(height: 32),
-              _buildOption("Postovi"),
-              _buildOption("Likes"),
-              _buildOption("Omiljeni"),
-              _buildOption("Informacije"),
+
+              _buildOptionCard("📄 Moji postovi", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProfilPostScreen()),
+                );
+              }),
+              _buildOptionCard("❤️ Lajkovi", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ProfilLajkoviPostScreen(),
+                  ),
+                );
+              }),
+              _buildOptionCard("⭐ Omiljeni", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ProfilOmiljeniPostScreen(),
+                  ),
+                );
+              }),
+              _buildOptionCard("ℹ️ Informacije", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ProfileDetailScreen(),
+                  ),
+                );
+              }),
+
+              const SizedBox(height: 32),
+
+              ElevatedButton.icon(
+                onPressed: () => _confirmLogout(context),
+                icon: const Icon(Icons.logout),
+                label: const Text("Odjavi se"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  minimumSize: const Size(double.infinity, 48),
+                ),
+              ),
             ],
           ),
         ),
@@ -91,47 +137,49 @@ class ProfilScreenState extends State<ProfilScreen> {
     );
   }
 
-  Widget _buildOption(String title) {
-    return InkWell(
-      onTap: () {
-        switch (title) {
-          case "Postovi":
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProfilPostScreen()),
-            );
-            break;
-          case "Likes":
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ProfilLajkoviPostScreen(),
-              ),
-            );
-            break;
-          case "Omiljeni":
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ProfilOmiljeniPostScreen(),
-              ),
-            );
-            break;
-          case "Informacije":
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProfileDetailScreen()),
-            );
-            break;
-        }
-      },
-
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        child: Row(
-          children: [Text(title, style: const TextStyle(fontSize: 16))],
+  Widget _buildOptionCard(String title, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ListTile(
+          onTap: onTap,
+          title: Text(
+            title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
+          trailing: const Icon(Icons.chevron_right),
         ),
       ),
     );
+  }
+
+  void _confirmLogout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Odjava"),
+        content: const Text("Da li ste sigurni da se želite odjaviti?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text("Otkaži"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text("Odjavi se"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      AuthProvider.korisnik = null;
+      AuthProvider.username = '';
+      AuthProvider.password = '';
+      NotificationListenerMobile.instance.resetUnreadCount();
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+    }
   }
 }

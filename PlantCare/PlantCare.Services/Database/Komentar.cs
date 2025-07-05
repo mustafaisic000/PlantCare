@@ -7,7 +7,7 @@ public class Komentar
     [Key]
     public int KomentarId { get; set; }
 
-    [Required, MaxLength(200)]
+    [Required, MaxLength(350)]
     public string Sadrzaj { get; set; }      
 
     public DateTime DatumKreiranja { get; set; } = DateTime.Now;  

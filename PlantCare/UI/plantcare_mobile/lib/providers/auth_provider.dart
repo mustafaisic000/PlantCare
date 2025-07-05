@@ -1,3 +1,4 @@
+import 'package:plantcare_mobile/common/services/notification_listener_mobile.dart';
 import 'package:plantcare_mobile/models/korisnici_model.dart';
 import 'package:flutter/material.dart';
 
@@ -18,5 +19,6 @@ class AuthProvider {
     username = user;
     password = pass;
     korisnik = loggedInUser;
+    NotificationListenerMobile.instance.refresh();
   }
 }

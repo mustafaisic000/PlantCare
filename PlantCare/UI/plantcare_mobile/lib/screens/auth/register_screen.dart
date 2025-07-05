@@ -226,6 +226,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
           return "Max $maxLength karaktera";
         }
 
+        if (label == "Telefon" || label == "Broj telefona") {
+          final pattern = r'^\d{3}-\d{3}-\d{3,4}$';
+          final regExp = RegExp(pattern);
+
+          if (!regExp.hasMatch(value.trim())) {
+            return "Unesite validan broj telefona (npr. 060-123-456)";
+          }
+        }
+
         return null;
       },
     );
