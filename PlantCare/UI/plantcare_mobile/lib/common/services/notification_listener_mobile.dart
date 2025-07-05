@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:plantcare_mobile/providers/auth_provider.dart';
+import 'package:plantcare_mobile/providers/notifikacija_provider.dart';
 import 'package:signalr_core/signalr_core.dart';
 
 class NotificationListenerMobile extends ChangeNotifier {
@@ -8,24 +10,42 @@ class NotificationListenerMobile extends ChangeNotifier {
 
   late HubConnection _hubConnection;
   int _unreadCount = 0;
+  final NotifikacijaProvider _provider = NotifikacijaProvider();
 
   int get unreadCount => _unreadCount;
 
   Future<void> init() async {
+    await refresh();
+
     _hubConnection = HubConnectionBuilder()
         .withUrl('http://10.0.2.2:6089/signalrHub')
         .withAutomaticReconnect()
         .build();
 
-    _hubConnection.on('NovaPoruka', (args) {
+    _hubConnection.on('NovaPoruka', (args) async {
       final message = args?.first.toString();
       if (message == "Mobilna") {
-        _unreadCount++;
-        notifyListeners();
+        await refresh();
       }
     });
 
     await _hubConnection.start();
+  }
+
+  Future<void> refresh() async {
+    final korisnikId = AuthProvider.korisnik?.korisnikId;
+    if (korisnikId == null) return;
+
+    final result = await _provider.get(
+      filter: {
+        'koPrima': 'Mobilna',
+        'korisnikId': korisnikId,
+        'procitano': false,
+      },
+    );
+
+    _unreadCount = result.result.length;
+    notifyListeners();
   }
 
   void resetUnreadCount() {

@@ -59,11 +59,7 @@ class _ReportScreenState extends State<ReportScreen> {
   void _viewDetails(Report report) {
     showDialog(
       context: context,
-      builder: (_) => ReportForm(
-        report: report,
-        // readOnly: true, // možeš obrisati ili ostaviti ako budeš koristio readOnly
-        onSuccess: loadData,
-      ),
+      builder: (_) => ReportForm(report: report, onSuccess: loadData),
     );
   }
 

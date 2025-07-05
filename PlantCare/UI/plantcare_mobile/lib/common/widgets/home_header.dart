@@ -4,7 +4,7 @@ import 'package:plantcare_mobile/providers/auth_provider.dart';
 import 'package:plantcare_mobile/providers/filter_provider.dart';
 import 'package:provider/provider.dart';
 
-class HomeHeader extends StatelessWidget {
+class HomeHeader extends StatefulWidget {
   final VoidCallback onNotificationsTap;
   final Function(String) onFilterSelected;
 
@@ -14,6 +14,11 @@ class HomeHeader extends StatelessWidget {
     required this.onFilterSelected,
   });
 
+  @override
+  State<HomeHeader> createState() => _HomeHeaderState();
+}
+
+class _HomeHeaderState extends State<HomeHeader> {
   void _confirmLogout(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -32,6 +37,8 @@ class HomeHeader extends StatelessWidget {
         ],
       ),
     );
+
+    if (!mounted) return;
 
     if (confirmed == true) {
       AuthProvider.korisnik = null;
@@ -72,48 +79,16 @@ class HomeHeader extends StatelessWidget {
                     icon: const Icon(Icons.menu),
                     onSelected: (value) {
                       filterProvider.setFilter(value);
-                      onFilterSelected(value);
+                      widget.onFilterSelected(value);
                     },
                     itemBuilder: (_) => [
-                      PopupMenuItem(
-                        value: "Sve",
-                        child: Row(
-                          children: [
-                            if (selected == "Sve")
-                              const Icon(Icons.check, size: 16),
-                            if (selected == "Sve") const SizedBox(width: 8),
-                            const Text("Sve"),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: "Premium",
-                        child: Row(
-                          children: [
-                            if (selected == "Premium")
-                              const Icon(Icons.check, size: 16),
-                            if (selected == "Premium") const SizedBox(width: 8),
-                            const Text("Premium"),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: "Standard",
-                        child: Row(
-                          children: [
-                            if (selected == "Standard")
-                              const Icon(Icons.check, size: 16),
-                            if (selected == "Standard")
-                              const SizedBox(width: 8),
-                            const Text("Standard"),
-                          ],
-                        ),
-                      ),
+                      _buildMenuItem("Sve", selected),
+                      _buildMenuItem("Premium", selected),
+                      _buildMenuItem("Standard", selected),
                     ],
                   );
                 },
               ),
-
               Row(
                 children: [
                   Stack(
@@ -123,7 +98,7 @@ class HomeHeader extends StatelessWidget {
                         onPressed: () {
                           NotificationListenerMobile.instance
                               .resetUnreadCount();
-                          onNotificationsTap();
+                          widget.onNotificationsTap();
                         },
                       ),
                       Positioned(
@@ -167,6 +142,19 @@ class HomeHeader extends StatelessWidget {
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _buildMenuItem(String value, String selected) {
+    return PopupMenuItem(
+      value: value,
+      child: Row(
+        children: [
+          if (selected == value) const Icon(Icons.check, size: 16),
+          if (selected == value) const SizedBox(width: 8),
+          Text(value),
         ],
       ),
     );

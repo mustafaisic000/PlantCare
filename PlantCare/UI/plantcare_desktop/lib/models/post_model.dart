@@ -28,7 +28,7 @@ class Post {
       postId: json['postId'],
       naslov: json['naslov'],
       sadrzaj: json['sadrzaj'],
-      slika: json['slika'], // može biti null
+      slika: json['slika'],
       datumKreiranja: DateTime.parse(json['datumKreiranja']),
       korisnikId: json['korisnikId'],
       korisnickoIme: json['korisnickoIme'],

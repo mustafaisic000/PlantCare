@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:plantcare_desktop/models/notifikacija_model.dart';
 import 'base_provider.dart';
+import 'package:plantcare_desktop/common/services/notification_listener_desktop.dart';
 
 class NotifikacijaProvider extends BaseProvider<Notifikacija> {
   NotifikacijaProvider() : super('Notifikacija');
@@ -20,6 +21,8 @@ class NotifikacijaProvider extends BaseProvider<Notifikacija> {
     if (!isValidResponse(response)) {
       throw Exception(utf8.decode(response.bodyBytes));
     }
+
+    await NotificationListenerDesktop.instance.refresh();
   }
 
   Future<void> markAsRead(int id) async {
@@ -31,5 +34,7 @@ class NotifikacijaProvider extends BaseProvider<Notifikacija> {
     if (!isValidResponse(response)) {
       throw Exception(utf8.decode(response.bodyBytes));
     }
+
+    await NotificationListenerDesktop.instance.refresh();
   }
 }

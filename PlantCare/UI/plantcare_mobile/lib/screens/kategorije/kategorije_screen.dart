@@ -4,7 +4,7 @@ import 'package:plantcare_mobile/models/kategorija_model.dart';
 import 'package:plantcare_mobile/providers/filter_provider.dart';
 import 'package:plantcare_mobile/providers/kategorija_provider.dart';
 import 'package:plantcare_mobile/screens/kategorije/posts_screen.dart';
-import 'package:provider/provider.dart'; // <-- Add this import
+import 'package:provider/provider.dart';
 
 class KategorijeScreen extends StatefulWidget {
   const KategorijeScreen({super.key});
@@ -57,9 +57,7 @@ class KategorijeScreenState extends State<KategorijeScreen> {
             child: HomeHeader(
               onNotificationsTap: _openNotifications,
               onFilterSelected: (_) {
-                setState(
-                  () {},
-                ); // ← ovo će osvježiti ekran i preuzeti novi filter
+                setState(() {});
               },
             ),
           ),
@@ -110,7 +108,7 @@ class KategorijeScreenState extends State<KategorijeScreen> {
                             MaterialPageRoute(
                               builder: (_) => PostsScreen(
                                 kategorija: kategorija,
-                                premiumFilter: selectedPremium, // ⬅️ dodaj ovo
+                                premiumFilter: selectedPremium,
                               ),
                             ),
                           );

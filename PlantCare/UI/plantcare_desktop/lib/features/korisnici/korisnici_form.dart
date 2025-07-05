@@ -166,7 +166,6 @@ class _KorisnikFormState extends State<KorisnikForm> {
       korisnickoImeError = null;
       emailError = null;
 
-      // 🔒 Backend validacija korisničkog imena i emaila
       final result = await provider.validateUsernameEmail(
         korisnickoIme: korisnickoImeController.text,
         email: emailController.text,
@@ -193,7 +192,6 @@ class _KorisnikFormState extends State<KorisnikForm> {
         return;
       }
 
-      // ✅ Insert ili update
       if (widget.korisnik == null) {
         await provider.insert(korisnikMap);
       } else {
@@ -513,15 +511,30 @@ class _KorisnikFormState extends State<KorisnikForm> {
           switch (label) {
             case "Ime":
             case "Prezime":
-            case "Email":
             case "Korisničko ime":
               if (length > 100) {
                 return "Max 100 karaktera";
               }
               break;
+            case "Email":
+              if (length > 100) {
+                return "Max 100 karaktera";
+              }
+              if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$').hasMatch(value.trim())) {
+                return "Unesite ispravan email";
+              }
+              break;
             case "Telefon":
               if (length > 20) return "Max 20 karaktera";
+
+              final pattern = r'^\d{3}-\d{3}-\d{3,4}$';
+              final regExp = RegExp(pattern);
+
+              if (!regExp.hasMatch(value.trim())) {
+                return "Validan format: 060-123-456";
+              }
               break;
+
             case "Šifra":
               if (widget.korisnik == null && length < 6) {
                 return "Minimalno 6 karaktera";
@@ -529,6 +542,7 @@ class _KorisnikFormState extends State<KorisnikForm> {
               if (length > 20) return "Max 20 karaktera";
               break;
           }
+
           return null;
         },
       ),

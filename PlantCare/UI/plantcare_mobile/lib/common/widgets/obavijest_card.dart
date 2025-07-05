@@ -37,13 +37,11 @@ class ObavijestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxWidth: 500, // 👈 max širina na velikim ekranima
-      ),
+      constraints: const BoxConstraints(maxWidth: 500),
       child: GestureDetector(
         onTap: () => _showDetails(context),
         child: Container(
-          width: double.infinity, // 👈 uzima širinu roditelja (centar u Column)
+          width: double.infinity,
           margin: const EdgeInsets.symmetric(vertical: 6),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(

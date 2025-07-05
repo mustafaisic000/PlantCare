@@ -19,7 +19,6 @@ public class KategorijaService : BaseCRUDService<
     {
     }
 
-    // Optional filter override (by Naziv)
     protected override IQueryable<Database.Kategorija> AddFilter(KategorijaSearchObject search, IQueryable<Database.Kategorija> query)
     {
         query = base.AddFilter(search, query);

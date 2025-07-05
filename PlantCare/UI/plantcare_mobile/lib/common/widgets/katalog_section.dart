@@ -24,7 +24,6 @@ class _KatalogSectionState extends State<KatalogSection> {
     final katalog = widget.katalog;
     final premiumFilter = context.watch<FilterProvider>().premium;
 
-    // 🔍 Filtriraj postove po premium filteru (true / false / null)
     final filtrirani = katalog.katalogPostovi.where((kp) {
       if (premiumFilter == null) return true;
       return kp.premium == premiumFilter;

@@ -151,11 +151,30 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
       final oldUsername = korisnik.korisnickoIme;
       final newUsername = updated.korisnickoIme;
+      final isUsernameChanged = oldUsername != newUsername;
+      final isPasswordChanged = lozinkaController.text.isNotEmpty;
 
       AuthProvider.korisnik = updated;
 
-      if (oldUsername != newUsername) {
+      if (isUsernameChanged || isPasswordChanged) {
         if (!mounted) return;
+
+        await showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text("Sigurnosna provjera"),
+            content: const Text(
+              "Promijenili ste korisničko ime ili lozinku. Radi sigurnosti, potrebno je da se ponovo prijavite.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text("U redu"),
+              ),
+            ],
+          ),
+        );
+
         AuthProvider.logout(context);
         if (!mounted) return;
         Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
@@ -203,6 +222,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
         if (label == "Email") {
           if (emailError != null) return emailError;
+          if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$').hasMatch(value!.trim())) {
+            return "Unesite ispravan email";
+          }
         }
 
         if (label == "Šifra" && value!.isNotEmpty && value.length < 6) {
@@ -212,6 +234,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         if (label == "Potvrda šifre" &&
             lozinkaController.text != potvrdaLozinkeController.text) {
           return "Šifre se ne poklapaju";
+        }
+
+        if (label == "Telefon") {
+          final pattern = r'^\d{3}-\d{3}-\d{3,4}$';
+          final regExp = RegExp(pattern);
+
+          if (!regExp.hasMatch(value!.trim())) {
+            return "Unesite validan broj telefona (npr. 060-123-456)";
+          }
         }
 
         return null;

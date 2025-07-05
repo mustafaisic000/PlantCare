@@ -5,7 +5,7 @@ class Komentar {
   final int korisnikId;
   final String korisnickoIme;
   final String postNaslov;
-  final int postId; // <-- dodaj ovo
+  final int postId;
 
   Komentar({
     required this.komentarId,
@@ -14,7 +14,7 @@ class Komentar {
     required this.korisnikId,
     required this.korisnickoIme,
     required this.postNaslov,
-    required this.postId, // <-- i ovdje
+    required this.postId,
   });
 
   factory Komentar.fromJson(Map<String, dynamic> json) {
@@ -27,7 +27,7 @@ class Komentar {
       korisnikId: json['korisnikId'] ?? 0,
       korisnickoIme: json['korisnickoIme'] ?? '',
       postNaslov: json['postNaslov'] ?? '',
-      postId: json['postId'] ?? 0, // <-- ovdje
+      postId: json['postId'] ?? 0,
     );
   }
 

@@ -44,15 +44,23 @@ public class UplataService
         var userName =   Context.Korisnici.Find(request.KorisnikId);
 
 
-        var objToInsert = new NotifikacijaInsertRequest
-        {
-            KoPrima = "Desktop",
-            KorisnikId = request.KorisnikId,
-            Naslov = "Nova uplata",
-            Sadrzaj = $"{userName!.KorisnickoIme} je postao/la premium korisnik"
-        };
+        var admini = Context.Korisnici
+     .Where(x => x.UlogaId == 1 && x.Status == true)
+     .ToList();
 
-         _servis.Insert(objToInsert);
+        foreach (var admin in admini)
+        {
+            var objToInsert = new NotifikacijaInsertRequest
+            {
+                KoPrima = "Desktop",
+                KorisnikId = admin.KorisnikId, 
+                Naslov = "Nova uplata",
+                Sadrzaj = $"{userName!.KorisnickoIme} je postao/la premium korisnik"
+            };
+
+            _servis.Insert(objToInsert);
+        }
+
 
         var entity = Mapper.Map<Database.Uplata>(request);
         entity.Datum = DateTime.Now; 

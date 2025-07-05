@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plantcare_desktop/common/widgets/sidebar_menu_item.dart';
 import 'package:plantcare_desktop/core/theme.dart';
-import 'package:signalr_core/signalr_core.dart';
+import 'package:plantcare_desktop/common/services/notification_listener_desktop.dart';
 
 class Sidebar extends StatefulWidget {
   final String selected;
@@ -18,43 +18,6 @@ class Sidebar extends StatefulWidget {
 }
 
 class _SidebarState extends State<Sidebar> {
-  late HubConnection _hubConnection;
-  String? latestPoruka;
-  int unreadCount = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _startSignalR();
-  }
-
-  Future<void> _startSignalR() async {
-    _hubConnection = HubConnectionBuilder()
-        .withUrl('http://localhost:6089/signalrHub')
-        .build();
-
-    _hubConnection.on('NovaPoruka', (arguments) {
-      if (arguments != null && arguments.isNotEmpty) {
-        final poruka = arguments.first.toString();
-
-        if (poruka == "Desktop") {
-          setState(() {
-            unreadCount++;
-            latestPoruka = poruka;
-          });
-        }
-      }
-    });
-
-    await _hubConnection.start();
-  }
-
-  @override
-  void dispose() {
-    _hubConnection.stop();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -111,17 +74,22 @@ class _SidebarState extends State<Sidebar> {
             isActive: widget.selected == 'obavijesti',
             onTap: () => widget.onItemSelected('obavijesti'),
           ),
-          SidebarMenuItem(
-            label: unreadCount > 0
-                ? 'Notifikacije ($unreadCount)'
-                : 'Notifikacije',
-            icon: Icons.notifications,
-            isActive: widget.selected == 'notifikacije',
-            onTap: () {
-              setState(() {
-                unreadCount = 0;
-              });
-              widget.onItemSelected('notifikacije');
+          AnimatedBuilder(
+            animation: NotificationListenerDesktop.instance,
+            builder: (context, _) {
+              final count = NotificationListenerDesktop.instance.unreadCount;
+              final label = count > 0
+                  ? 'Notifikacije ($count)'
+                  : 'Notifikacije';
+
+              return SidebarMenuItem(
+                label: label,
+                icon: Icons.notifications,
+                isActive: widget.selected == 'notifikacije',
+                onTap: () {
+                  widget.onItemSelected('notifikacije');
+                },
+              );
             },
           ),
           SidebarMenuItem(

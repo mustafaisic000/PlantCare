@@ -137,7 +137,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  // ovdje možeš prebaciti korisnika na premium ekran ako želiš
                 },
                 child: const Text('Saznaj više'),
               ),
@@ -151,8 +150,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
     return WillPopScope(
       onWillPop: () async {
-        Navigator.pop(context, _post); // vrati ažurirani post kad klikne nazad
-        return false; // spriječi default zatvaranje jer smo ga već zatvorili
+        Navigator.pop(context, _post);
+        return false;
       },
       child: Scaffold(
         appBar: AppBar(
@@ -170,9 +169,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             children: [
               SizedBox(
                 width: double.infinity,
-                height:
-                    MediaQuery.of(context).size.height *
-                    0.45, // ~45% visine ekrana
+                height: MediaQuery.of(context).size.height * 0.45,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.memory(
@@ -332,110 +329,137 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           child: SafeArea(
             child: StatefulBuilder(
               builder: (context, setLocalState) {
-                return Row(
+                final int currentLength = _komentarController.text
+                    .trim()
+                    .length;
+                final bool overLimit = currentLength > 350;
+                final bool isEmpty = _komentarController.text.trim().isEmpty;
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _komentarController,
-                        maxLength: 200,
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          hintText: 'Dodaj komentar...',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 14,
-                          ),
-                          counterText: '', // onemogućimo default prikaz
+                    if (overLimit)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          "Komentar može sadržavati maksimalno 350 karaktera.",
+                          style: TextStyle(color: Colors.red, fontSize: 13),
                         ),
-                        buildCounter:
-                            (
-                              BuildContext context, {
-                              required int currentLength,
-                              required bool isFocused,
-                              required int? maxLength,
-                            }) {
-                              return Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 4,
-                                  right: 4,
-                                ),
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    '$currentLength/200',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: currentLength > 200
-                                          ? Colors.red
-                                          : Colors.grey,
+                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _komentarController,
+                            maxLength: 500,
+                            maxLines: null,
+                            decoration: InputDecoration(
+                              hintText: 'Dodaj komentar...',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 14,
+                              ),
+                              counterText: '',
+                            ),
+                            buildCounter:
+                                (
+                                  BuildContext context, {
+                                  required int currentLength,
+                                  required bool isFocused,
+                                  required int? maxLength,
+                                }) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 4,
+                                      right: 4,
                                     ),
-                                  ),
-                                ),
-                              );
-                            },
-                        onChanged: (_) => setLocalState(() {}),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.arrow_upward_rounded,
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                        onPressed:
-                            _komentarController.text.trim().isEmpty ||
-                                _komentarController.text.length > 200
-                            ? null
-                            : () async {
-                                final tekst = _komentarController.text.trim();
-                                try {
-                                  final inserted = await _komentarProvider
-                                      .insert({
-                                        'sadrzaj': tekst,
-                                        'korisnikId':
-                                            AuthProvider.korisnik!.korisnikId!,
-                                        'postId': widget.post.postId,
-                                      });
-
-                                  _komentarController.clear();
-                                  FocusScope.of(context).unfocus();
-                                  final newKomentar = Komentar(
-                                    komentarId: inserted.komentarId,
-                                    sadrzaj: inserted.sadrzaj,
-                                    datumKreiranja: inserted.datumKreiranja,
-                                    korisnikId:
-                                        AuthProvider.korisnik!.korisnikId!,
-                                    korisnickoIme:
-                                        AuthProvider.korisnik!.korisnickoIme,
-                                    postNaslov: inserted.postNaslov,
-                                    postId: widget.post.postId,
-                                  );
-
-                                  _komentariKey.currentState
-                                      ?.addKomentarNaPocetak(newKomentar);
-                                  setState(() {});
-                                } catch (_) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        "Greška pri dodavanju komentara.",
+                                    child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        '$currentLength/350',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: currentLength > 350
+                                              ? Colors.red
+                                              : Colors.grey,
+                                        ),
                                       ),
                                     ),
                                   );
-                                }
-                              },
-                      ),
+                                },
+                            onChanged: (_) => setLocalState(() {}),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            color: (isEmpty || overLimit)
+                                ? Colors.grey
+                                : Theme.of(context).primaryColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.arrow_upward_rounded,
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                            onPressed: (isEmpty || overLimit)
+                                ? null
+                                : () async {
+                                    final tekst = _komentarController.text
+                                        .trim();
+
+                                    try {
+                                      final inserted = await _komentarProvider
+                                          .insert({
+                                            'sadrzaj': tekst,
+                                            'korisnikId': AuthProvider
+                                                .korisnik!
+                                                .korisnikId!,
+                                            'postId': widget.post.postId,
+                                          });
+
+                                      _komentarController.clear();
+                                      FocusScope.of(context).unfocus();
+
+                                      final newKomentar = Komentar(
+                                        komentarId: inserted.komentarId,
+                                        sadrzaj: inserted.sadrzaj,
+                                        datumKreiranja: inserted.datumKreiranja,
+                                        korisnikId:
+                                            AuthProvider.korisnik!.korisnikId!,
+                                        korisnickoIme: AuthProvider
+                                            .korisnik!
+                                            .korisnickoIme,
+                                        postNaslov: inserted.postNaslov,
+                                        postId: widget.post.postId,
+                                      );
+
+                                      _komentariKey.currentState
+                                          ?.addKomentarNaPocetak(newKomentar);
+                                      setState(() {});
+                                    } catch (_) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            "Greška pri dodavanju komentara.",
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 );

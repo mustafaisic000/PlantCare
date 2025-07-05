@@ -3,6 +3,7 @@ import 'package:plantcare_desktop/models/notifikacija_model.dart';
 import 'package:plantcare_desktop/providers/notifikacija_provider.dart';
 import 'package:plantcare_desktop/common/widgets/notification_card.dart';
 import 'package:signalr_core/signalr_core.dart';
+import 'package:plantcare_desktop/common/services/notification_listener_desktop.dart';
 
 class NotifikacijeScreen extends StatefulWidget {
   const NotifikacijeScreen({super.key});
@@ -15,6 +16,7 @@ class _NotifikacijeScreenState extends State<NotifikacijeScreen> {
   final NotifikacijaProvider _provider = NotifikacijaProvider();
   List<Notifikacija> _notifikacije = [];
   late HubConnection _hubConnection;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -24,25 +26,35 @@ class _NotifikacijeScreenState extends State<NotifikacijeScreen> {
   }
 
   Future<void> loadData() async {
+    if (_isLoading) return;
+    _isLoading = true;
+
     final result = await _provider.get(filter: {'koPrima': 'Desktop'});
+
+    if (!mounted) return;
+
     setState(() {
       _notifikacije = result.result;
     });
+
+    _isLoading = false;
   }
 
   Future<void> _startSignalR() async {
     _hubConnection = HubConnectionBuilder()
         .withUrl('http://localhost:6089/signalrHub')
+        .withAutomaticReconnect()
         .build();
 
-    _hubConnection.on('NovaPoruka', (arguments) {
+    _hubConnection.on('NovaPoruka', (arguments) async {
       if (arguments != null && arguments.isNotEmpty) {
         final poruka = arguments.first.toString();
 
         if (poruka == "Desktop") {
-          setState(() async {
-            await loadData();
-          });
+          // 🕒 Kratko čekanje kako bi backend završio upis
+          await Future.delayed(const Duration(milliseconds: 300));
+          await loadData();
+          await NotificationListenerDesktop.instance.refresh();
         }
       }
     });
@@ -78,12 +90,19 @@ class _NotifikacijeScreenState extends State<NotifikacijeScreen> {
           context,
         ).showSnackBar(const SnackBar(content: Text("Notifikacija obrisana.")));
         await loadData();
+        await NotificationListenerDesktop.instance.refresh();
       } catch (e) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Greška: ${e.toString()}")));
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _hubConnection.stop();
+    super.dispose();
   }
 
   @override
@@ -96,6 +115,7 @@ class _NotifikacijeScreenState extends State<NotifikacijeScreen> {
         final notifikacija = _notifikacije[index];
         return NotificationCard(
           notifikacija: notifikacija,
+          onRefresh: loadData,
           onDelete: () => _deleteNotifikacija(notifikacija.notifikacijaId),
         );
       },

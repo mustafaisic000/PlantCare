@@ -48,7 +48,7 @@ class KomentariSectionState extends State<KomentariSection> {
           _komentari = result.result;
           _page = 1;
         } else {
-          _komentari.addAll(result.result); // Dodaj na kraj za "prikaži još"
+          _komentari.addAll(result.result);
           _page++;
         }
 
@@ -93,7 +93,7 @@ class KomentariSectionState extends State<KomentariSection> {
             return KomentarCard(
               komentar: _komentari[index],
               postOwnerId: widget.postOwnerId,
-              onDelete: refreshKomentari, // ako želiš automatski refresh
+              onDelete: refreshKomentari,
             );
           },
         ),

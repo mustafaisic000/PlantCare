@@ -11,10 +11,10 @@ using PlantCare.Services.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Logging.ClearProviders();        // (opcionalno, ako želiš samo konzolu)
-builder.Logging.AddConsole();            // ✅ Ovo omogućava logove u Dockeru
+builder.Logging.ClearProviders();        
+builder.Logging.AddConsole();          
 
-// ── 1) Register your application services as transient
+
 builder.Services.AddTransient<IKorisnikService, KorisnikService>();
 builder.Services.AddTransient<IUlogaService, UlogaService>();
 builder.Services.AddTransient<IKategorijaService, KategorijaService>();

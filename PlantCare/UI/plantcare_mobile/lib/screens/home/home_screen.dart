@@ -70,7 +70,7 @@ class HomeScreenState extends State<HomeScreen> {
             child: HomeHeader(
               onNotificationsTap: openNotifications,
               onFilterSelected: (_) {
-                setState(() {}); // zbog kataloga
+                setState(() {});
               },
             ),
           ),

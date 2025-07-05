@@ -140,8 +140,8 @@ class _PostCardState extends State<PostCard> {
                     right: 8,
                     child: IconButton(
                       icon: Icon(
-                        isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: isFavorite ? Colors.red : Colors.white,
+                        isFavorite ? Icons.star : Icons.star_border,
+                        color: isFavorite ? Colors.amber : Colors.white,
                       ),
                       onPressed: _toggleFavorite,
                     ),

@@ -1,5 +1,4 @@
-﻿// PlantCare.Services/IKategorijaService.cs
-using PlantCare.Model;
+﻿using PlantCare.Model;
 using PlantCare.Model.DTO;
 using PlantCare.Model.Requests;
 using PlantCare.Model.SearchObjects;

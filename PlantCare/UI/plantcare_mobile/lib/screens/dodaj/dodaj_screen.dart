@@ -188,14 +188,18 @@ class DodajPostScreenState extends State<DodajPostScreen> {
       premium = false;
       subkategorijaId = null;
       showSlikaError = false;
-      _autoValidateMode = AutovalidateMode.disabled; // 👈 Ovdje resetuješ
+      _autoValidateMode = AutovalidateMode.disabled;
     });
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Uspješno"),
-        content: const Text("Post je uspješno objavljen!"),
+        content: Text(
+          widget.post == null
+              ? "Post je uspješno objavljen!"
+              : "Post je uspješno uređen!",
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -210,8 +214,8 @@ class DodajPostScreenState extends State<DodajPostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Dodaj"),
-        automaticallyImplyLeading: false,
+        title: Text(widget.post == null ? "Dodaj" : "Uredi"),
+        automaticallyImplyLeading: widget.post != null,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -227,6 +231,7 @@ class DodajPostScreenState extends State<DodajPostScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
               const SizedBox(height: 24),
               _buildImage(),
               const SizedBox(height: 24),
@@ -253,7 +258,7 @@ class DodajPostScreenState extends State<DodajPostScreen> {
               TextFormField(
                 controller: _sadrzajController,
                 maxLines: 4,
-                maxLength: 250,
+                maxLength: 350,
                 decoration: const InputDecoration(
                   labelText: "Opis",
                   counterText: "",
@@ -261,13 +266,13 @@ class DodajPostScreenState extends State<DodajPostScreen> {
                 validator: (value) {
                   if (value == null || value.trim().isEmpty)
                     return "Unesite opis";
-                  if (value.length > 250) return "Maksimalno 250 karaktera";
+                  if (value.length > 350) return "Maksimalno 350 karaktera";
                   return null;
                 },
               ),
               Align(
                 alignment: Alignment.centerRight,
-                child: Text("${_sadrzajController.text.length} / 250"),
+                child: Text("${_sadrzajController.text.length} / 350"),
               ),
               const SizedBox(height: 16),
               Column(
@@ -308,7 +313,7 @@ class DodajPostScreenState extends State<DodajPostScreen> {
                   foregroundColor: Colors.white,
                   minimumSize: const Size.fromHeight(50),
                 ),
-                child: const Text("Objavi"),
+                child: Text(widget.post == null ? "Objavi" : "Spasi izmjene"),
               ),
             ],
           ),

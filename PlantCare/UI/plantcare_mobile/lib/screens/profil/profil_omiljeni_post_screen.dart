@@ -39,7 +39,6 @@ class _ProfilOmiljeniPostScreenState extends State<ProfilOmiljeniPostScreen> {
       final allPostIds = favs.result.map((e) => e.postId).toList();
       final allPosts = <Post>[];
 
-      // FTS filter se primjenjuje ručno nakon fetcha
       for (int postId in allPostIds) {
         final post = await _postProvider.getById(postId);
         if (_searchText.isEmpty ||

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plantcare_mobile/models/korisnici_model.dart';
 import 'package:plantcare_mobile/providers/auth_provider.dart';
 import 'package:plantcare_mobile/providers/korisnici_provider.dart';
-import 'package:plantcare_mobile/providers/util.dart'; // imageFromString
+import 'package:plantcare_mobile/providers/util.dart';
 
 class ProfileDetailScreen extends StatefulWidget {
   const ProfileDetailScreen({super.key});
@@ -27,7 +27,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
       final result = await _provider.getById(id);
       setState(() {
         korisnik = result;
-        AuthProvider.korisnik = result; // osvježi globalno
+        AuthProvider.korisnik = result;
       });
     }
   }

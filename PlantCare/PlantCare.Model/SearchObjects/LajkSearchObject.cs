@@ -8,7 +8,7 @@ namespace PlantCare.Model.SearchObjects;
 
 public class LajkSearchObject : BaseSearchObject
 {
-    public int? PostId { get; set; }        // svi lajkovi na određeni post
-    public int? KorisnikId { get; set; }    // svi lajkovi koje je dao određeni korisnik
+    public int? PostId { get; set; }        
+    public int? KorisnikId { get; set; }   
   
 }

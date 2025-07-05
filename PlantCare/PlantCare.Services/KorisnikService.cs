@@ -162,8 +162,6 @@ namespace PlantCare.Services
             var user = await Context.Korisnici.FindAsync(id);
             if (user == null)
                 throw new KeyNotFoundException("Korisnik nije pronađen.");
-
-            // Provjera korisničkog imena ako se mijenja
             if (!string.IsNullOrWhiteSpace(req.KorisnickoIme) && req.KorisnickoIme != user.KorisnickoIme)
             {
                 if (Context.Korisnici.Any(x => x.KorisnickoIme == req.KorisnickoIme && x.KorisnikId != id))
@@ -265,20 +263,26 @@ namespace PlantCare.Services
 
         public override Model.Korisnik Insert(KorisnikInsertRequest request)
         {
-            // Prvo koristi baznu metodu koja poziva BeforeInsert i mapira entitet
             var entity = base.Insert(request);
 
-            // Napravi notifikaciju
-            var insertObj = new NotifikacijaInsertRequest
-            {
-                KorisnikId = entity.KorisnikId,
-                Naslov = "Novi korisnik",
-                Sadrzaj = $"{entity.KorisnickoIme} se pridružio/la platformi.",
-                KoPrima = "Desktop"
-            };
-            _notificationservice.Insert(insertObj);
+            var admini = Context.Korisnici
+     .Where(x => x.UlogaId == 1 && x.Status == true)
+     .ToList();
 
-            // Pošalji email
+            foreach (var admin in admini)
+            {
+                var insertObj = new NotifikacijaInsertRequest
+                {
+                    KorisnikId = admin.KorisnikId, // 👈 ADMIN je primalac
+                    Naslov = "Novi korisnik",
+                    Sadrzaj = $"{entity.KorisnickoIme} se pridružio/la platformi.",
+                    KoPrima = "Desktop"
+                };
+
+                _notificationservice.Insert(insertObj);
+            }
+
+
             var emailObj = new Notifier
             {
                 Email = entity.Email!,
@@ -293,13 +297,6 @@ namespace PlantCare.Services
 
             return entity;
         }
-
-
-
-
-
-
-        //helper
         private static string GenerateSalt()
         {
             var buff = new byte[16];
@@ -346,7 +343,7 @@ namespace PlantCare.Services
             if (user == null)
                 throw new KeyNotFoundException("Korisnik nije pronađen.");
 
-            user.UlogaId = 2; // Premium
+            user.UlogaId = 2; 
             await Context.SaveChangesAsync();
 
             return Mapper.Map<Model.Korisnik>(user);

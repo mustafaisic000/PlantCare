@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:plantcare_desktop/core/theme.dart';
 import 'package:plantcare_desktop/features/auth/login_screen.dart';
 import 'package:plantcare_desktop/features/workspace/workspace_screen.dart';
+import 'package:plantcare_desktop/common/services/notification_listener_desktop.dart'; // dodaj ovo
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationListenerDesktop.instance.init();
+
   runApp(const MyApp());
 }
 
@@ -19,8 +23,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         '/login': (context) => const LoginScreen(),
-        '/home': (context) =>
-            const WorkspaceScreen(), // ✅ Centralni ekran za sve sekcije
+        '/home': (context) => const WorkspaceScreen(),
       },
     );
   }
