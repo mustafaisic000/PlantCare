@@ -7,11 +7,13 @@ import 'package:provider/provider.dart';
 class HomeHeader extends StatefulWidget {
   final VoidCallback onNotificationsTap;
   final Function(String) onFilterSelected;
+  final VoidCallback onTransakcijeTap;
 
   const HomeHeader({
     super.key,
     required this.onNotificationsTap,
     required this.onFilterSelected,
+    required this.onTransakcijeTap,
   });
 
   @override
@@ -91,6 +93,11 @@ class _HomeHeaderState extends State<HomeHeader> {
               ),
               Row(
                 children: [
+                  IconButton(
+                    icon: const Icon(Icons.account_balance_wallet_outlined),
+                    tooltip: "Transakcije",
+                    onPressed: widget.onTransakcijeTap,
+                  ),
                   Stack(
                     children: [
                       IconButton(

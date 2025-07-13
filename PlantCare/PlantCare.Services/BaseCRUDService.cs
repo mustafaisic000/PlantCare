@@ -31,7 +31,7 @@ namespace PlantCare.Services
            
         }
 
-        public virtual void AfterInsert(TDbEntity entity) //before insert gdje cu override password da se generise hash i salt
+        public virtual void AfterInsert(TDbEntity entity) 
         {
 
         }

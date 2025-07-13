@@ -6,10 +6,12 @@ import 'package:plantcare_mobile/screens/auth/register_screen.dart';
 import 'package:plantcare_mobile/screens/auth/start_screen.dart';
 import 'package:plantcare_mobile/screens/home/notifications_screen.dart';
 import 'package:plantcare_mobile/screens/main_screen.dart';
+import 'package:plantcare_mobile/screens/transakcija/FrmTransakcije25062025NewScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:plantcare_mobile/providers/filter_provider.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:plantcare_mobile/.env';
+import 'package:plantcare_mobile/screens/transakcija/FrmTransakcije25062025Screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +32,7 @@ class PlantCareApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("Rendering StartScreen...");
     return MaterialApp(
       title: 'PlantCare Mobile',
       debugShowCheckedModeBanner: false,
@@ -41,6 +44,8 @@ class PlantCareApp extends StatelessWidget {
         '/register': (context) => const RegisterScreen(),
         '/main': (context) => const MainScreen(),
         '/notifications': (context) => const NotificationsScreen(),
+        '/transakcije': (context) => const FrmTransakcije25062025Screen(),
+        '/newTransakcije': (context) => const FrmTransakcije25062025NewScreen(),
       },
     );
   }

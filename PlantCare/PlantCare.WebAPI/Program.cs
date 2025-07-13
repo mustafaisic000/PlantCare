@@ -29,6 +29,10 @@ builder.Services.AddTransient<ILajkService, LajkService>();
 builder.Services.AddTransient<IKomentarService, KomentarService>();
 builder.Services.AddTransient<IKatalogPostService, KatalogPostService>();
 builder.Services.AddTransient<IKatalogService, KatalogService>();
+builder.Services.AddTransient<IKategorijaTransakcije25062025Service, KategorijaTransakcije25062025Service>();
+builder.Services.AddTransient<ITransakcija25062025Service, Transakcija25062025Service>();
+builder.Services.AddTransient<ITransakcijeLog25062025Service, TransakcijeLog25062025Service>();
+builder.Services.AddTransient<IFinansijskiLimit25062025Service, FinansijskiLimit25062025Service>();
 
 builder.Services.AddTransient<IEmailService, EmailService>();
 
@@ -103,10 +107,11 @@ app.MapControllers();
 
 app.MapHub<NotifikacijaHub>("/signalrHub");
 
-
+/*
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<PlantCareContext>();
     dbContext.Database.Migrate(); // Apply any pending migrations
 }
+*/
 app.Run();

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PlantCare.Model.DTO.Enum;
 using PlantCare.Services.Database;
 using PlantCare.Services.Helper;
 using System;
@@ -30,6 +31,11 @@ public partial class PlantCareContext: DbContext
     public DbSet<Uplata> Uplate { get; set; }
     public DbSet<KatalogPost> KatalogPostovi { get; set; }
     public DbSet<OmiljeniPost> OmiljeniPostovi { get; set; }
+    public DbSet<KategorijaTransakcije25062025> Kategorije25062025 { get; set; }
+    public DbSet<Transakcija25062025> Transakcije25062025 { get; set; }
+    public DbSet<FinansijskiLimit25062025> Limiti25062025 { get; set; }
+    public DbSet<TransakcijeLog25062025> TransakcijeLog25062025 { get; set; }
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -646,6 +652,18 @@ public partial class PlantCareContext: DbContext
             // Najljepša ruža
             new KatalogPost { KatalogPostId = 8, KatalogId = 4, PostId = 5 } // Post o vašima na ruži
 );
+        modelBuilder.Entity<KategorijaTransakcije25062025>().HasData(
+              new KategorijaTransakcije25062025 { KategorijaTransakcije25062025Id = 1, NazivKategorije = "Hrana", Tip = TipKategorijeTransakcije.Rashod.ToString() },
+              new KategorijaTransakcije25062025 { KategorijaTransakcije25062025Id = 2, NazivKategorije = "Prevoz", Tip = TipKategorijeTransakcije.Rashod.ToString() }
+);
+        modelBuilder.Entity<Transakcija25062025>().HasData(
+            new Transakcija25062025 { Transakcija25062025Id = 1, KorisnikId = 2, Iznos = 100, DatumTransakcije = new DateTime(2025, 06, 06), Opis = "Test", KategorijaTransakcije25062025Id = 1, Status = StatusTransakcije.Planirano.ToString() },
+            new Transakcija25062025 { Transakcija25062025Id = 2, KorisnikId = 2, Iznos = 100, DatumTransakcije = new DateTime(2025, 06, 06), Opis = "Test 1", KategorijaTransakcije25062025Id = 2, Status = StatusTransakcije.Planirano.ToString() }
+      );
+        modelBuilder.Entity<FinansijskiLimit25062025>().HasData(
+             new FinansijskiLimit25062025 { FinansijskiLimit25062025Id = 1, KategorijaTransakcije25062025Id = 1, Limit = 300, KorisnikId = 2 },
+             new FinansijskiLimit25062025 { FinansijskiLimit25062025Id = 2, KategorijaTransakcije25062025Id = 2, Limit = 300, KorisnikId = 2 }
+      );
 
 
     }

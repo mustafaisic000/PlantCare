@@ -61,6 +61,10 @@ class HomeScreenState extends State<HomeScreen> {
     Navigator.pushNamed(context, '/notifications');
   }
 
+  void otvoriTransakcije() {
+    Navigator.pushNamed(context, '/transakcije');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,6 +72,7 @@ class HomeScreenState extends State<HomeScreen> {
         children: [
           SafeArea(
             child: HomeHeader(
+              onTransakcijeTap: otvoriTransakcije,
               onNotificationsTap: openNotifications,
               onFilterSelected: (_) {
                 setState(() {});
